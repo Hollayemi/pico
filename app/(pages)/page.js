@@ -137,7 +137,7 @@ const LandingPage = () => {
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-3 px-8 md:px-0">
+                    <div className="flex flex-col sm:flex-row gap-3 md:px-8">
                       {card.buttons.map((button, index) => (
                         <button
                           key={index}
