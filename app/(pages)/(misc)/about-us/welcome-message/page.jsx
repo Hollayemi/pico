@@ -3,7 +3,11 @@ import React from 'react'
 
 const WelcomeMessage = () => {
     return (
-        <HomeWrapper miniSlider title="Welcome Message From The School">
+        <HomeWrapper
+            miniSlider
+            title="Welcome Message From The School"
+            sliderImages="aboutUs"
+        >
             WelcomeMessage
         </HomeWrapper>
     )
