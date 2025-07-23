@@ -1,11 +1,49 @@
+"use client"
 import Image from "next/image";
 import HomeWrapper from "../components/wrapper";
 import Button from "../components/Form/Button";
-import { majorCards, stats } from "../content/landingPage";
+import { majorCards, schoolSlides, stats } from "../content/landingPage";
+import { useEffect, useState } from "react";
+import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
+import SocialMediaFeed from "../components/post/post";
+import SlideDisplay from "../components/slider/slider";
+
 const LandingPage = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [autoPlay, setAutoPlay] = useState(true);
+
+  // Auto-advance slides
+  useEffect(() => {
+    if (autoPlay && !isPlaying) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % schoolSlides.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [autoPlay, isPlaying, schoolSlides.length]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % schoolSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + schoolSlides.length) % schoolSlides.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+    setAutoPlay(false);
+  };
+
+  const currentSlideData = schoolSlides[currentSlide];
 
   return (
-    <HomeWrapper>
+    <HomeWrapper isHome={true}>
       <section className="bg-gradient-to-br from-purple-50 to-brand-50">
 
         <div className="relative h-[90vh]">
@@ -122,10 +160,10 @@ const LandingPage = () => {
                 key={card.id}
                 className="group relative h-84 md:h-80 rounded-lg overflow-hidden shadow-lg cursor-pointer transform transition-transform duration-300 hover:scale-105"
               >
-                <img src={card.backgroundImage} className="absolute top-0 left-0 h-full w-full object-cover object-right-top md:object-top" />
+                <img src={card.backgroundImage} alt="bg" className="absolute top-0 left-0 h-full w-full object-cover object-right-top md:object-top" />
 
                 <div className="absolute inset-1 md:inset-3 z-40 transform md:translate-y-[85%] md:group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                  <div className={`w-full h-full ${card.backgroundColor} opacity-88 py-3 px-4 md:px-8 flex flex-col justify-between`}>
+                  <div className={`w-full h-full ${card.backgroundColor} opacity-88 py-3 px-4 md:px-5 flex flex-col justify-between`}>
                     {/* Title (in hover state) */}
                     <div>
                       <h3 className="text-white text-2xl font-bold mb-6 text-center">{card.title}</h3>
@@ -137,11 +175,11 @@ const LandingPage = () => {
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-3 md:px-8">
+                    <div className="flex flex-col sm:flex-row w-full gap-3 md:px-8">
                       {card.buttons.map((button, index) => (
                         <button
                           key={index}
-                          className={`px-6 py-3 rounded-md font-medium text-sm transition-all duration-200 ${button.style} flex-1`}
+                          className={`px-6 py-3 min-w-fit rounded-md font-medium text-sm transition-all duration-200 ${button.style} flex-1`}
                         >
                           {button.text}
                         </button>
@@ -159,6 +197,11 @@ const LandingPage = () => {
       </section>
 
 
+      <SlideDisplay />
+
+      <section>
+        <SocialMediaFeed />
+      </section>
     </HomeWrapper>
   );
 };
