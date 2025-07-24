@@ -6,6 +6,8 @@ import Button from '@/app/components/Form/Button';
 import RenderStage1 from './components/stages/stage1';
 import useApplicationForm from '@/app/hook/application';
 import RenderStage2 from './components/stages/stage2';
+import RenderStage3 from './components/stages/stage3';
+import RenderStage4 from './components/stages/stage4';
 
 
 const Input = ({ className, ...props }) => (
@@ -58,14 +60,11 @@ const classOptions = [
 export default function ApplicationForm() {
     const {
         handleInputChange,
+        handleFileChange,
         handleNext,
         handlePrevious,
-        handleSubmit,
-        validateCurrentStage,
         handleVaccinationChange,
-        setCurrentStage,
-        setErrors,
-        setFormData,
+        handleSubmit,
 
         // data
         formData,
@@ -136,11 +135,26 @@ export default function ApplicationForm() {
                     renderErrorMessage={renderErrorMessage}
                     handleInputChange={handleInputChange}
                 />}
+                {currentStage == 3 && <RenderStage3
+                    formData={formData}
+                    errors={errors}
+                    renderErrorMessage={renderErrorMessage}
+                    handleInputChange={handleInputChange}
+                    handleVaccinationChange={handleVaccinationChange}
+                />}
+
+                {currentStage == 4 && <RenderStage4
+                    formData={formData}
+                    renderErrorMessage={renderErrorMessage}
+                    handleInputChange={handleInputChange}
+                    handleFileChange={handleFileChange}
+                />}
 
 
                 <div className='flex justify-between items-center py-5'>
                     <Button className="w-32 py-3" variant={currentStage === 1 ? "disabled" : "primary"} onClick={handlePrevious} disabled={currentStage === 1} title="Previoud" />
-                    <Button className="w-32 py-3" onClick={handleNext} title="Next" />
+                    {currentStage !== 4 && <Button className="w-32 py-3" onClick={handleNext} title="Next" />}
+                    {currentStage === 4 && <Button className="w-32 py-3" onClick={handleSubmit} title="Submit" />}
                 </div>
 
             </div>
