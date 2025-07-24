@@ -195,7 +195,7 @@ const Footer = () => {
                 </div>
 
                 {/* Bottom Section */}
-                <div className="bg-black bg-opacity-50 py-8">
+                <div className="bg-gradient-to-br from-brand-800 via-brand-900 to-brand-800 py-8">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="flex flex-col md:flex-row justify-between items-center">
 

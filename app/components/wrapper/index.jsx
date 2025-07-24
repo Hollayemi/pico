@@ -3,11 +3,11 @@ import Header from './header'
 import Footer from './footer'
 import SlideDisplay from '../slider/slider'
 
-export const HomeWrapper = ({ children, isHome, miniSlider }) => {
+export const HomeWrapper = ({ children, miniSlider, title }) => {
     return (
         <div>
-            <Header isHome={isHome} />
-            {miniSlider && <SlideDisplay noContent />}
+            <Header isHome={!miniSlider} />
+            {miniSlider && <SlideDisplay noContent pageTitle={title} />}
             {children}
             <Footer />
         </div>
