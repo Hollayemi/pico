@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { Calculator, Download, CreditCard, Calendar, Info, CheckCircle } from 'lucide-react';
 import HomeWrapper from '@/app/components/wrapper';
 import { feeStructure, paymentPlans, classOptions } from '@/app/content/tuition';
+import { useRouter } from 'next/navigation'
 
 export default function TuitionFees() {
+        const router = useRouter()
     const [selectedClass, setSelectedClass] = useState('');
     const [paymentPlan, setPaymentPlan] = useState('full');
 
@@ -55,7 +57,7 @@ export default function TuitionFees() {
                 </div>
 
                 {/* Fee Calculator */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                <div className="bg-white rounded-lg  border border-gray-200 p-6 mb-8">
                     <div className="flex items-center mb-6">
                         <Calculator className="w-6 h-6 text-brand-600 mr-3" />
                         <h2 className="text-xl font-semibold text-brand-700">Fee Calculator</h2>
@@ -155,7 +157,7 @@ export default function TuitionFees() {
                 {/* Payment Plans Details */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {paymentPlans.map((plan, index) => (
-                        <div key={plan.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div key={plan.id} className="bg-white rounded-lg  border border-gray-200 overflow-hidden">
                             <div className={`bg-brand-${index === 0 ? 'success' : index === 1 ? 'warning' : 'info'}-50 px-6 py-4 border-l-4 border-brand-${index === 0 ? 'success' : index === 1 ? 'warning' : 'info'}-400`}>
                                 <h3 className="text-lg font-semibold text-brand-700 flex items-center">
                                     <CreditCard className="w-5 h-5 mr-2" />
@@ -235,7 +237,7 @@ export default function TuitionFees() {
                 </div>
 
                 {/* Payment Methods */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                <div className="bg-white rounded-lg  border border-gray-200 p-6 mb-8">
                     <h3 className="text-lg font-semibold text-brand-700 mb-4 flex items-center">
                         <Calendar className="w-5 h-5 mr-2" />
                         Accepted Payment Methods
@@ -274,7 +276,7 @@ export default function TuitionFees() {
                         Start the application process today and choose the payment plan that works best for your family.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                        <button onClick={() => router.push("/admissions/apply")} className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
                             Apply Now
                         </button>
                         <button className="border border-brand-600 text-brand-600 hover:bg-brand-50 px-8 py-3 rounded-lg font-medium transition-colors flex items-center justify-center">

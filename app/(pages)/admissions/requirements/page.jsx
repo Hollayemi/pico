@@ -2,85 +2,11 @@
 import React from 'react';
 import { CheckCircle, FileText, Users, Heart, GraduationCap, Phone } from 'lucide-react';
 import HomeWrapper from '@/app/components/wrapper';
+import { useRouter } from 'next/navigation'
+import { requirementSections, importantNotes } from "@/app/content/application"
 
 export default function ApplicationRequirements() {
-    const requirementSections = [
-        {
-            title: "Personal Information",
-            icon: <Users className="w-6 h-6" />,
-            color: "brand-primary",
-            items: [
-                "Full name (surname, first name, middle name)",
-                "Date of birth and gender",
-                "Blood group and genotype",
-                "Nationality, state of origin, and local government",
-                "Preferred schooling option"
-            ]
-        },
-        {
-            title: "Parents' Details",
-            icon: <Users className="w-6 h-6" />,
-            color: "brand-secondary",
-            items: [
-                "Father's full details (name, occupation, addresses)",
-                "Mother's full details (name, occupation, addresses)",
-                "Contact information (phone, WhatsApp, email)",
-                "Office and home addresses for both parents"
-            ]
-        },
-        {
-            title: "Educational Background",
-            icon: <GraduationCap className="w-6 h-6" />,
-            color: "brand-accent",
-            items: [
-                "Previous schools attended (up to 3 schools)",
-                "Attendance dates for each school",
-                "Present class and desired class for admission",
-                "Academic records and reports"
-            ]
-        },
-        {
-            title: "Health Information",
-            icon: <Heart className="w-6 h-6" />,
-            color: "brand-success",
-            items: [
-                "Complete vaccination records",
-                "History of infectious diseases (if any)",
-                "Food allergies and dietary restrictions",
-                "Medical reports and health certificates"
-            ]
-        },
-        {
-            title: "Required Documents",
-            icon: <FileText className="w-6 h-6" />,
-            color: "brand-warning",
-            items: [
-                "Birth certificate (compulsory)",
-                "Former school report (compulsory)",
-                "Proof of payment (compulsory)",
-                "Immunization certificate",
-                "Medical report"
-            ]
-        },
-        {
-            title: "Contact & Communication",
-            icon: <Phone className="w-6 h-6" />,
-            color: "brand-info",
-            items: [
-                "Primary correspondence email address",
-                "How you learned about our school",
-                "Preferred communication method",
-                "Emergency contact information"
-            ]
-        }
-    ];
-
-    const importantNotes = [
-        "All compulsory fields marked with [compulsory] must be completed",
-        "Documents should be clear, legible scans or photos",
-        "Ensure all contact information is accurate and up-to-date",
-        "The correspondence email will be used for all official communication"
-    ];
+    const router = useRouter()
 
     return (
         <HomeWrapper miniSlider title="Application Requirements">
@@ -181,16 +107,15 @@ export default function ApplicationRequirements() {
                         </div>
                     </div>
                 </div>
-
                 {/* Call to Action */}
-                <div className="text-center bg-gradient-to-r from-brand-primary-50 to-brand-secondary-50 rounded-lg p-8">
+                <div className="text-center mb-10 bg-gradient-to-r from-brand-primary-50 to-brand-secondary-50 rounded-lg p-8">
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">
                         Ready to Apply?
                     </h3>
                     <p className="text-gray-600 mb-6">
                         Make sure you have reviewed all requirements and have the necessary documents ready.
                     </p>
-                    <button className="bg-brand-primary-600 hover:bg-brand-primary-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                    <button onClick={() => router.push("/admissions/apply")} className="bg-brand-primary-600 hover:bg-brand-primary-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
                         Start Application
                     </button>
                 </div>

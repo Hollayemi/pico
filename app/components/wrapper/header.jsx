@@ -13,7 +13,7 @@ const Header = ({ isHome }) => {
 
     useEffect(() => {
         const handdleRemove = (e) => {
-            if (clickOutRef.current && !clickOutRef.current.contains(e.target) || menuRef.current && !menuRef.current.contains(e.target)) {
+            if (clickOutRef.current && !clickOutRef.current.contains(e.target)) {
                 setActiveDropdown(null)
             }
         }
@@ -56,7 +56,8 @@ const Header = ({ isHome }) => {
             note: 'Discover campus life, academic offerings, and the unique facilities we provide. This section helps you imagine what daily life looks like as a student at our institution.',
             dropdown: [
                 { label: 'Academic Programs', href: '/experience/academics' },
-                { label: 'Student Life', href: '/experience/student-life' },
+                { label: 'Vocational Training', href: '/experience/vocational-trainings' },
+                 { label: 'Student Life', href: '/experience/student-life' },
                 { label: 'Facilities', href: '/experience/facilities' }
             ]
         },
@@ -103,7 +104,7 @@ const Header = ({ isHome }) => {
     };
 
     return (
-        <header className="w-full sticky top-0 z-50">
+        <header className="w-full sticky top-0 z-50"  ref={clickOutRef}>
             {/* Top Alert Bar */}
             <div className="bg-gradient-to-r from-brand-600 to-brand-700 text-white px-4 py-2 sticky z-50 top-0">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -154,7 +155,7 @@ const Header = ({ isHome }) => {
                             {/* Main Navigation - Desktop */}
                             <nav className="hidden lg:flex items-center space-x-5 mr-5">
                                 {navItems.map((item) => (
-                                    <div key={item.id} className="relative md:static group" ref={menuRef}>
+                                    <div key={item.id} className="relative md:static group" >
                                         <div
                                             className="flex items-center space-x-1 text-brand-700 font-medium cursor-pointer hover:text-brand-800 transition-colors duration-200"
                                             onClick={() => item.dropdown && toggleDropdown(item.id)}
@@ -170,7 +171,7 @@ const Header = ({ isHome }) => {
 
                                         {/* Dropdown Menu */}
                                         {item.dropdown && activeDropdown === item.id && (
-                                            <div ref={clickOutRef} className="absolute w-40 md:w-[90vw] flex items-start  h-fit md:h-80 top-full !left-0 mt-2 md:mt-4  bg-white rounded-md shadow-lg border md:border-none py-5 md:py-0 border-gray-200  ">
+                                            <div  className="absolute w-40 md:w-[90vw] flex items-start  h-fit md:h-80 top-full !left-0 mt-2 md:mt-4  bg-white rounded-md shadow-lg border md:border-none py-5 md:py-0 border-gray-200  ">
                                                 <div className='w-2/5 h-full hidden md:block bg-brand-800 text-white p-6'>
                                                     <h1 className='text-3xl font-black'>{item.label}</h1>
                                                     <h1 className='text-[16px] leading-9 font-normal mt-3'>{item.note}</h1>
