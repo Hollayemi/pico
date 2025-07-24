@@ -1,4 +1,4 @@
-const Modal = ({ isOpen, onClose, title, children, size = 'medium' }) => {
+const Modal = ({ isOpen, onClose, title, children, size = 'medium', className = "" }) => {
     if (!isOpen) return null;
 
     const sizeClasses = {
@@ -10,8 +10,8 @@ const Modal = ({ isOpen, onClose, title, children, size = 'medium' }) => {
 
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex min-h-screen items-center justify-center p-4">
-                <div className="fixed inset-0 bg-black bg-opacity-25" onClick={onClose}></div>
+            <div className={`flex min-h-screen items-center justify-center p-4 ${className}`}>
+                <div className="fixed inset-0 bg-brand-100 opacity-25" onClick={onClose}></div>
                 <div className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClasses[size]}`}>
                     <div className="flex items-center justify-between p-6 border-b">
                         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>

@@ -2,7 +2,7 @@
 const Button = ({
     children,
     onClick,
-    title,
+    title = "",
     isLoading = false,
     disabled = false,
     variant = 'primary',
@@ -13,10 +13,13 @@ const Button = ({
 
     const variants = {
         primary: 'bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500',
-        secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+        secondary: 'bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500',
+        primaryGhost: 'text-brand-600 bg-transparent hover:bg-brand-50 focus:ring-brand-500',
+        secondaryGhost: 'text-orange-600 bg-transparent hover:bg-orange-50 focus:ring-orange-500',
+        ghost: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
+        disabled: 'bg-gray-500 text-white hover:bg-gray-700 focus:ring-none',
         outline: 'border-2 border-brand-600 text-brand-600 bg-transparent hover:bg-brand-50 focus:ring-brand-500',
         outlineSecondary: 'border-2 border-gray-400 text-gray-700 bg-transparent hover:bg-gray-50 focus:ring-gray-400',
-        ghost: 'text-blue-600 bg-transparent hover:bg-blue-50 focus:ring-blue-500',
         danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
         success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500'
     };

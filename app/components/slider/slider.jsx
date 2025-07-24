@@ -4,7 +4,7 @@ import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { schoolSlides } from '@/app/content/landingPage';
 import Button from '../Form/Button';
 
-const SlideDisplay = ({ noContent }) => {
+const SlideDisplay = ({ noContent, pageTitle }) => {
     const [currentSlide, setCurrentSlide] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [autoPlay, setAutoPlay] = useState(true);
@@ -100,25 +100,34 @@ const SlideDisplay = ({ noContent }) => {
                     </div>
                 </div>
             </div>}
-            
 
-            
+            {pageTitle && <div className='w-80 h-40 border-t-5 z-30 absolute bottom-4 left-10 md:left-20 border-brand-600 p-5 px-10'>
+                <h2 className='text-2xl font-bold text-white text-center z-20 relative leading-9'>{pageTitle}</h2>
+                <div className="absolute inset-0 bg-brand-200 opacity-50" />
+            </div>}
+
+
+
+
+
 
 
             {/* Navigation Arrows */}
-            <button
-                onClick={prevSlide}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-brand-500 bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-200 backdrop-blur-sm"
-            >
-                <ChevronLeft className="w-6 h-6 text-white" />
-            </button>
+            {!noContent && <>
+                <button
+                    onClick={prevSlide}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-brand-500 bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-200 backdrop-blur-sm"
+                >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
 
-            <button
-                onClick={nextSlide}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20  bg-brand-500 bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-200 backdrop-blur-sm"
-            >
-                <ChevronRight className="w-6 h-6 text-white" />
-            </button>
+                <button
+                    onClick={nextSlide}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20  bg-brand-500 bg-opacity-20 hover:bg-opacity-30 rounded-full p-3 transition-all duration-200 backdrop-blur-sm"
+                >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                </button>
+            </>}
 
             {/* Slide Indicators */}
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">

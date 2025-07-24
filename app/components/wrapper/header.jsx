@@ -2,15 +2,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Search, Menu, X, ChevronDown } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 const Header = ({ isHome }) => {
   const clickOutRef = useRef(null);
+  const menuRef = useRef(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   useEffect(() => {
     const handdleRemove = (e) => {
-      if (clickOutRef.current && !clickOutRef.current.contains(e.target)) {
+      if (
+        (clickOutRef.current && !clickOutRef.current.contains(e.target)) ||
+        (menuRef.current && !menuRef.current.contains(e.target))
+      ) {
         setActiveDropdown(null);
       }
     };
@@ -42,6 +47,7 @@ const Header = ({ isHome }) => {
       href: "/admissions",
       note: "Explore how to apply, the requirements for enrollment, and tuition information. This section guides prospective students through the application and admission process step-by-step.",
       dropdown: [
+        { label: "Admissions", href: "/admissions" },
         { label: "Apply Now", href: "/admissions/apply" },
         { label: "Requirements", href: "/admissions/requirements" },
         { label: "Tuition & Fees", href: "/admissions/tuition" },
@@ -137,91 +143,72 @@ const Header = ({ isHome }) => {
         </div>
       </div>
 
-      {/* Main Header */}
-      <div className="bg-white md:opacity-95 hover:opacity-100 absolute z-50 top-10 w-full transition-colors shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex relative items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <Image
-                src="/images/progressLogo.png"
-                alt="schoolLogo"
-                width={200}
-                height={200}
-                className="w-14 "
-              />
-              <div className="flex flex-col">
-                <div className="text-sm text-brand-700 font-medium">
-                  Progress
-                </div>
-                <div className="text-sm text-brand-700 font-bold">
-                  Intellectual School
-                </div>
-                <div className="text-xs text-brand-700">Okeigbo</div>
-              </div>
-            </div>
+            {/* Main Header */}
+            <div className="bg-white md:opacity-95 hover:opacity-100 absolute z-50 top-10 w-full transition-colors shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 py-4">
+                    <div className="flex relative items-center justify-between">
+                        {/* Logo */}
+                        <div className="flex items-center space-x-3">
+                            <Image src="/images/progressLogo.png" alt="schoolLogo" width={200} height={200} className="w-14 " />
+                            <div className="flex flex-col">
+                                <div className="text-sm text-brand-700 font-medium">Progress</div>
+                                <div className="text-sm text-brand-700 font-bold">Intellectual School</div>
+                                <div className="text-xs text-brand-700">Okeigbo</div>
+                            </div>
+                        </div>
 
-            <div className="flex items-center  justify-between">
-              {/* Main Navigation - Desktop */}
-              <nav className="hidden lg:flex items-center space-x-5 mr-5">
-                {navItems.map((item) => (
-                  <div key={item.id} className="relative md:static group">
-                    <div
-                      className="flex items-center space-x-1 text-brand-700 font-medium cursor-pointer hover:text-brand-800 transition-colors duration-200"
-                      onClick={() => item.dropdown && toggleDropdown(item.id)}
-                    >
-                      <span className="text-[15px] font-bold">
-                        {item.label}
-                      </span>
-                      {item.dropdown && (
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            activeDropdown === item.id ? "rotate-180" : ""
-                          }`}
-                        />
-                      )}
+                        <div className='flex items-center  justify-between'>
+                            {/* Main Navigation - Desktop */}
+                            <nav className="hidden lg:flex items-center space-x-5 mr-5">
+                                {navItems.map((item) => (
+                                    <div key={item.id} className="relative md:static group">
+                                        <div
+                                            className="flex items-center space-x-1 text-brand-700 font-medium cursor-pointer hover:text-brand-800 transition-colors duration-200"
+                                            onClick={() => item.dropdown && toggleDropdown(item.id)}
+                                        >
+                                            <span className='text-[15px] font-bold'>{item.label}</span>
+                                            {item.dropdown && (
+                                                <ChevronDown
+                                                    className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === item.id ? 'rotate-180' : ''
+                                                        }`}
+                                                />
+                                            )}
+                                        </div>
+
+                                        {/* Dropdown Menu */}
+                                        {item.dropdown && activeDropdown === item.id && (
+                                            <div ref={clickOutRef} className="absolute w-40 md:w-[90vw] flex items-start  h-fit md:h-80 top-full !left-0 mt-2 md:mt-4  bg-white rounded-md shadow-lg border md:border-none py-5 md:py-0 border-gray-200  ">
+                                                <div className='w-2/5 h-full hidden md:block bg-brand-800 text-white p-6'>
+                                                    <h1 className='text-3xl font-black'>{item.label}</h1>
+                                                    <h1 className='text-[16px] leading-9 font-normal mt-3'>{item.note}</h1>
+                                                </div>
+                                                <div className='p-5'>
+                                                    {item.dropdown.map((dropdownItem, index) => (
+                                                        <a
+                                                            key={index}
+                                                            href={dropdownItem.href}
+                                                            className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-brand-700"
+                                                        >
+                                                            {dropdownItem.label}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </nav>
+
+                            {/* Donate Button */}
+                            <button className="hidden lg:block bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-md font-medium transition-colors duration-200">
+                                DONATE NOW
+                            </button>
+                        </div>
                     </div>
-
-                    {/* Dropdown Menu */}
-                    {item.dropdown && activeDropdown === item.id && (
-                      <div
-                        ref={clickOutRef}
-                        className="absolute w-40 md:w-[90vw] flex items-start z-30 h-fit md:h-80 top-full !left-0 mt-2  bg-white rounded-md shadow-lg border md:border-none py-5 md:py-0 border-gray-200  "
-                      >
-                        <div className="w-2/5 h-full hidden md:block bg-brand-800 text-white p-6">
-                          <h1 className="text-3xl font-black">{item.label}</h1>
-                          <h1 className="text-[16px] leading-9 font-normal mt-3">
-                            {item.note}
-                          </h1>
-                        </div>
-                        <div className="p-5">
-                          {item.dropdown.map((dropdownItem, index) => (
-                            <a
-                              key={index}
-                              href={dropdownItem.href}
-                              className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-brand-700"
-                            >
-                              {dropdownItem.label}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </nav>
-
-              {/* Donate Button */}
-              <button className="hidden lg:block bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-md font-medium transition-colors duration-200">
-                DONATE NOW
-              </button>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-      {/* {!isHome && <div className="h-18" />} */}
+            !isHome && <div className='h-16' />
 
-      {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
           <div className="px-4 py-4 space-y-4">
