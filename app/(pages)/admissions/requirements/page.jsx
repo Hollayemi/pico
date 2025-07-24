@@ -79,8 +79,8 @@ export default function ApplicationRequirements() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="text-center">
-                            <div className="bg-brand-primary-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                                <span className="text-brand-primary-600 font-bold">1</span>
+                            <div className="bg-brand-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                                <span className="text-brand-600 font-bold">1</span>
                             </div>
                             <h4 className="font-medium text-gray-800 mb-2">Prepare Documents</h4>
                             <p className="text-sm text-gray-600">
@@ -108,14 +108,14 @@ export default function ApplicationRequirements() {
                     </div>
                 </div>
                 {/* Call to Action */}
-                <div className="text-center mb-10 bg-gradient-to-r from-brand-primary-50 to-brand-secondary-50 rounded-lg p-8">
+                <div className="text-center mb-10 bg-gradient-to-r from-brand-50 to-brand-secondary-50 rounded-lg p-8">
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">
                         Ready to Apply?
                     </h3>
                     <p className="text-gray-600 mb-6">
                         Make sure you have reviewed all requirements and have the necessary documents ready.
                     </p>
-                    <button onClick={() => router.push("/admissions/apply")} className="bg-brand-primary-600 hover:bg-brand-primary-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                    <button onClick={() => router.push("/admissions/apply")} className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
                         Start Application
                     </button>
                 </div>

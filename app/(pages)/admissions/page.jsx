@@ -60,7 +60,7 @@ const Addmissions = () => {
                                 <p className="text-gray-700 leading-relaxed">
                                     If you have any questions, please feel free to contact us at{' '}
                                     <a
-                                        href="mailto:findyourself@tanenbaumchat.org"
+                                        href="mailto:admissions@progressschools.com"
                                         className="text-orange-500 hover:text-orange-600 font-medium underline"
                                     >
                                         admissions@progessschools.com
@@ -82,7 +82,7 @@ const Addmissions = () => {
                             </h1>
                             <p className="text-gray-700 leading-relaxed max-w-3xl mx-auto">
                                 Throughout the admissions process, we will get to know each other and we will assess how we can best support
-                                your child to ensure their success at TanenbaumCHAT. For more information on applying see below:
+                                your child to ensure their success at Progress Intellectual. For more information on applying see below:
                             </p>
                         </div>
                     </div>
