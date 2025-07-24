@@ -22,9 +22,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <meta charset="UTF-8" />
+        <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
 
         <title>Progress Intellectual Schools</title>
         <meta name="description" content="Progress Intellectual School is committed to providing a nurturing environment that fosters academic excellence and personal growth. Our curriculum focuses on developing well-rounded individuals who are equipped to make a positive impact on the world." />
