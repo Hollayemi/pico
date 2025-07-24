@@ -7,9 +7,10 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import SendInformation from './components/popUps'
 import { steps } from './components/steps'
+import { useRouter } from 'next/navigation'
 
 const Addmissions = () => {
-
+    const router = useRouter()
     const [openStep, setOpenStep] = useState('step1');
 
     const toggleStep = (step) => {
@@ -29,7 +30,7 @@ const Addmissions = () => {
                         {/* Navigation Buttons */}
                         <div className="flex flex-wrap justify-center gap-4">
                             <Button onClick={() => setModalOpen("send_information")} title="Send me information" variant='secondary' />
-                            <Button onClick={() => setModalOpen("addmission_portal")} title="  Admissions Portal" variant='secondary' />
+                            <Button onClick={() => router.push("/admissions/apply")} title="Apply Now" variant='secondary' />
                             <Button onClick={() => { }} title="Staff Login" variant='secondary' />
                         </div>
                     </div>

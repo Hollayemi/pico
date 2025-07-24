@@ -2,7 +2,7 @@ import { useState } from "react";
 import { stage1Schema, stage2Schema, stage3Schema, stage4Schema } from "../(pages)/admissions/apply/components/yup";
 
 const useApplicationForm = () => {
-    const [currentStage, setCurrentStage] = useState(2);
+    const [currentStage, setCurrentStage] = useState(4);
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         // Personal info (not in object form)
@@ -120,6 +120,10 @@ const useApplicationForm = () => {
         }
     };
 
+    const handleFileChange = (fieldName, file) => {
+        handleInputChange(fieldName, file, 'documents');
+    };
+
     const handleVaccinationChange = (vaccination, checked) => {
         setFormData(prev => ({
             ...prev,
@@ -225,6 +229,7 @@ const useApplicationForm = () => {
 
     return {
         handleInputChange,
+        handleFileChange,
         handleNext,
         handlePrevious,
         handleSubmit,

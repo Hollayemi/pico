@@ -201,7 +201,7 @@ const Header = ({ isHome }) => {
                 </div>
             </div>
 
-            {!isHome && <div className='h-16' />}
+            {!isHome && <div className='h-20 mb-2' />}
 
             {isMenuOpen && (
                 <div className="md:hidden bg-white border-t border-gray-200">
