@@ -1,3 +1,4 @@
+import { CheckCircle, FileText, Users, Heart, GraduationCap, Phone } from 'lucide-react';
 export const requirementSections = [
         {
             title: "Personal Information",
