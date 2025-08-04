@@ -164,13 +164,13 @@ const AlumniEventsPage = () => {
     return (
         <HomeWrapper miniSlider>
             {/* Hero Section */}
-            <section className="relative bg-gradient-to-b py-10">
-                <div className="relative max-w-7xl mx-auto px-6">
+            <section className="relative bg-gradient-to-b md:py-10">
+                <div className="relative max-w-7xl mx-auto px-2 md:px-6">
                     <div className="text-center">
                         <h1 className="text-2xl lg:text-4xl font-bold mb-4">
                             Alumni Events & Reunions
                         </h1>
-                        <p className="text-base md:text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
+                        <p className="text-sm md:text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
                             Reconnect, celebrate, and create new memories with your fellow alumni through our diverse calendar of events, reunions, and networking opportunities.
                         </p>
                     </div>
@@ -179,7 +179,7 @@ const AlumniEventsPage = () => {
 
             {/* Search and Filter Section */}
             <section className="py-4 bg-white border-b border-brand-100">
-                <div className="max-w-7xl mx-auto px-6">
+                <div className="max-w-7xl mx-auto px-2 md:px-6">
                     <div className="flex flex-row gap-2 md:gap-6 items-center justify-between">
                         <div className="flex-1 max-w-md">
                             <div className="relative">
@@ -233,11 +233,11 @@ const AlumniEventsPage = () => {
 
             {/* Featured Events */}
             <section className="py-16">
-                <div className="max-w-7xl mx-auto px-6">
-                    <h2 className="text-3xl font-bold text-brand-900 mb-8 text-center">Featured Events</h2>
+                <div className="max-w-7xl mx-auto px-3 md:px-6">
+                    <h2 className="text-base md:text-3xl font-bold text-brand-900 mb-8 text-center">Featured Events</h2>
                     <div className="grid lg:grid-cols-3 gap-8">
                         {filteredEvents.filter(event => event.featured).map((event) => (
-                            <div key={event.id} className="bg-white rounded-3xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 border border-brand-100">
+                            <div key={event.id} className="bg-white rounded-3xl shadow-xl  overflow-hidden hover:shadow-2xl transition-all duration-300 border border-brand-100">
                                 <div className="relative h-64">
                                     <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
                                     <div className="absolute top-4 left-4">
@@ -255,10 +255,10 @@ const AlumniEventsPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="p-8">
-                                    <h3 className="text-xl font-bold text-brand-900 mb-4">{event.title}</h3>
+                                <div className="p-3 md:p-8 pb-4">
+                                    <h3 className="md:text-xl font-bold text-brand-900 mb-2 md:mb-4">{event.title}</h3>
 
-                                    <div className="space-y-1.5 mb-6">
+                                    <div className="space-y-2 mb-6 text-sm md:text-base">
                                         <div className="flex items-center text-brand-600">
                                             <Calendar className="w-5 h-5 mr-3" />
                                             {formatDate(event.date)}
@@ -277,7 +277,7 @@ const AlumniEventsPage = () => {
                                         </div>
                                     </div>
 
-                                    <p className="text-brand-700 mb-6 leading-relaxed">{event.description}</p>
+                                    <p className="text-sm md:text-base text-brand-700 mb-6 leading-relaxed">{event.description}</p>
 
                                     <div className="flex flex-wrap gap-2 mb-6">
                                         {event.tags.map((tag, index) => (
@@ -288,8 +288,8 @@ const AlumniEventsPage = () => {
                                     </div>
 
                                     <div className="flex items-center justify-between">
-                                        <div className="text-2xl font-bold text-brand-800">{event.price}</div>
-                                        <button className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-full hover:bg-brand-700 transition-colors flex items-center gap-2">
+                                        <div className="md:text-2xl font-bold text-brand-800">{event.price}</div>
+                                        <button className="px-6 py-1.5 text-xs md:text-base md:py-3 bg-brand-600 text-white font-semibold rounded-full hover:bg-brand-700 transition-colors flex items-center gap-2">
                                             Register Now
                                             <ArrowRight className="w-4 h-4" />
                                         </button>
@@ -304,7 +304,7 @@ const AlumniEventsPage = () => {
             {/* All Upcoming Events */}
             <section className="py-16 bg-white">
                 <div className="max-w-7xl mx-auto px-6">
-                    <h2 className="text-3xl font-bold text-brand-900 mb-8 text-center">All Upcoming Events</h2>
+                    <h2 className="text-xl md:text-3xl font-bold text-brand-900 mb-8 text-center">All Upcoming Events</h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredEvents.filter(event => !event.featured).map((event) => (
                             <div key={event.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-brand-100">
@@ -320,8 +320,8 @@ const AlumniEventsPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="p-6">
-                                    <h3 className="text-xl font-bold text-brand-900 mb-3">{event.title}</h3>
+                                <div className="p-3 pb-5 md:p-6">
+                                    <h3 className=" md:text-xl font-bold text-brand-900 mb-3">{event.title}</h3>
 
                                     <div className="space-y-2 mb-4 text-sm">
                                         <div className="flex items-center text-brand-600">
@@ -355,14 +355,14 @@ const AlumniEventsPage = () => {
 
             {/* Past Events */}
             <section className="py-16 bg-brand-50">
-                <div className="max-w-7xl mx-auto px-6">
-                    <h2 className="text-3xl font-bold text-brand-900 mb-8 text-center">Recent Past Events</h2>
+                <div className="max-w-7xl mx-auto p-3 pb-5 md:px-6">
+                    <h2 className="md:text-3xl font-bold text-brand-900 mb-8 text-center">Recent Past Events</h2>
                     <div className="grid md:grid-cols-3 gap-8">
                         {pastEvents.map((event) => (
                             <div key={event.id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
                                 <img src={event.image} alt={event.title} className="w-full h-48 object-cover" />
-                                <div className="p-6">
-                                    <h3 className="text-xl font-bold text-brand-900 mb-2">{event.title}</h3>
+                                <div className="p-3 pb-5 md:p-6">
+                                    <h3 className="md:text-xl font-bold text-brand-900 mb-2">{event.title}</h3>
                                     <p className="text-brand-600 mb-4">{formatDate(event.date)} • {event.attendees} attendees</p>
 
                                     <div className="space-y-2">
@@ -384,20 +384,20 @@ const AlumniEventsPage = () => {
             </section>
 
             {/* Call to Action */}
-            <section className="py-16 bg-gradient-to-r from-brand-800 to-brand-700">
+            <section className="py-10 md:py-16 bg-gradient-to-r from-brand-800 to-brand-700">
                 <div className="max-w-4xl mx-auto px-6 text-center">
-                    <h2 className="text-4xl font-bold text-white mb-6">
+                    <h2 className="text-xl md:text-4xl font-bold text-white pb-2 md:mb-6">
                         Don't Miss Out on Future Events
                     </h2>
-                    <p className="text-xl text-brand-100 mb-8">
+                    <p className="text-sm md:text-xl text-brand-100 mb-5 md:mb-8">
                         Stay connected and be the first to know about upcoming alumni events, reunions, and special announcements.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button className="px-8 py-4 bg-brand-200 text-brand-900 font-semibold rounded-full hover:bg-white transition-colors">
+                        <button className="px-8 py-2 md:py-4 bg-brand-200 text-brand-900 font-semibold rounded-full hover:bg-white transition-colors">
                             Subscribe to Event Updates
                         </button>
-                        <button className="px-8 py-4 border-2 border-brand-200 text-brand-200 font-semibold rounded-full hover:bg-brand-200 hover:text-brand-900 transition-all">
+                        <button className="px-8 py-2 md:py-4 border-2 border-brand-200 text-brand-200 font-semibold rounded-full hover:bg-brand-200 hover:text-brand-900 transition-all">
                             Suggest an Event
                         </button>
                     </div>

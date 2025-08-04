@@ -59,22 +59,22 @@ const AlumniLandingPage = () => {
                 <div className="relative max-w-7xl mx-auto px-6 py-24">
                     <div className="text-center">
                         <div className="flex justify-center mb-6">
-                            <div className="bg-white bg-opacity-20 p-4 rounded-full">
+                            <div className="bg-white hidden md:block bg-opacity-20 p-4 rounded-full">
                                 <GraduationCap className="w-12 h-12 text-brand-600" />
                             </div>
                         </div>
-                        <h1 className="text-3xl md:text-7xl font-bold mb-6 text-white">
+                        <h1 className="text-2xl md:text-7xl font-bold mb-6 text-white">
                             Our <span className="text-brand-300">Alumni</span> Network
                         </h1>
-                        <p className="text-xl md:text-2xl text-brand-100 max-w-4xl mx-auto leading-relaxed mb-8">
+                        <p className="text-lg md:text-2xl text-brand-100 max-w-4xl mx-auto leading-relaxed mb-8">
                             Celebrating the remarkable achievements of our graduates who are making
                             a difference across the globe in various fields and industries.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <button className="bg-white text-brand-800 px-8 py-4 rounded-full font-bold text-lg hover:bg-brand-50 transition-colors shadow-lg">
+                            <button className="bg-white text-brand-800 px-8 py-2 md:py-4 rounded-full font-bold text-lg hover:bg-brand-50 transition-colors shadow-lg">
                                 Join Alumni Network
                             </button>
-                            <button className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-brand-800 transition-colors">
+                            <button className="border-2 border-white text-white px-8 py-2 md:py-4 rounded-full font-bold text-lg hover:bg-white hover:text-brand-800 transition-colors">
                                 Update Your Profile
                             </button>
                         </div>
@@ -83,15 +83,15 @@ const AlumniLandingPage = () => {
             </div>
             <section className="relative bg-gradient-to-br text-black">
                 <div className="absolute inset-0 bg-black/20"></div>
-                <div className="relative max-w-7xl mx-auto px-3 md:px-6 py-20">
+                <div className="relative max-w-7xl mx-auto px-3 md:px-6 py-10">
                     <div className="grid lg:grid-cols-2 gap-12 items-start">
                         <div className="space-y-8">
                             <div className="space-y-4">
-                                <h1 className="text-3xl lg:text-6xl font-bold leading-tight">
+                                <h1 className="text-2xl lg:text-6xl font-bold leading-tight">
                                     Welcome to Our
                                     <span className="block text-brand-500">Alumni Community</span>
                                 </h1>
-                                <p className="text-xl text-brand-600 leading-relaxed">
+                                <p className="text-lg text-brand-600 leading-relaxed">
                                     Once a student, always family. Join thousands of graduates who continue to shape the world and strengthen our legacy.
                                 </p>
                             </div>
@@ -145,9 +145,9 @@ const AlumniLandingPage = () => {
                             { number: "31+", label: "Years of Excellence" },
                             { number: "₦2.5M", label: "Annual Giving" }
                         ].map((stat, index) => (
-                            <div key={index} className="text-center">
-                                <div className="text-4xl font-bold text-brand-800 mb-2">{stat.number}</div>
-                                <div className="text-brand-600 font-medium">{stat.label}</div>
+                            <div key={index} className="text-center w-24 mx-auto">
+                                <div className="text-lg md:text-4xl font-bold text-brand-800 mb-2">{stat.number}</div>
+                                <div className="text-base text-brand-600 font-medium">{stat.label}</div>
                             </div>
                         ))}
                     </div>
@@ -157,11 +157,11 @@ const AlumniLandingPage = () => {
             {/* Alumni Services Grid */}
             <section className="py-20 bg-white">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-bold text-brand-900 mb-4">
+                    <div className="text-center mb-4 md:mb-12">
+                        <h2 className="text-xl md:text-4xl font-bold text-brand-900 mb-2">
                             Alumni Services & Engagement
                         </h2>
-                        <p className="text-xl text-brand-600 max-w-3xl mx-auto">
+                        <p className="text-sm md:text-xl text-brand-600 max-w-3xl mx-auto">
                             Discover the many ways to stay connected, give back, and continue growing with our vibrant alumni community.
                         </p>
                     </div>
@@ -209,18 +209,18 @@ const AlumniLandingPage = () => {
             {/* Call to Action Section */}
             <section className="py-20 bg-gradient-to-r from-brand-800 to-brand-700">
                 <div className="max-w-4xl mx-auto px-6 text-center">
-                    <h2 className="text-4xl font-bold text-white mb-6">
+                    <h2 className="text-xl md:text-4xl font-bold text-white mb-4">
                         Ready to Reconnect?
                     </h2>
-                    <p className="text-xl text-brand-100 mb-10 leading-relaxed">
+                    <p className="text-sm md:text-xl text-brand-100 mb-10 leading-relaxed">
                         Update your information, join our network, and be part of our ongoing story of excellence and impact.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <button className="px-8 py-4 bg-brand-200 text-brand-900 font-semibold rounded-full hover:bg-white transition-colors duration-300 hover:scale-105 transform">
+                        <button className="px-8 py-2 md:py-3 bg-brand-200 text-brand-900 font-semibold rounded-full hover:bg-white transition-colors duration-300 hover:scale-105 transform">
                             Update Your Profile
                         </button>
-                        <button className="px-8 py-4 border-2 border-brand-200 text-brand-200 font-semibold rounded-full hover:bg-brand-200 hover:text-brand-900 transition-all duration-300 hover:scale-105 transform">
+                        <button className="px-8 py-2 md:py-3 border-2 border-brand-200 text-brand-200 font-semibold rounded-full hover:bg-brand-200 hover:text-brand-900 transition-all duration-300 hover:scale-105 transform">
                             Join Alumni Network
                         </button>
                     </div>
@@ -234,7 +234,7 @@ const AlumniLandingPage = () => {
                         <h3 className="text-2xl font-semibold mb-4 text-brand-200">
                             Alumni Relations
                         </h3>
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-8 text-brand-100">
+                        <div className="flex flex-col sm:flex-row justify-center items-center md:gap-8 text-brand-100">
                             <div>
                                 <strong>Email:</strong> alumni@progressschools.com
                             </div>

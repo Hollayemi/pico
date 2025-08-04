@@ -179,16 +179,16 @@ const StudentLifeSchedule = () => {
 
     return (
         <HomeWrapper miniSlider title="Student Life At Our School">
-            <div className="max-w-7xl mx-auto p-6  min-h-screen">
+            <div className="max-w-7xl mx-auto px-2 md:p-6  min-h-screen">
                 <div className="mb-8  max-w-4xl mx-auto">
-                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">Student Life at Our School</h1>
-                    <p className="text-lg text-center text-gray-600 mb-6">
+                    <h1 className="text-lg md:text-4xl font-bold text-center text-gray-800 mb-2 md:mb-4">Student Life at Our School</h1>
+                    <p className="text-sm md:text-lg text-center text-gray-600 mb-6">
                         Experience a well-structured daily routine designed to nurture academic excellence,
                         character development, and holistic growth for both day and boarding students.
                     </p>
 
                     {/* View Toggle */}
-                    <div className="flex justify-center space-x-4 mb-6">
+                    <div className="flex justify-center space-x-1 md:space-x-4 mb-6">
                         <button
                             onClick={() => setSelectedView('daily')}
                             className={`px-6 py-3 rounded-lg font-medium transition-colors ${selectedView === 'daily'
@@ -234,7 +234,7 @@ const StudentLifeSchedule = () => {
                         {/* Morning Schedule */}
                         <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
                             <div className="bg-gradient-to-r from-brand-400 to-brand-600 text-white p-6">
-                                <h2 className="text-2xl font-bold flex items-center">
+                                <h2 className="md:text-2xl font-bold flex md:items-center">
                                     <Clock className="w-6 h-6 mr-3" />
                                     Morning Schedule (6:00 AM - 12:30 PM)
                                 </h2>
@@ -250,7 +250,7 @@ const StudentLifeSchedule = () => {
                         {/* Midday Schedule */}
                         <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
                             <div className="bg-gradient-to-r from-brand-400 to-brand-600 text-white p-6">
-                                <h2 className="text-2xl font-bold flex items-center">
+                                <h2 className="md:text-2xl font-bold flex md:items-center">
                                     <BookOpen className="w-6 h-6 mr-3" />
                                     Midday Schedule (12:30 PM - 4:00 PM)
                                 </h2>
@@ -266,7 +266,7 @@ const StudentLifeSchedule = () => {
                         {/* Afternoon/Evening Schedule */}
                         <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
                             <div className="bg-gradient-to-r from-brand-400 to-brand-600 text-white p-6">
-                                <h2 className="text-2xl font-bold flex items-center">
+                                <h2 className="md:text-2xl font-bold flex md:items-center">
                                     <Moon className="w-6 h-6 mr-3" />
                                     Afternoon & Evening (4:00 PM - 10:00 PM)
                                 </h2>
@@ -284,26 +284,26 @@ const StudentLifeSchedule = () => {
                 {selectedView === 'weekly' && (
                     <div className="space-y-6">
                         <div className="bg-white p-6 rounded-lg border border-gray-200">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-4">Weekly Special Activities</h2>
-                            <p className="text-gray-600 mb-4">
+                            <h2 className="md:text-2xl font-bold text-gray-800 mb-2 md:mb-4">Weekly Special Activities</h2>
+                            <p className="text-gray-600 mb-4 text-sm md:text-base">
                                 Each day of the week features unique activities designed to develop different aspects of student life:
                             </p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-base">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm md:text-base">
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-3 h-3 bg-green-500 rounded"></div>
-                                    <span>Sports & Physical Education</span>
+                                    <div className="w-3 !shrink-0 h-3 text-base bg-green-500 rounded"></div>
+                                    <span className=''>Sports & Physical Education</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-3 h-3 bg-brand-500 rounded"></div>
-                                    <span>Arts & Cultural Activities</span>
+                                    <div className="w-3 shrink-0  h-3 bg-brand-500 rounded"></div>
+                                    <span className=''>Arts & Cultural Activities</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-3 h-3 bg-brand-500 rounded"></div>
-                                    <span>Vocational Training</span>
+                                    <div className="w-3 shrink-0  h-3 bg-brand-500 rounded"></div>
+                                    <span className=''>Vocational Training</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <div className="w-3 h-3 bg-red-500 rounded"></div>
-                                    <span>Academic Enhancement</span>
+                                    <div className="w-3 shrink-0  h-3 bg-red-500 rounded"></div>
+                                    <span className=''>Academic Enhancement</span>
                                 </div>
                             </div>
                         </div>

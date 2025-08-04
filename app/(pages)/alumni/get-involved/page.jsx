@@ -101,33 +101,33 @@ const AlumniGetInvolvedForm = () => {
         <HomeWrapper miniSlider>
             {/* Hero Section */}
             <section className="py-4 text-black">
-                <div className="max-w-4xl mx-auto px-6 text-center">
-                    <h1 className="text-2xl md:text-4xl font-bold mb-6">
+                <div className="max-w-4xl mx-auto px-2 md:px-6 text-center">
+                    <h1 className="text-xl md:text-4xl font-bold mb-2 md:mb-6">
                         Get Involved with
                         <span className="text-brand-500 ml-2"> Alumni Community</span>
                     </h1>
-                    <p className="text-xl text-gray-500 leading-relaxed">
+                    <p className="text-sm md:text-xl text-gray-500 leading-relaxed">
                         Join thousands of alumni making a difference. Share your time, talents, and expertise to help current students and strengthen our community.
                     </p>
                 </div>
             </section>
 
             {/* Form Section */}
-            <section className="py-16">
-                <div className="max-w-4xl mx-auto px-6">
+            <section className="py-4 md:py-16">
+                <div className="max-w-4xl mx-auto md:px-6">
                     <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-                        <div className="p-8 lg:p-12">
+                        <div className="p-4 md:p-8 lg:p-12">
                             <form onSubmit={handleSubmit} className="space-y-8">
                                 {/* Personal Information */}
                                 <div>
-                                    <h2 className="text-2xl font-bold text-brand-900 mb-6 flex items-center">
+                                    <h2 className="md:text-2xl font-bold text-brand-900 mb-6 flex items-center">
                                         <User className="w-6 h-6 mr-3 text-brand-600" />
                                         Personal Information
                                     </h2>
 
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">First Name *</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">First Name *</label>
                                             <input
                                                 type="text"
                                                 name="firstName"
@@ -140,7 +140,7 @@ const AlumniGetInvolvedForm = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">Last Name *</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Last Name *</label>
                                             <input
                                                 type="text"
                                                 name="lastName"
@@ -153,7 +153,7 @@ const AlumniGetInvolvedForm = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">Email Address *</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Email Address *</label>
                                             <input
                                                 type="email"
                                                 name="email"
@@ -166,7 +166,7 @@ const AlumniGetInvolvedForm = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">Phone Number (Whatsapp Preferrably)</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Phone Number (Whatsapp Preferrably)</label>
                                             <input
                                                 type="tel"
                                                 name="phone"
@@ -178,7 +178,7 @@ const AlumniGetInvolvedForm = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">Graduation Year *</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Graduation Year *</label>
                                             <input
                                                 type="number"
                                                 name="graduationYear"
@@ -193,7 +193,7 @@ const AlumniGetInvolvedForm = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">Current City</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Current City</label>
                                             <input
                                                 type="text"
                                                 name="currentCity"
@@ -208,14 +208,14 @@ const AlumniGetInvolvedForm = () => {
 
                                 {/* Professional Information */}
                                 <div>
-                                    <h2 className="text-2xl font-bold text-brand-900 mb-6 flex items-center">
+                                    <h2 className="md:text-2xl font-bold text-brand-900 mb-6 flex items-center">
                                         <Briefcase className="w-6 h-6 mr-3 text-brand-600" />
                                         Professional Information
                                     </h2>
 
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">Current Job Title</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Current Job Title</label>
                                             <input
                                                 type="text"
                                                 name="currentJob"
@@ -227,7 +227,7 @@ const AlumniGetInvolvedForm = () => {
                                         </div>
 
                                         <div>
-                                            <label className="block text-brand-700 font-semibold mb-2">Company/Organization</label>
+                                            <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Company/Organization</label>
                                             <input
                                                 type="text"
                                                 name="company"
@@ -240,7 +240,7 @@ const AlumniGetInvolvedForm = () => {
                                     </div>
 
                                     <div className="mt-6">
-                                        <label className="block text-brand-700 font-semibold mb-2">Skills & Expertise</label>
+                                        <label className="block text-sm md:text-base text-brand-700 font-semibold mb-2">Skills & Expertise</label>
                                         <textarea
                                             name="skills"
                                             value={formData.skills}
@@ -254,7 +254,7 @@ const AlumniGetInvolvedForm = () => {
 
                                 {/* Involvement Interests */}
                                 <div>
-                                    <h2 className="text-2xl font-bold text-brand-900 mb-6 flex items-center">
+                                    <h2 className="md:text-2xl font-bold text-brand-900 mb-6 flex items-center">
                                         <Heart className="w-6 h-6 mr-3 text-brand-600" />
                                         How Would You Like to Get Involved?
                                     </h2>
@@ -290,7 +290,7 @@ const AlumniGetInvolvedForm = () => {
 
                                 {/* Communication Preferences */}
                                 <div>
-                                    <h2 className="text-2xl font-bold text-brand-900 mb-6 flex items-center">
+                                    <h2 className="md:text-2xl font-bold text-brand-900 mb-6 flex items-center">
                                         <Mail className="w-6 h-6 mr-3 text-brand-600" />
                                         Communication Preferences
                                     </h2>

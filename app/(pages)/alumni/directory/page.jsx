@@ -199,17 +199,17 @@ const AlumniPage = () => {
                 
 
 
-                <div className="py-16 bg-white">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="py-4 md:py-16 bg-white">
+                    <div className="max-w-7xl mx-auto px-3 md:px-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-8">
                             {alumniStats.map((stat, index) => (
                                 <div key={index} className="text-center group">
-                                    <div className="bg-brand-100 p-6 rounded-2xl group-hover:bg-brand-200 transition-colors mb-4">
+                                    <div className="bg-brand-100 p-2 py-4 md:p-6 rounded-2xl group-hover:bg-brand-200 transition-colors mb-4">
                                         <div className="text-brand-600 flex justify-center mb-3">
                                             {stat.icon}
                                         </div>
-                                        <div className="text-4xl font-bold text-brand-800 mb-2">{stat.number}</div>
-                                        <div className="text-gray-600 font-medium">{stat.label}</div>
+                                        <div className="text-xl md:text-4xl font-bold text-brand-800 mb-2">{stat.number}</div>
+                                        <div className="text-xs md:text-xl text-gray-600 font-medium">{stat.label}</div>
                                     </div>
                                 </div>
                             ))}
@@ -217,12 +217,12 @@ const AlumniPage = () => {
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-6 py-16">
+                <div className="max-w-7xl mx-auto px-2 md:px-6 py-16">
                     {/* Featured Alumni Section */}
                     <div className="mb-16">
                         <div className="text-center mb-12">
-                            <h2 className="text-4xl font-bold text-gray-800 mb-4">Distinguished Alumni</h2>
-                            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            <h2 className="text-xl md:text-4xl font-bold text-gray-800 mb-4">Distinguished Alumni</h2>
+                            <p className="text-sm md:text-xl text-gray-600 max-w-3xl mx-auto">
                                 Meet some of our most accomplished graduates who continue to excel
                                 in their respective fields and inspire the next generation.
                             </p>
@@ -378,19 +378,19 @@ const AlumniPage = () => {
 
                     {/* CTA Section */}
                     <div className="text-center">
-                        <div className="bg-gradient-to-r from-brand-500 to-brand-600 rounded-3xl p-12 text-white">
+                        <div className="bg-gradient-to-r from-brand-500 to-brand-600 rounded-3xl p-4 md:p-12 text-white">
                             <div className="max-w-3xl mx-auto">
-                                <Heart className="w-12 h-12 mx-auto mb-6 text-brand-200" />
-                                <h2 className="text-4xl font-bold mb-6">Give Back to Your Alma Mater</h2>
-                                <p className="text-xl mb-8 text-brand-100">
+                                <Heart className="w-12 h-12 mx-auto mb-4 text-brand-200" />
+                                <h2 className="text-xl md:text-4xl font-bold md:mb-6">Give Back to Your Alma Mater</h2>
+                                <p className="text-sm md:text-xl mb-8 text-brand-100">
                                     Your success story can inspire current students. Join our mentorship program
                                     or contribute to scholarship funds to help the next generation achieve their dreams.
                                 </p>
                                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                    <button className="bg-white text-brand-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-brand-50 transition-colors">
+                                    <button className="bg-white text-brand-600 px-8 py-2 md:py-3 rounded-full font-bold text-lg hover:bg-brand-50 transition-colors">
                                         Become a Mentor
                                     </button>
-                                    <button className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-brand-600 transition-colors">
+                                    <button className="border-2 border-white text-white px-8 py-2 md:py-3 rounded-full font-bold text-lg hover:bg-white hover:text-brand-600 transition-colors">
                                         Support Scholarships
                                     </button>
                                 </div>

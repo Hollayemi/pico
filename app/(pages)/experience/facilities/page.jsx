@@ -166,18 +166,18 @@ const FacilitiesPage = () => {
         <HomeWrapper miniSlider title="School Facilities">
             <div className="min-h-screen -mt-6 bg-gradient-to-br from-gray-50 to-brand-50">
               
-                <div className="max-w-7xl mx-auto px-6 py-16">
+                <div className="max-w-7xl mx-auto px-2 md:px-6 py-10">
                     {/* Category Filter */}
                     <div className="mb-12">
-                        <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+                        <h2 className="md:text-3xl font-bold text-gray-800 mb-4 text-center">
                             Explore Our Facilities
                         </h2>
-                        <div className="flex flex-wrap justify-center gap-3">
+                        <div className="flex flex-wrap justify-center gap-1 md:gap-3">
                             {categories.map((category) => (
                                 <button
                                     key={category}
                                     onClick={() => setSelectedCategory(category)}
-                                    className={`px-6 py-3 rounded-full font-medium transition-all duration-300 ${selectedCategory === category
+                                    className={` px-4 md:px-6 mb-1.5 py-0.5 min-w- md:py-3 rounded-full font-medium transition-all duration-300 ${selectedCategory === category
                                         ? 'bg-brand-500 text-white shadow-lg scale-105'
                                         : 'bg-white text-gray-700 border border-gray-300 hover:bg-brand-50 hover:border-brand-300'
                                         }`}

@@ -28,7 +28,7 @@ export default function VocationalTraining() {
             <div className="max-w-7xl mx-auto px-2">
                 {/* Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-bold text-brand-600 mb-6">
+                    <h1 className=" text-xl md:text-4xl font-bold text-brand-600 mb-6">
                         Vocational Training & Creative Groups
                     </h1>
                     <p className="text-sm text-gray-600 max-w-4xl mx-auto mb-8">
