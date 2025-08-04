@@ -1,6 +1,6 @@
 "use client";
+import { useResendOtpMutation } from "@/redux/slices/authSlice";
 import React, { useState, useRef, useEffect } from "react";
-import { useResendOtpMutation } from "../../../redux/slices/authSlice";
 
 export default function OTPVerification({
     email,
