@@ -10,11 +10,11 @@ const SchoolNewsPage = () => {
 
     const newsCategories = [
         { id: 'all', name: 'All News', count: 24 },
+        { id: 'events', name: 'Events', count: 5, icon: Calendar },
+        { id: 'facilities', name: 'Facilities', count: 2, icon: Building },
         { id: 'academics', name: 'Academics', count: 8, icon: GraduationCap },
         { id: 'athletics', name: 'Athletics', count: 6, icon: Trophy },
-        { id: 'events', name: 'Events', count: 5, icon: Calendar },
         { id: 'community', name: 'Community', count: 3, icon: Users },
-        { id: 'facilities', name: 'Facilities', count: 2, icon: Building }
     ];
 
     const featuredNews = [
@@ -179,14 +179,14 @@ const SchoolNewsPage = () => {
     return (
         <HomeWrapper miniSlider title="News and Updates">
             {/* Hero Section */}
-            <section className="py-10">
-                <div className="max-w-6xl mx-auto px-6">
+            <section className="md:py-10">
+                <div className="max-w-6xl mx-auto px-2 md:px-6">
                     <div className="text-center">
-                        <h1 className="text-xl md:text-3xl font-bold mb-6">
+                        <h1 className="text-xl md:text-3xl font-bold mb-2 md:mb-6">
                             School News &
                             <span className="text-brand-500 ml-2">Updates</span>
                         </h1>
-                        <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed">
+                        <p className="text-sm md:text-base text-gray-500 max-w-3xl mx-auto leading-relaxed">
                             Stay informed about the latest happenings, achievements, and important announcements from our school community.
                         </p>
                     </div>
@@ -195,7 +195,7 @@ const SchoolNewsPage = () => {
 
             {/* Quick Updates Bar */}
             <section className="py-6 bg-white border-b border-brand-100">
-                <div className="max-w-7xl mx-auto px-6">
+                <div className="max-w-7xl mx-auto px-2 md:px-6">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-brand-800">Quick Updates</h3>
                         <button className="text-brand-600 hover:text-brand-700 text-sm font-medium">
@@ -213,7 +213,7 @@ const SchoolNewsPage = () => {
                                         : 'bg-brand-50 border-brand-500 text-brand-800'
                                     }`}
                             >
-                                <p className="text-sm font-medium mb-2">{update.text}</p>
+                                <p className="text-xs font-medium mb-2">{update.text.substring(0, 40)}...</p>
                                 <p className="text-xs opacity-75">{formatDate(update.date)}</p>
                             </div>
                         ))}
@@ -223,7 +223,7 @@ const SchoolNewsPage = () => {
 
             {/* Search and Filter */}
             <section className="py-8 bg-white">
-                <div className="max-w-7xl mx-auto px-6">
+                <div className="max-w-7xl mx-auto px-2 md:px-6">
                     <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
                         <div className="flex-1 w-full md:max-w-md">
                             <div className="relative">
@@ -238,14 +238,14 @@ const SchoolNewsPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap gap-1 md:gap-3">
                             {newsCategories.map((category) => {
                                 const IconComponent = category.icon || Tag;
                                 return (
                                     <button
                                         key={category.id}
                                         onClick={() => setSelectedCategory(category.id)}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${selectedCategory === category.id
+                                        className={`flex text-xs md:text-base items-center gap-2 px-2.5 md:px-4 py-1 md:py-2 rounded-full transition-all ${selectedCategory === category.id
                                             ? 'bg-brand-600 text-white'
                                             : 'bg-brand-100 text-brand-600 hover:bg-brand-200'
                                             }`}
@@ -268,10 +268,10 @@ const SchoolNewsPage = () => {
 
             {/* Featured News */}
             {featuredNews.some(article => selectedCategory === 'all' || article.category === selectedCategory) && (
-                <section className="py-16 bg-brand-50">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <h2 className="text-3xl font-bold text-brand-900 mb-8">Featured Stories</h2>
-                        <div className="grid lg:grid-cols-2 gap-8">
+                <section className=" py-4 md:py-16 bg-brand-50">
+                    <div className="max-w-7xl mx-auto px-2 md:px-6">
+                        <h2 className="text-xl md:text-3xl font-bold text-brand-900 mb-4 md:mb-8">Featured Stories</h2>
+                        <div className="grid lg:grid-cols-2 gap-4 md:gap-8">
                             {featuredNews
                                 .filter(article => selectedCategory === 'all' || article.category === selectedCategory)
                                 .map((article) => {
@@ -295,26 +295,26 @@ const SchoolNewsPage = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="p-8">
-                                                <h2 className="text-2xl font-bold text-brand-900 mb-4 line-clamp-2">
+                                            <div className="px-3 py-4 md:p-8">
+                                                <h2 className="md:text-2xl font-bold text-brand-900 mb-4 line-clamp-2">
                                                     {article.title}
                                                 </h2>
 
-                                                <p className="text-brand-600 mb-6 leading-relaxed line-clamp-3">
+                                                <p className="text-sm md:text-base text-brand-600 mb-6 leading-relaxed line-clamp-3">
                                                     {article.excerpt}
                                                 </p>
 
                                                 <div className="flex items-center justify-between mb-6">
-                                                    <div className="flex items-center space-x-4 text-sm text-brand-500">
-                                                        <div className="flex items-center">
+                                                    <div className="flex flex-wrap items-center space-x-4 text-sm text-brand-500">
+                                                        <div className="flex shrink-0 items-center">
                                                             <User className="w-4 h-4 mr-1" />
                                                             {article.author}
                                                         </div>
-                                                        <div className="flex items-center">
+                                                        <div className="flex shrink-0 items-center">
                                                             <Calendar className="w-4 h-4 mr-1" />
                                                             {formatDate(article.date)}
                                                         </div>
-                                                        <div className="flex items-center">
+                                                        <div className="flex shrink-0 items-center">
                                                             <Clock className="w-4 h-4 mr-1" />
                                                             {article.readTime}
                                                         </div>
@@ -344,8 +344,8 @@ const SchoolNewsPage = () => {
 
             {/* Recent News Grid */}
             <section className="py-16 bg-white">
-                <div className="max-w-7xl mx-auto px-6">
-                    <h2 className="text-3xl font-bold text-brand-900 mb-8">Recent News</h2>
+                <div className="max-w-7xl mx-auto px-2 md:px-6">
+                    <h2 className="text-xl md:text-3xl font-bold text-brand-900 mb-4 md:mb-8">Recent News</h2>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {recentNews
                             .filter(article => selectedCategory === 'all' || article.category === selectedCategory)
@@ -365,8 +365,8 @@ const SchoolNewsPage = () => {
                                             </div>
                                         </div>
 
-                                        <div className="p-6">
-                                            <h3 className="text-xl font-bold text-brand-900 mb-3 line-clamp-2">
+                                        <div className="p-2 pb-6 md:p-6">
+                                            <h3 className="md:text-xl font-bold text-brand-900 mb-3 line-clamp-2">
                                                 {article.title}
                                             </h3>
 
@@ -408,7 +408,7 @@ const SchoolNewsPage = () => {
                                 <Search className="w-8 h-8 text-brand-400" />
                             </div>
                             <h3 className="text-xl font-semibold text-brand-700 mb-2">No articles found</h3>
-                            <p className="text-brand-500">Try adjusting your search or filter criteria.</p>
+                            <p className="text-sm md:text-base text-brand-500">Try adjusting your search or filter criteria.</p>
                         </div>
                     )}
                 </div>
@@ -416,11 +416,11 @@ const SchoolNewsPage = () => {
 
             {/* Newsletter Signup */}
             <section className="py-16">
-                <div className="max-w-4xl mx-auto px-6 text-center">
-                    <h2 className="text-4xl font-bold text-black mb-6">
+                <div className="max-w-4xl mx-auto px-3 md:px-6 text-center">
+                    <h2 className="text-xl md:text-4xl font-bold text-black mb-6">
                         Stay Updated
                     </h2>
-                    <p className="text-base text-gray-400 mb-8">
+                    <p className="text-sm md:text-base text-gray-600 mb-8">
                         Subscribe to our newsletter and never miss important school news and announcements.
                     </p>
 
@@ -428,14 +428,14 @@ const SchoolNewsPage = () => {
                         <input
                             type="email"
                             placeholder="Enter your email address"
-                            className="flex-1 px-4 py-3 rounded-full border-1 border-brand-400 focus:ring-2 focus:ring-brand-300"
+                            className="flex-1 px-4 py-2 md:py-3 rounded-full border-1 border-brand-400 focus:ring-2 focus:ring-brand-300"
                         />
-                        <button className="px-8 py-3 bg-brand-600 text-white font-semibold rounded-full hover:bg-white transition-colors">
+                        <button className="px-8 py-2 md:py-3 bg-brand-600 text-white font-semibold rounded-full hover:bg-white transition-colors">
                             Subscribe
                         </button>
                     </div>
 
-                    <p className="text-sm text-gray-400 mt-4">
+                    <p className="text-xs md:text-base text-gray-400 mt-4">
                         We respect your privacy. Unsubscribe at any time.
                     </p>
                 </div>

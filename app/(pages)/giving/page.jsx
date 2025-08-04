@@ -67,28 +67,28 @@ const SchoolGivingPage = () => {
     return (
         <HomeWrapper miniSlider title="Giving">
             {/* Hero Section */}
-            <section className="py-10">
-                <div className="max-w-6xl mx-auto px-6 text-center">
-                    <h1 className="text-2xl md:text-4xl font-bold mb-6">
+            <section className="md:py-10">
+                <div className="max-w-6xl mx-auto px-2 md:px-6 text-center">
+                    <h1 className="text-xl md:text-4xl font-bold mb-2 md:mb-6">
                         Make a Difference
-                        <span className="black md:inline-block text-brand-500">Through Giving</span>
+                        <span className="black ml-2 md:inline-block text-brand-500">Through Giving</span>
                     </h1>
-                    <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed mb-8">
+                    <p className="text-sm md:text-base text-gray-500 max-w-3xl mx-auto leading-relaxed mb-8">
                         Your support helps us provide exceptional education, create opportunities, and build a brighter future for our students and community.
                     </p>
                     <div className="backdrop-blur-sm bg-brand-500 rounded-2xl p-6 max-w-2xl mx-auto">
                         <div className="grid grid-cols-3 gap-6 text-center">
                             <div>
-                                <div className="text-3xl font-bold text-brand-200">₦2.5M</div>
-                                <div className="text-brand-100">Raised This Year</div>
+                                <div className=" text-xl md:text-3xl font-bold text-white">₦2.5M</div>
+                                <div className="text-sm md:text-base text-gray-100">Raised This Year</div>
                             </div>
                             <div>
-                                <div className="text-3xl font-bold text-brand-200">850+</div>
-                                <div className="text-brand-100">Generous Donors</div>
+                                <div className=" text-xl md:text-3xl font-bold text-white">850+</div>
+                                <div className="text-sm md:text-base text-gray-100">Generous Donors</div>
                             </div>
                             <div>
-                                <div className="text-3xl font-bold text-brand-200">1,200</div>
-                                <div className="text-brand-100">Students Supported</div>
+                                <div className=" text-xl md:text-3xl font-bold text-white">1,200</div>
+                                <div className="text-sm md:text-base text-gray-100">Students Supported</div>
                             </div>
                         </div>
                     </div>
@@ -99,16 +99,16 @@ const SchoolGivingPage = () => {
             <section className="py-4 md:py-10">
                 <div className="max-w-4xl mx-auto px-2 md:px-6">
                     <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-                        <div className="p-8 lg:p-12">
-                            <h2 className="text-3xl font-bold text-brand-900 mb-8 text-center">Make Your Gift Today</h2>
+                        <div className="py-4 px-2 md:p-8 lg:p-12">
+                            <h2 className=" text-xl md:text-3xl font-bold text-brand-900 mb-8 text-center">Make Your Gift Today</h2>
 
                             {/* Donation Type */}
                             <div className="mb-8">
-                                <h3 className="text-xl font-semibold text-brand-800 mb-4">Donation Type</h3>
+                                <h3 className=" md:text-xl font-semibold text-brand-800 mb-4">Donation Type</h3>
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => setDonationType('one-time')}
-                                        className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all ${donationType === 'one-time'
+                                        className={`text-sm md:text-base flex-1 py-3 px-6 rounded-xl font-semibold transition-all ${donationType === 'one-time'
                                             ? 'bg-brand-600 text-white'
                                             : 'bg-brand-100 text-brand-700 hover:bg-brand-200'
                                             }`}
@@ -117,7 +117,7 @@ const SchoolGivingPage = () => {
                                     </button>
                                     <button
                                         onClick={() => setDonationType('monthly')}
-                                        className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all ${donationType === 'monthly'
+                                        className={`text-sm md:text-base flex-1 py-3 px-6 rounded-xl font-semibold transition-all ${donationType === 'monthly'
                                             ? 'bg-brand-600 text-white'
                                             : 'bg-brand-100 text-brand-700 hover:bg-brand-200'
                                             }`}
@@ -129,7 +129,7 @@ const SchoolGivingPage = () => {
 
                             {/* Amount Selection */}
                             <div className="mb-8">
-                                <h3 className="text-xl font-semibold text-brand-800 mb-4">
+                                <h3 className="md:text-xl font-semibold text-brand-800 mb-4">
                                     Select Amount {donationType === 'monthly' && '(Per Month)'}
                                 </h3>
                                 <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
@@ -140,7 +140,7 @@ const SchoolGivingPage = () => {
                                                 setSelectedAmount(amount);
                                                 setCustomAmount('');
                                             }}
-                                            className={`py-3 px-4 rounded-xl font-semibold transition-all ${selectedAmount === amount && !customAmount
+                                            className={`text-sm md:text-base py-3 px-4 rounded-xl font-semibold transition-all ${selectedAmount === amount && !customAmount
                                                 ? 'bg-brand-600 text-white'
                                                 : 'bg-brand-100 text-brand-700 hover:bg-brand-200'
                                                 }`}
@@ -167,7 +167,7 @@ const SchoolGivingPage = () => {
 
                             {/* Fund Selection */}
                             <div className="mb-8">
-                                <h3 className="text-xl font-semibold text-brand-800 mb-4">Choose Where Your Gift Goes</h3>
+                                <h3 className="md:text-xl font-semibold text-brand-800 mb-4">Choose Where Your Gift Goes</h3>
                                 <div className="grid md:grid-cols-2 gap-4">
                                     {givingFunds.map((fund) => {
                                         const IconComponent = fund.icon;
@@ -236,7 +236,7 @@ const SchoolGivingPage = () => {
                             <button
                                 onClick={handleDonate}
                                 disabled={!getDonationAmount()}
-                                className={`w-full py-4 px-8 rounded-xl font-semibold text-lg transition-all flex items-center justify-center gap-3 ${getDonationAmount()
+                                className={`w-full text-sm md:text-base py-4 px-8 rounded-xl font-semibold transition-all flex items-center justify-center gap-3 ${getDonationAmount()
                                     ? 'bg-brand-600 text-white hover:bg-brand-700 hover:scale-105 transform'
                                     : 'bg-brand-200 text-brand-400 cursor-not-allowed'
                                     }`}
@@ -254,42 +254,42 @@ const SchoolGivingPage = () => {
             </section>
 
             {/* Impact Stories */}
-            <section className="py-16 bg-white">
+            <section className="py-8 md:py-16 bg-white">
                 <div className="max-w-6xl mx-auto px-6">
-                    <h2 className="text-3xl font-bold text-brand-900 mb-12 text-center">Your Impact in Action</h2>
+                    <h2 className="text-xl md:text-3xl font-bold text-brand-900 mb-12 text-center">Your Impact in Action</h2>
 
                     <div className="grid md:grid-cols-3 gap-8">
                         <div className="text-center">
                             <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <GraduationCap className="w-8 h-8 text-blue-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-brand-900 mb-4">Scholarships Created</h3>
-                            <p className="text-brand-600 mb-4">
+                            <h3 className="text-lg md:text-xl font-bold text-brand-900 mb-2 md:mb-4">Scholarships Created</h3>
+                            <p className="text-sm md:text-base text-brand-600 mb-4">
                                 Last year, donor contributions funded 45 full scholarships, helping students from all backgrounds access quality education.
                             </p>
-                            <div className="text-2xl font-bold text-blue-600">45 Students</div>
+                            <div className="md:text-2xl font-bold text-blue-600">45 Students</div>
                         </div>
 
                         <div className="text-center">
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <BookOpen className="w-8 h-8 text-green-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-brand-900 mb-4">Library Expansion</h3>
-                            <p className="text-brand-600 mb-4">
+                            <h3 className="text-lg md:text-xl font-bold text-brand-900 mb-2 md:mb-4">Library Expansion</h3>
+                            <p className="text-sm md:text-base text-brand-600 mb-4">
                                 Thanks to generous donors, we added 5,000 new books and upgraded our digital learning resources.
                             </p>
-                            <div className="text-2xl font-bold text-green-600">5,000 Books</div>
+                            <div className="md:text-2xl font-bold text-green-600">5,000 Books</div>
                         </div>
 
                         <div className="text-center">
                             <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
                                 <Laptop className="w-8 h-8 text-purple-600" />
                             </div>
-                            <h3 className="text-xl font-bold text-brand-900 mb-4">Technology Upgrades</h3>
-                            <p className="text-brand-600 mb-4">
+                            <h3 className="text-lg md:text-xl font-bold text-brand-900 mb-2 md:mb-4">Technology Upgrades</h3>
+                            <p className="text-sm md:text-base text-brand-600 mb-4">
                                 New computer labs and smart classrooms were made possible through community support and donations.
                             </p>
-                            <div className="text-2xl font-bold text-purple-600">12 Classrooms</div>
+                            <div className="md:text-2xl font-bold text-purple-600">12 Classrooms</div>
                         </div>
                     </div>
                 </div>
@@ -298,13 +298,13 @@ const SchoolGivingPage = () => {
             {/* Other Ways to Give */}
             <section className="py-16 bg-brand-50">
                 <div className="max-w-4xl mx-auto px-6 text-center">
-                    <h2 className="text-3xl font-bold text-brand-900 mb-8">Other Ways to Support</h2>
+                    <h2 className="text-xl md:text-3xl font-bold text-brand-900 mb-8">Other Ways to Support</h2>
 
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="bg-white p-8 rounded-2xl shadow-lg">
                             <Gift className="w-12 h-12 text-brand-600 mx-auto mb-4" />
                             <h3 className="text-xl font-bold text-brand-900 mb-4">Corporate Partnerships</h3>
-                            <p className="text-brand-600 mb-6">
+                            <p className="text-sm md:text-base text-brand-600 mb-6">
                                 Partner with us through corporate sponsorships, matching gift programs, or employee volunteer initiatives.
                             </p>
                             <button className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-full hover:bg-brand-700 transition-colors">
@@ -315,7 +315,7 @@ const SchoolGivingPage = () => {
                         <div className="bg-white p-8 rounded-2xl shadow-lg">
                             <Users className="w-12 h-12 text-brand-600 mx-auto mb-4" />
                             <h3 className="text-xl font-bold text-brand-900 mb-4">Volunteer Your Time</h3>
-                            <p className="text-brand-600 mb-6">
+                            <p className="text-sm md:text-base text-brand-600 mb-6">
                                 Share your skills and expertise by volunteering as a mentor, guest speaker, or event coordinator.
                             </p>
                             <button className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-full hover:bg-brand-700 transition-colors">
@@ -332,10 +332,10 @@ const SchoolGivingPage = () => {
                     <h3 className="text-2xl font-semibold mb-4 text-brand-500">
                         Questions About Giving?
                     </h3>
-                    <p className="text-brand-500 mb-6">
+                    <p className="text-sm md:text-base text-brand-500 mb-6">
                         Our development team is here to help you make the most meaningful impact with your generosity.
                     </p>
-                    <div className="flex flex-col sm:flex-row justify-center items-center gap-8 text-brand-300">
+                    <div className="flex flex-col sm:flex-row justify-center items-center md:gap-8 text-brand-300">
                         <div>
                             <strong>Email:</strong> giving@progressschools.com
                         </div>
