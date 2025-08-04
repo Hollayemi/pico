@@ -2,8 +2,8 @@
 import { useRouter } from "next/navigation";
 import OTPVerification from "./otpPage";
 import toast from "react-hot-toast";
-import { useVerifyOtpMutation } from "../../../redux/slices/authSlice";
 import { use } from "react";
+import { useVerifyOtpMutation } from "@/redux/slices/authSlice";
 
 const OtpPage = ({ searchParams }) => {
     const { email = "", action = "" } = use(searchParams);
@@ -33,7 +33,7 @@ const OtpPage = ({ searchParams }) => {
             <div
                 className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat"
             >
-                <img src="/images/auth.png" className="object-cover" />
+                <img src="/images/bg1.jpg" className="object-cover" />
                 <div className="absolute h-screen w-full top-0 left-0 opacity-50 inset-0 bg-gradient-to-br from-black via-black via-90% to-transparent "></div>
             </div>
 

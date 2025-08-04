@@ -2,8 +2,8 @@
 import React, { use, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useResetPasswordMutation } from "../../../redux/slices/authSlice";
 import toast from "react-hot-toast";
+import { useResetPasswordMutation } from "@/redux/slices/authSlice";
 
 const ResetPassword = ({ searchParams }) => {
     const { token = "" } = use(searchParams);
@@ -33,7 +33,7 @@ const ResetPassword = ({ searchParams }) => {
             <div
                 className="hidden md:block absolute inset-0 bg-cover bg-center bg-no-repeat"
             >
-                <img src="/images/auth.png" className="object-cover" />
+                <img src="/images/bg1.jpg" className="object-cover" />
                 <div className="absolute h-screen w-full top-0 left-0 opacity-50 inset-0 bg-gradient-to-br from-black via-black via-90% to-transparent "></div>
             </div>
 
@@ -45,6 +45,7 @@ const ResetPassword = ({ searchParams }) => {
                     {/* Header */}
                     {!passUpdated ? (
                         <>
+                            <img src="/images/progressLogo.png" className="w-12 mx-auto" />
                             <div className="text-center mb-8">
                                 <h1 className="text-xl font-bold text-gray-900 mb-2">
                                     Reset Password?
@@ -170,7 +171,7 @@ const ResetPassword = ({ searchParams }) => {
                     {!passUpdated && (
                         <div className="mt-6 text-center">
                             <p className="text-xs text-gray-500 leading-relaxed">
-                                By continuing, you agree to Urban Lagos's{" "}
+                                By continuing, you agree to PISO's{" "}
                                 <a
                                     href="#"
                                     className="text-brand-600 hover:text-brand-700 underline"
