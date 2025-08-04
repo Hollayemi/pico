@@ -15,22 +15,22 @@ const AlumniPage = () => {
     const featuredAlumni = [
         {
             id: 1,
-            name: "Dr. Sarah Adebayo",
-            graduationYear: "2008",
-            currentPosition: "Chief Medical Officer",
-            company: "Lagos University Teaching Hospital",
-            field: "Medicine",
+            name: "Oluwasusi Stephen",
+            graduationYear: "2017",
+            currentPosition: "Senior Software Developer at Givitec",
+            company: "Adekunle Ajasin University",
+            field: "Computer Science",
             location: "Lagos, Nigeria",
-            image: "https://images.unsplash.com/photo-1494790108755-2616b612b789?w=400&h=400&fit=crop&crop=face",
+            image: "/images/stephen.jpeg",
             achievements: [
-                "First female CMO at LUTH",
-                "Published 15+ medical research papers",
-                "WHO Healthcare Excellence Award 2023"
+                "*** ***",
+                "*** ***",
+                "*** ***"
             ],
-            quote: "The foundation I received here shaped my dedication to serving others through medicine.",
-            email: "sarah.adebayo@luth.ng",
-            linkedin: "sarah-adebayo-md",
-            story: "Dr. Sarah Adebayo graduated as our valedictorian in 2008 and has since become one of Nigeria's most respected medical professionals. Her journey from our classrooms to leading one of West Africa's premier teaching hospitals is truly inspiring."
+            quote: "The foundation I received here shaped my dedication to serving others.",
+            email: "stephen@gmail.com",
+            linkedin: "stephanyemmitty",
+            story: "Oluwasusi Stephen graduated in year 2017 and has since become one of Nigeria's most respected Developer. His journey from our classrooms to founding a company to make life easier"
         },
         {
             id: 2,
@@ -75,19 +75,19 @@ const AlumniPage = () => {
             name: "Prof. David Igwe",
             graduationYear: "2005",
             currentPosition: "Professor of Economics",
-            company: "University of Cambridge",
+            company: "OAU-IFE",
             field: "Academia",
-            location: "Cambridge, UK",
+            location: "Ife, Osun State",
             image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face",
             achievements: [
-                "Youngest African professor at Cambridge",
+                "Youngest African professor at OAU",
                 "Published 3 acclaimed economics books",
                 "Economic Policy Advisor to World Bank"
             ],
             quote: "The critical thinking skills developed here opened doors to academic excellence worldwide.",
             email: "d.igwe@cam.ac.uk",
             linkedin: "prof-david-igwe",
-            story: "David's academic journey from our school to Cambridge represents the pinnacle of scholarly achievement. His research on African economic development continues to influence global policy."
+            story: "David's academic journey from our school to OAU represents the pinnacle of scholarly achievement. His research on African economic development continues to influence global policy."
         },
         {
             id: 5,
@@ -141,7 +141,7 @@ const AlumniPage = () => {
             id: 1,
             title: "Annual Alumni Homecoming",
             date: "December 15, 2024",
-            location: "School Campus",
+            location: "School Premises",
             type: "Reunion",
             description: "Join fellow alumni for a weekend of memories, networking, and celebration."
         },
@@ -419,7 +419,7 @@ const AlumniPage = () => {
                                             onClick={closeAlumniModal}
                                             className="absolute top-4 right-4 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full p-2 transition-colors"
                                         >
-                                            <X className="w-6 h-6 text-white" />
+                                            <X className="w-6 h-6 text-red-500" />
                                         </button>
 
                                         {/* Name and Title Overlay */}
