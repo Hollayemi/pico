@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { stage1Schema, stage2Schema, stage3Schema, stage4Schema } from "../(pages)/admissions/apply/components/yup";
+import { stage1Schema, stage2Schema, stage3Schema, stage4Schema } from "../app/(pages)/admissions/apply/components/yup";
 
 const useApplicationForm = () => {
     const [currentStage, setCurrentStage] = useState(4);

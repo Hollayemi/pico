@@ -82,15 +82,6 @@ const SocialMediaFeed = () => {
                                     className="w-full h-64 object-cover"
                                 />
 
-                                {/* Video Play Button */}
-                                {post.isVideo && (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <button className="w-12 h-12 bg-black bg-opacity-50 rounded-full flex items-center justify-center hover:bg-opacity-70 transition-all duration-200">
-                                            <Play className="w-6 h-6 text-white ml-1" />
-                                        </button>
-                                    </div>
-                                )}
-
                                 {/* Carousel Indicator */}
                                 {post.isCarousel && (
                                     <div className="absolute top-3 right-3">
@@ -103,26 +94,7 @@ const SocialMediaFeed = () => {
 
                             {/* Post Actions */}
                             <div className="p-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="flex items-center space-x-4">
-                                        <button
-                                            onClick={() => toggleLike(post.id)}
-                                            className={`transition-colors duration-200 ${likedPosts.has(post.id) ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-                                                }`}
-                                        >
-                                            <Heart className={`w-6 h-6 ${likedPosts.has(post.id) ? 'fill-current' : ''}`} />
-                                        </button>
-                                        <button className="text-gray-600 hover:text-gray-800 transition-colors duration-200">
-                                            <MessageCircle className="w-6 h-6" />
-                                        </button>
-                                        <button className="text-gray-600 hover:text-gray-800 transition-colors duration-200">
-                                            <Share className="w-6 h-6" />
-                                        </button>
-                                    </div>
-                                    <button className="text-gray-600 hover:text-gray-800 transition-colors duration-200">
-                                        <Bookmark className="w-6 h-6" />
-                                    </button>
-                                </div>
+                               
 
                                 {/* Likes Count */}
                                 <p className="font-semibold text-sm text-gray-800 mb-2">
@@ -143,18 +115,11 @@ const SocialMediaFeed = () => {
                                         </span>
                                     ))}
                                 </div>
-
-                                {/* Comments */}
-                                <button className="text-gray-500 text-sm hover:text-gray-700">
-                                    View all {post.comments} comments
-                                </button>
                             </div>
                         </div>
                     </SwiperSlide>
                 ))}
-            </Swiper>
-
-           
+            </Swiper>           
         </div>
     );
 };

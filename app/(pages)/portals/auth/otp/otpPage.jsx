@@ -166,7 +166,7 @@ export default function OTPVerification({
                 {!hideTerms && (
                     <div className="text-center mt-6">
                         <p className="text-xs text-gray-500 leading-relaxed">
-                            By continuing, you agree to Urban Lagos's{" "}
+                            By continuing, you agree to PISO's{" "}
                             <a
                                 href="#"
                                 className="text-brand-600 hover:text-brand-700 underline"

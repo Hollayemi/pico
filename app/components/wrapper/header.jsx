@@ -94,8 +94,8 @@ const Header = ({ isHome }) => {
     const secondaryNavItems = [
         { label: 'PISO', href: '/piso' },
         { label: 'Inquire', href: '/inquire' },
-        { label: 'Admissions Portal', href: '/admissions-portal' },
-        { label: 'Parent Portal', href: '/parent-portal' },
+        { label: 'Admissions Portal', href: '/portals/admission' },
+        { label: 'Parent Portal', href: '/portals/parent' },
         { label: 'Boarding', href: '/boarding' },
         { label: 'Kiddies', href: '/kiddies' },
         { label: 'Contact', href: '/contact' },

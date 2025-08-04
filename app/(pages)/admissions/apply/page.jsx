@@ -4,7 +4,7 @@ import HomeWrapper from '@/app/components/wrapper';
 import * as Yup from 'yup';
 import Button from '@/app/components/Form/Button';
 import RenderStage1 from './components/stages/stage1';
-import useApplicationForm from '@/app/hook/application';
+import useApplicationForm from '@/hook/application';
 import RenderStage2 from './components/stages/stage2';
 import RenderStage3 from './components/stages/stage3';
 import RenderStage4 from './components/stages/stage4';
