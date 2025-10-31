@@ -65,10 +65,6 @@ export  const departments = {
                 "Geography",
                 "Economics",
                 "Christian Religious Studies",
-                "Islamic Religious Studies",
-                "French",
-                "Hausa",
-                "Igbo",
                 "Yoruba"
             ],
             compulsorySubjects: [
@@ -115,12 +111,8 @@ export  const departments = {
                 "Financial Accounting",
                 "Commerce",
                 "Economics",
-                "Business Studies",
+                "Government",
                 "Marketing",
-                "Office Practice",
-                "Store Management",
-                "Data Processing",
-                "Statistics"
             ],
             compulsorySubjects: [
                 "English Language",

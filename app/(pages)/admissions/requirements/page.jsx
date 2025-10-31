@@ -25,7 +25,7 @@ export default function ApplicationRequirements() {
                 {/* Requirements Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     {requirementSections.map((section, index) => (
-                        <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div key={index} className={`bg-white ${section.grid && "col-span-2"} rounded-lg shadow-sm border border-gray-200 overflow-hidden`}>
                             <div className={`bg-brand-50 px-6 py-4 border-l-4 border-brand-400`}>
                                 <div className="flex items-center">
                                     <div className={`text-brand-600 mr-3`}>
@@ -37,7 +37,7 @@ export default function ApplicationRequirements() {
                                 </div>
                             </div>
                             <div className="p-6">
-                                <ul className="space-y-3">
+                                <ul className={`space-y-3 ${section.grid && "grid grid-cols-2"}`}>
                                     {section.items.map((item, itemIndex) => (
                                         <li key={itemIndex} className="flex items-start">
                                             <CheckCircle className={`w-4 h-4 text-brand-500 mt-0.5 mr-3 flex-shrink-0`} />

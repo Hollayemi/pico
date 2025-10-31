@@ -47,7 +47,8 @@ export default function RootLayout({ children }) {
         <meta name="twitter:description" content="Progress Intellectual School is committed to providing a nurturing environment that fosters academic excellence " />
         <meta name="twitter:image" content="https://progressschools.com/images/progressLogo.png" />
         <meta name="twitter:site" content="@progressintellectualschool" />
-
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7203031991825999"
+     crossorigin="anonymous"></script>
 
         <link rel="canonical" href="https://progressschools.com" />
       </head>
