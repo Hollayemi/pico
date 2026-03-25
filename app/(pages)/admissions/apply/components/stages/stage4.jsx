@@ -11,10 +11,9 @@ const RenderStage4 = ({ formData, renderErrorMessage, handleInputChange, handleF
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {[
                         { key: 'birthCertificate', label: 'Birth Certificate', required: true },
-                        { key: 'formerSchoolReport', label: 'Former School Report', required: true },
-                        { key: 'immunizationCertificate', label: 'Immunization Certificate', required: false },
+                        { key: 'formerSchoolReport', label: 'Former School Report', required: false },
                         { key: 'medicalReport', label: 'Medical Report', required: false },
-                        { key: 'proofOfPayment', label: 'Proof Of Payment', required: true },
+
                     ].map(({ key, label, required }) => (
                         <div key={key}>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -59,7 +58,7 @@ const RenderStage4 = ({ formData, renderErrorMessage, handleInputChange, handleF
                     <input
                         type="email"
                         value={formData.correspondenceEmail}
-                        onChange={(e) => handleInputChange('correspondenceEmail', e.target.value, contact)}
+                        onChange={(e) => handleInputChange('correspondenceEmail', e.target.value, "contact")}
                         placeholder="Enter an email address with which we can contact you"
                         className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 transition-colors placeholder-gray-400 ${renderErrorMessage('correspondenceEmail')
                             ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
@@ -71,6 +70,19 @@ const RenderStage4 = ({ formData, renderErrorMessage, handleInputChange, handleF
                     )}
                 </div>
                 <div>
+                    <select
+                        value={formData.stateOfOrigin}
+                        onChange={(e) => handleInputChange('stateOfOrigin', e.target.value)}
+                        className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-brand-500 transition-colors ${renderErrorMessage('stateOfOrigin')  ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-brand-500'
+                            }`}
+                    >
+
+                        {['Social Media', 'Friend/Family', 'Website', 'Advertisement', 'Former Student', 'Other'].map((option) => (
+                            <option key={option} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </select>
                     <label className="block text-sm font-medium text-gray-700 mb-2">How did you know about our school?</label>
                     <textarea
                         value={formData.howDidYouKnow}

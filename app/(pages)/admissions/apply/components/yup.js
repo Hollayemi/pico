@@ -6,8 +6,8 @@ export const stage1Schema = Yup.object().shape({
     middleName: Yup.string(),
     dateOfBirth: Yup.string().required('Date of birth is required'),
     gender: Yup.string().required('Gender is required'),
-    bloodGroup: Yup.string().required('Blood group is required'),
-    genotype: Yup.string().required('Genotype is required'),
+    bloodGroup: Yup.string(),
+    genotype: Yup.string(),
     nationality: Yup.string().required('Nationality is required'),
     stateOfOrigin: Yup.string().required('State of origin is required'),
     localGovernment: Yup.string().required('Local government is required'),
@@ -52,8 +52,6 @@ export const stage3Schema = Yup.object().shape({
         classInterestedIn: Yup.string().required('Class interested in is required')
     }),
     health: Yup.object().shape({
-        vaccinations: Yup.object(),
-        otherVaccination: Yup.string(),
         infectiousDisease: Yup.string(),
         foodAllergy: Yup.string()
     })
@@ -63,12 +61,11 @@ export const stage4Schema = Yup.object().shape({
     documents: Yup.object().shape({
         birthCertificate: Yup.mixed(),
         formerSchoolReport: Yup.mixed(),
-        immunizationCertificate: Yup.mixed(),
         medicalReport: Yup.mixed(),
-        proofOfPayment: Yup.mixed()
+       
     }),
     contact: Yup.object().shape({
-        correspondenceEmail: Yup.string().email('Invalid email').required('Correspondence email is required'),
+        correspondenceEmail: Yup.string().email('Invalid email'),
         howDidYouKnow: Yup.string()
     })
 });

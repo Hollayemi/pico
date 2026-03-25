@@ -2,7 +2,7 @@ import { jwtDecode } from 'jwt-decode';
 import toast from 'react-hot-toast';
 
 export const server = process.env.NODE_ENV === "production"
-    ? "https://piso.onrender.com"
+    ? "https://piso-70mk.onrender.com"
     : "http://localhost:5001";
 
 
@@ -41,6 +41,7 @@ export const axiosBaseQuery = (tokenOwner) => async (requestConfig) => {
         const authHeaders = await getAuthHeaders(tokenOwner || actor || "user");
         const mergedHeaders = { ...authHeaders, ...headers };
 
+        console.log({ data })
         // Build URL with params
         const fullUrl = new URL(`${server}/api/v1${url}`);
         if (params) {

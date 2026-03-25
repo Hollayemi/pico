@@ -1,11 +1,18 @@
+// hook/application.js
 import { useState } from "react";
+import { useSubmitApplicationMutation } from "@/redux/slices/admissionSlice";
 import { stage1Schema, stage2Schema, stage3Schema, stage4Schema } from "../app/(pages)/admissions/apply/components/yup";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const useApplicationForm = () => {
-    const [currentStage, setCurrentStage] = useState(4);
+    const router = useRouter();
+    const [submitApplication, { isLoading: isSubmitting }] = useSubmitApplicationMutation();
+
+    const [currentStage, setCurrentStage] = useState(1);
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
-        // Personal info (not in object form)
+        // Personal info
         surname: '',
         firstName: '',
         middleName: '',
@@ -13,7 +20,7 @@ const useApplicationForm = () => {
         gender: '',
         bloodGroup: '',
         genotype: '',
-        nationality: '',
+        nationality: 'Nigeria',
         stateOfOrigin: '',
         localGovernment: '',
         schoolingOption: '',
@@ -92,7 +99,7 @@ const useApplicationForm = () => {
             howDidYouKnow: ''
         }
     });
-
+    console.log(errors)
     const handleInputChange = (field, value, parentField = null) => {
         if (parentField) {
             setFormData(prev => ({
@@ -219,13 +226,46 @@ const useApplicationForm = () => {
 
     const handleSubmit = async () => {
         const isValid = await validateCurrentStage();
-        if (isValid) {
-            console.log('Form submitted:', formData);
-            // Handle form submission here
-            alert('Form submitted successfully!');
+        if (!isValid) {
+            toast.error("Please fill all required fields correctly");
+            return;
+        }
+
+        try {
+            // Create FormData for file upload
+            const submitData = new FormData();
+
+            // Add all text fields
+            Object.keys(formData).forEach(key => {
+                if (key === 'documents') {
+                    // Handle file uploads
+                    Object.keys(formData.documents).forEach(docKey => {
+                        if (formData.documents[docKey]) {
+                            submitData.append(docKey, formData.documents[docKey]);
+                        }
+                    });
+                } else if (typeof formData[key] === 'object') {
+                    // Handle nested objects (father, mother, etc.)
+                    submitData.append(key, JSON.stringify(formData[key]));
+                } else {
+                    submitData.append(key, formData[key]);
+                }
+            });
+
+            // Submit the application
+            const result = await submitApplication(formData).unwrap();
+
+            // Show success message
+            toast.success("Application submitted successfully!");
+
+            // Redirect to success page with application reference
+            router.push(`/admissions/success?ref=${result.data.applicationRef}`);
+
+        } catch (error) {
+            console.error('Submission error:', error);
+            toast.error(error?.data?.message || "Failed to submit application. Please try again.");
         }
     };
-
 
     return {
         handleInputChange,
@@ -241,8 +281,9 @@ const useApplicationForm = () => {
         // data
         formData,
         errors,
-        currentStage
+        currentStage,
+        isSubmitting
     }
 }
 
-export default useApplicationForm
+export default useApplicationForm;

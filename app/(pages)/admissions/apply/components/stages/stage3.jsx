@@ -28,17 +28,17 @@ const RenderStage3 = ({ formData, renderErrorMessage, handleInputChange, handleV
                             </label>
                             <div className="flex gap-2 items-center">
                                 <input
-                                    type="text"
-                                    value={formData.schools[`school${num}`].StartDate}
-                                    onChange={(e) => handleInputChange(`school${num}.StartDate`, e.target.value, 'schools')}
+                                    type="month"
+                                    value={formData.schools[`school${num}StartDate`]}
+                                    onChange={(e) => handleInputChange(`school${num}StartDate`, e.target.value, 'schools')}
                                     placeholder="Start Date"
                                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder-gray-400 text-sm"
                                 />
                                 <span className="text-gray-500 text-sm">to</span>
                                 <input
-                                    type="text"
-                                    value={formData.schools[`school${num}`].EndDate}
-                                    onChange={(e) => handleInputChange(`school${num}.EndDate`, e.target.value, 'schools')}
+                                    type="month"
+                                    value={formData.schools[`school${num}EndDate`]}
+                                    onChange={(e) => handleInputChange(`school${num}EndDate`, e.target.value, 'schools')}
                                     placeholder="End Date"
                                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder-gray-400 text-sm"
                                 />
@@ -109,47 +109,7 @@ const RenderStage3 = ({ formData, renderErrorMessage, handleInputChange, handleV
         </div>
 
 
-        {/* Vaccinations */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-            <div className="bg-brand-100 rounded-t-lg px-6 py-4 border-l-4 border-brand-400">
-                <h2 className="text-lg font-semibold text-gray-800">Record of vaccinations or immunizations</h2>
-            </div>
-            <div className="p-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                    {Object.entries({
-                        polio: 'Polio',
-                        smallPox: 'Small Pox',
-                        others: 'Others',
-                        tetanus: 'Tetanus',
-                        measles: 'Measles',
-                        yellowFever: 'Yellow Fever',
-                        whoopingCough: 'Whooping Cough',
-                        diphtheria: 'Diphtheria',
-                        cholera: 'Cholera'
-                    }).map(([key, label]) => (
-                        <label key={key} className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={formData.health.vaccinations[key]}
-                                onChange={(e) => handleVaccinationChange(key, e.target.checked)}
-                                className="mr-2"
-                            />
-                            {label}
-                        </label>
-                    ))}
-                </div>
-                <div>
-                    <input
-                        type="text"
-                        value={formData.health.otherVaccination}
-                        onChange={(e) => handleInputChange('health.otherVaccination', e.target.value)}
-                        placeholder="Others. Please specify"
-                        className="w-full px-4 py-3 border-2 border-brand-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors placeholder-gray-400"
-                    />
-                </div>
-            </div>
-        </div>
-
+    
         {/* Health Challenges */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
             <div className="bg-brand-100 rounded-t-lg px-6 py-4 border-l-4 border-brand-400">

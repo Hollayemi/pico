@@ -1,6 +1,7 @@
 import { bloodGroupOptions, genderOptions, genotypeOptions } from "..";
-
+import Nigeria from "../nigeria.json";
 const { default: Input } = require("@/app/components/Form/Input");
+
 
 const RenderStage1 = ({ formData, renderErrorMessage, handleInputChange, errors }) => (
     <div className="space-y-6">
@@ -93,7 +94,7 @@ const RenderStage1 = ({ formData, renderErrorMessage, handleInputChange, errors 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Blood Group <span className="text-red-500">*</span>
+                            Blood Group <span className="italic">(Optional)</span>
                         </label>
                         <select
                             value={formData.bloodGroup}
@@ -111,7 +112,7 @@ const RenderStage1 = ({ formData, renderErrorMessage, handleInputChange, errors 
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Genotype <span className="text-red-500">*</span>
+                            Genotype <span className="italic">(Optional)</span>
                         </label>
                         <select
                             value={formData.genotype}
@@ -137,6 +138,7 @@ const RenderStage1 = ({ formData, renderErrorMessage, handleInputChange, errors 
                         </label>
                         <Input
                             type="text"
+                            disabled
                             value={formData.nationality}
                             onChange={(e) => handleInputChange('nationality', e.target.value)}
                             placeholder="Nationality"
@@ -149,28 +151,64 @@ const RenderStage1 = ({ formData, renderErrorMessage, handleInputChange, errors 
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             State Of Origin <span className="text-red-500">*</span>
                         </label>
-                        <Input
+
+                        <select
+                            value={formData.stateOfOrigin}
+                            onChange={(e) => handleInputChange('stateOfOrigin', e.target.value)}
+                            className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-brand-500 transition-colors ${errors.genotype ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-brand-500'
+                                }`}
+                        >
+                            <option key="" value="">
+                                Select State
+                            </option>
+
+                            {Nigeria.map((option) => (
+                                <option key={option.state} value={option.state}>
+                                    {option.state}
+                                </option>
+                            ))}
+                        </select>
+                        {/* <Input
                             type="text"
                             value={formData.stateOfOrigin}
                             onChange={(e) => handleInputChange('stateOfOrigin', e.target.value)}
                             placeholder="State Of Origin"
                             className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-brand-500 transition-colors placeholder-gray-400 ${errors.stateOfOrigin ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-brand-500'
                                 }`}
-                        />
+                        /> */}
                         {renderErrorMessage('stateOfOrigin')}
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Local Government <span className="text-red-500">*</span>
                         </label>
-                        <Input
+                        <select
+                            value={formData.localGovernment}
+                            onChange={(e) => handleInputChange('localGovernment', e.target.value)}
+                            className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-brand-500 transition-colors ${errors.genotype ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-brand-500'
+                                }`}
+                        >
+                            <option value="">
+                                Select LGA
+                            </option>
+                            {
+                                Nigeria.filter(
+                                    (x) => x.state === formData.stateOfOrigin && x.lgas
+                                )[0]?.lgas.map((option) => (
+                                    <option key={option} value={option}>
+                                        {option}
+                                    </option>
+                                ))
+                            }
+                        </select>
+                        {/* <Input
                             type="text"
                             value={formData.localGovernment}
                             onChange={(e) => handleInputChange('localGovernment', e.target.value)}
                             placeholder="Local Government Area"
                             className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-brand-500 transition-colors placeholder-gray-400 ${errors.localGovernment ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-brand-500'
                                 }`}
-                        />
+                        /> */}
                         {renderErrorMessage('localGovernment')}
                     </div>
                 </div>
