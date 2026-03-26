@@ -6,6 +6,39 @@ export const adminMenu = [
     roles: ["super_admin", "admin", "principal"],
   },
   {
+    name: "Admissions",
+    path: "/portals/admin/admissions",
+    icon: "user-plus",
+    roles: ["super_admin", "admin"],
+    children: [
+      {
+        name: "Applications",
+        path: "/portals/admin/admissions/applications",
+        roles: ["super_admin", "admin"],
+      },
+      {
+        name: "Add Application",
+        path: "/portals/admin/admissions/apply",
+        roles: ["super_admin", "admin"],
+      },
+      {
+        name: "Applicants List",
+        path: "/portals/admin/admissions/applicants",
+        roles: ["super_admin", "admin"],
+      },
+      {
+        name: "Admission Screening",
+        path: "/portals/admin/admissions/screening",
+        roles: ["super_admin", "admin"],
+      },
+      {
+        name: "Admission Offers",
+        path: "/portals/admin/admissions/offers",
+        roles: ["super_admin", "admin"],
+      },
+    ]
+  },
+  {
     name: "Students",
     path: "/portals/admin/students",
     icon: "users",
