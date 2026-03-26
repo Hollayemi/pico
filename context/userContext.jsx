@@ -16,18 +16,18 @@ const UserDataProvider = ({ children }) => {
     const pathname = usePathname()
     const [loading, setLoading] = useState(false);
     // http://localhost:3000/portals/auth/admission/login
-    useEffect(() => {
-        const currentPath = pathname.split("?")[0];
-        const isProtected = protectedRoutes.some(route => currentPath.includes(route));
-        const isAuthFolder = currentPath.split("/")[2]
-        const intended = currentPath.split("/")[2]
-        if (isAuthFolder === "auth") {
-            return;
-        }
-        if (isProtected && !isAuthenticated()) {
-            router.replace(`/portals/auth/${intended}/login?returnurl=${pathname}`);
-        }
-    }, [router.pathname]);
+    // useEffect(() => {
+    //     const currentPath = pathname.split("?")[0];
+    //     const isProtected = protectedRoutes.some(route => currentPath.includes(route));
+    //     const isAuthFolder = currentPath.split("/")[2]
+    //     const intended = currentPath.split("/")[2]
+    //     if (isAuthFolder === "auth") {
+    //         return;
+    //     }
+    //     if (isProtected && !isAuthenticated()) {
+    //         router.replace(`/portals/auth/${intended}/login?returnurl=${pathname}`);
+    //     }
+    // }, [router.pathname]);
 
     const {
         data: userInfo,

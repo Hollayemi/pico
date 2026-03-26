@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PISO Admin Layout</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand-25:  #f6fcf0;
+    --brand-50:  #edf8e2;
+    --brand-100: #d9f2c5;
+    --brand-200: #bae99d;
+    --brand-300: #7dc91e;
+    --brand-400: #6db319;
+    --brand-500: #5d9e15;
+    --brand-600: #4a7e11;
+    --brand-700: #3b630e;
+    --brand-800: #2f4e0c;
+    --brand-900: #253f0a;
+    --sidebar-w: 256px;
+    --sidebar-w-collapsed: 64px;
+    --topbar-h: 64px;
+    --radius: 12px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+    --transition: 0.22s cubic-bezier(.4,0,.2,1);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: #f5f7fa;
+    color: #1a1a2e;
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: fixed; inset-y: 0; left: 0; z-index: 30;
+    width: var(--sidebar-w);
+    background: #fff;
+    border-right: 1px solid #f0f0f0;
+    box-shadow: var(--shadow-sm);
+    display: flex; flex-direction: column;
+    transition: width var(--transition);
+    overflow: hidden;
+  }
+  .sidebar.collapsed { width: var(--sidebar-w-collapsed); }
+
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 12px;
+    padding: 20px 16px 20px;
+    border-bottom: 1px solid #f0f4f0;
+    min-height: 72px;
+    transition: padding var(--transition);
+    overflow: hidden;
+  }
+  .sidebar.collapsed .sidebar-logo { justify-content: center; padding: 20px 8px; }
+  
+  .logo-mark {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-700));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 14px;
+    flex-shrink: 0; box-shadow: 0 2px 8px rgba(74,126,17,.35);
+  }
+  .logo-text { min-width: 0; transition: opacity var(--transition), width var(--transition); }
+  .logo-text h2 { font-size: 13px; font-weight: 800; color: var(--brand-800); line-height: 1.2; white-space: nowrap; }
+  .logo-text p  { font-size: 10px; color: #9ca3af; margin-top: 1px; white-space: nowrap; }
+  .sidebar.collapsed .logo-text { opacity: 0; width: 0; overflow: hidden; }
+
+  /* Nav */
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 14px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .sidebar-nav::-webkit-scrollbar { width: 4px; }
+  .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-nav::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 9px 12px; border-radius: 10px;
+    font-size: 13.5px; font-weight: 500; color: #4b5563;
+    cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+    transition: background var(--transition), color var(--transition);
+    white-space: nowrap; overflow: hidden;
+    text-decoration: none;
+  }
+  .nav-item:hover    { background: var(--brand-50); color: var(--brand-700); }
+  .nav-item.active   { background: var(--brand-600); color: #fff; box-shadow: 0 2px 8px rgba(74,126,17,.25); }
+  .nav-item.parent-active { background: var(--brand-600); color: #fff; }
+
+  .nav-item .icon { flex-shrink: 0; display: flex; align-items: center; color: #9ca3af; }
+  .nav-item:hover .icon, .nav-item.parent-active .icon { color: var(--brand-600); }
+  .nav-item.active .icon, .nav-item.parent-active .icon { color: #fff; }
+
+  .nav-item-label { flex: 1; transition: opacity var(--transition); }
+  .sidebar.collapsed .nav-item-label,
+  .sidebar.collapsed .nav-chevron { opacity: 0; width: 0; overflow: hidden; }
+
+  .nav-chevron { transition: transform .2s, opacity var(--transition); flex-shrink: 0; color: #d1d5db; }
+  .nav-chevron.open { transform: rotate(180deg); }
+  .nav-item.parent-active .nav-chevron { color: rgba(255,255,255,.7); }
+
+  /* Sub-menu */
+  .sub-menu { margin: 2px 0 2px 16px; padding-left: 12px; border-left: 2px solid #e8f5dc; display: flex; flex-direction: column; gap: 1px; }
+  .sub-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7.5px 12px; border-radius: 8px;
+    font-size: 13px; font-weight: 500; color: #6b7280;
+    cursor: pointer; text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  .sub-item:hover  { background: var(--brand-50); color: var(--brand-700); }
+  .sub-item.active { background: var(--brand-50); color: var(--brand-700); font-weight: 600; }
+  .sub-dot { width: 6px; height: 6px; border-radius: 50%; background: #d1d5db; flex-shrink: 0; transition: background .15s; }
+  .sub-item.active .sub-dot, .sub-item:hover .sub-dot { background: var(--brand-500); }
+
+  /* Sidebar footer */
+  .sidebar-footer { padding: 12px; border-top: 1px solid #f0f0f0; }
+  .collapse-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 8px 12px; border-radius: 8px; border: none;
+    background: none; font-size: 12px; color: #9ca3af; cursor: pointer;
+    transition: background .15s, color .15s; font-family: inherit;
+  }
+  .collapse-btn:hover { background: var(--brand-50); color: var(--brand-600); }
+  .sidebar.collapsed .collapse-btn span { display: none; }
+
+  /* ─── MAIN ─── */
+  .main-wrap {
+    flex: 1;
+    margin-left: var(--sidebar-w);
+    transition: margin-left var(--transition);
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+  .sidebar.collapsed ~ .main-wrap { margin-left: var(--sidebar-w-collapsed); }
+
+  /* ─── APPBAR ─── */
+  .appbar {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #f0f0f0;
+    box-shadow: var(--shadow-sm);
+    height: var(--topbar-h);
+    display: flex; align-items: center;
+    gap: 16px; padding: 0 24px;
+  }
+
+  .appbar-title h1 { font-size: 15px; font-weight: 700; color: #1f2937; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #9ca3af; margin-top: 1px; }
+  .breadcrumb a { color: #9ca3af; text-decoration: none; cursor: pointer; }
+  .breadcrumb a:hover { color: var(--brand-600); }
+  .breadcrumb-sep { color: #d1d5db; }
+  .breadcrumb-current { color: #4b5563; font-weight: 500; }
+
+  .appbar-actions { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+
+  .icon-btn {
+    width: 38px; height: 38px; border-radius: 10px; border: none;
+    background: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #9ca3af; transition: background .15s, color .15s;
+  }
+  .icon-btn:hover { background: #f3f4f6; color: var(--brand-600); }
+
+  /* Notif badge */
+  .notif-wrap { position: relative; }
+  .notif-badge {
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #f97316; border: 2px solid #fff;
+  }
+
+  /* Profile */
+  .profile-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 8px 4px 4px; border-radius: 10px; border: none;
+    background: none; cursor: pointer; font-family: inherit;
+    transition: background .15s;
+  }
+  .profile-btn:hover { background: #f3f4f6; }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--brand-400), var(--brand-700));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 13px; flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(74,126,17,.3);
+  }
+  .profile-info { text-align: left; }
+  .profile-name { font-size: 12px; font-weight: 600; color: #1f2937; white-space: nowrap; }
+  .profile-role { font-size: 11px; color: #9ca3af; white-space: nowrap; text-transform: capitalize; }
+
+  /* Dropdown */
+  .dropdown {
+    position: absolute; right: 0; top: calc(100% + 8px);
+    background: #fff; border-radius: 14px;
+    box-shadow: var(--shadow-lg); border: 1px solid #f0f0f0;
+    overflow: hidden; min-width: 220px; z-index: 100;
+    animation: dropIn .18s ease;
+  }
+  @keyframes dropIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+  .dropdown-header { padding: 14px 16px; background: linear-gradient(135deg, var(--brand-50), #fff); border-bottom: 1px solid #f0f0f0; }
+  .dropdown-header p { font-size: 13px; font-weight: 600; color: #1f2937; }
+  .dropdown-header span { font-size: 11.5px; color: #6b7280; }
+  .dropdown-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; font-size: 13px; color: #4b5563;
+    cursor: pointer; transition: background .12s, color .12s;
+    border: none; background: none; width: 100%; font-family: inherit; text-align: left;
+  }
+  .dropdown-item:hover { background: var(--brand-50); color: var(--brand-700); }
+  .dropdown-item.danger { color: #ef4444; }
+  .dropdown-item.danger:hover { background: #fef2f2; }
+  .dropdown-divider { height: 1px; background: #f0f0f0; }
+
+  /* Notif dropdown */
+  .notif-dropdown { min-width: 300px; right: 0; }
+  .notif-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f0f0f0; }
+  .notif-header h4 { font-size: 13px; font-weight: 600; color: #1f2937; }
+  .notif-badge-pill { font-size: 11px; background: var(--brand-100); color: var(--brand-700); padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .notif-item { display: flex; gap: 10px; padding: 11px 16px; transition: background .12s; cursor: pointer; border-bottom: 1px solid #fafafa; }
+  .notif-item:hover { background: #fafafa; }
+  .notif-item.unread { background: #f8fdf3; }
+  .notif-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .notif-dot.unread { background: var(--brand-500); }
+  .notif-dot.read   { background: #e5e7eb; }
+  .notif-text { font-size: 12.5px; color: #374151; line-height: 1.45; }
+  .notif-time { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+  .notif-footer { padding: 9px 16px; text-align: center; }
+  .notif-footer a { font-size: 12px; color: var(--brand-600); font-weight: 600; cursor: pointer; text-decoration: none; }
+
+  /* ─── PAGE CONTENT ─── */
+  .page-content { flex: 1; padding: 24px; }
+
+  /* Stats grid demo */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: #fff; border-radius: 14px;
+    padding: 20px; border: 1px solid #f0f0f0;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow .2s, transform .2s;
+  }
+  .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .stat-icon { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+  .stat-value { font-size: 26px; font-weight: 800; color: #1f2937; line-height: 1; }
+  .stat-label { font-size: 12.5px; color: #9ca3af; font-weight: 500; margin-top: 4px; }
+  .stat-change { font-size: 12px; font-weight: 600; margin-top: 8px; display: flex; align-items: center; gap: 3px; }
+  .stat-change.up   { color: #10b981; }
+  .stat-change.down { color: #ef4444; }
+
+  .section-title { font-size: 15px; font-weight: 700; color: #1f2937; margin-bottom: 14px; }
+
+  .demo-table { background: #fff; border-radius: 14px; border: 1px solid #f0f0f0; box-shadow: var(--shadow-sm); overflow: hidden; }
+  .demo-table-head { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
+  .demo-table-row  { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; border-bottom: 1px solid #fafafa; transition: background .12s; }
+  .demo-table-row:last-child { border-bottom: none; }
+  .demo-table-row:hover { background: #fafafa; }
+  .th, .td { padding: 12px 16px; font-size: 12.5px; }
+  .th { color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; font-size: 11px; }
+  .td { color: #374151; font-weight: 500; }
+  .pill { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+  .pill.green  { background: #d1fae5; color: #065f46; }
+  .pill.orange { background: #ffedd5; color: #9a3412; }
+  .pill.blue   { background: #dbeafe; color: #1e40af; }
+
+  /* footer */
+  .page-footer { padding: 16px 24px; border-top: 1px solid #f0f0f0; background: #fff; text-align: center; font-size: 12px; color: #9ca3af; }
+
+  /* Mobile overlay */
+  .mobile-overlay {
+    display: none; position: fixed; inset: 0; z-index: 25;
+    background: rgba(0,0,0,.4); backdrop-filter: blur(3px);
+  }
+
+  /* Mobile toggle */
+  .mobile-menu-btn { display: none; }
+
+  @media (max-width: 1023px) {
+    .sidebar { transform: translateX(-100%); transition: transform var(--transition), width var(--transition); width: 280px; }
+    .sidebar.mobile-open { transform: translateX(0); }
+    .main-wrap { margin-left: 0 !important; }
+    .mobile-overlay { display: block; }
+    .mobile-menu-btn { display: flex; }
+    .profile-info { display: none; }
+    .collapse-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-mark">P</div>
+    <div class="logo-text">
+      <h2>PISO Admin</h2>
+      <p>Progress Intellectual School</p>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="sidebar-nav" id="sidebarNav"></nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <button class="collapse-btn" id="collapseBtn" onclick="toggleCollapse()">
+      <i data-lucide="chevron-left" style="width:15px;height:15px"></i>
+      <span>Collapse</span>
+    </button>
+  </div>
+</aside>
+
+<!-- Mobile overlay -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobile()" style="display:none;opacity:0;pointer-events:none;"></div>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<div class="main-wrap" id="mainWrap">
+
+  <!-- AppBar -->
+  <header class="appbar">
+    <!-- Mobile menu button -->
+    <button class="icon-btn mobile-menu-btn" onclick="openMobile()">
+      <i data-lucide="menu" style="width:20px;height:20px"></i>
+    </button>
+
+    <!-- Title + breadcrumb -->
+    <div class="appbar-title" id="appbarTitle">
+      <h1>Dashboard</h1>
+      <div class="breadcrumb">
+        <a><i data-lucide="home" style="width:11px;height:11px;vertical-align:middle"></i></a>
+        <span class="breadcrumb-sep">›</span>
+        <span class="breadcrumb-current">Dashboard</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="appbar-actions">
+      <!-- Search -->
+      <button class="icon-btn">
+        <i data-lucide="search" style="width:17px;height:17px"></i>
+      </button>
+
+      <!-- Dark mode placeholder -->
+      <button class="icon-btn">
+        <i data-lucide="moon" style="width:17px;height:17px"></i>
+      </button>
+
+      <!-- Notifications -->
+      <div style="position:relative" id="notifWrap">
+        <button class="icon-btn notif-wrap" onclick="toggleNotif(event)">
+          <i data-lucide="bell" style="width:17px;height:17px"></i>
+          <span class="notif-badge"></span>
+        </button>
+        <div class="dropdown notif-dropdown" id="notifDropdown" style="display:none">
+          <div class="notif-header">
+            <h4>Notifications</h4>
+            <span class="notif-badge-pill">2 new</span>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-dot unread"></div>
+            <div><div class="notif-text">New admission application received</div><div class="notif-time">2 minutes ago</div></div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-dot unread"></div>
+            <div><div class="notif-text">Fee payment confirmed for JSS 2A</div><div class="notif-time">1 hour ago</div></div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-dot read"></div>
+            <div><div class="notif-text">Staff payroll processing complete</div><div class="notif-time">3 hours ago</div></div>
+          </div>
+          <div class="notif-footer"><a>View all notifications</a></div>
+        </div>
+      </div>
+
+      <!-- Profile -->
+      <div style="position:relative" id="profileWrap">
+        <button class="profile-btn" onclick="toggleProfile(event)">
+          <div class="avatar">S</div>
+          <div class="profile-info">
+            <div class="profile-name">Samuel Adeniyi</div>
+            <div class="profile-role">Super Admin</div>
+          </div>
+          <i data-lucide="chevron-down" id="profileChevron" style="width:13px;height:13px;color:#9ca3af;margin-left:2px;transition:transform .2s"></i>
+        </button>
+        <div class="dropdown" id="profileDropdown" style="display:none">
+          <div class="dropdown-header">
+            <p>Samuel Adeniyi</p>
+            <span>principal@progressschool.com</span>
+          </div>
+          <button class="dropdown-item"><i data-lucide="user" style="width:14px;height:14px;color:#9ca3af"></i> My Profile</button>
+          <button class="dropdown-item"><i data-lucide="settings" style="width:14px;height:14px;color:#9ca3af"></i> Settings</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item danger"><i data-lucide="log-out" style="width:14px;height:14px"></i> Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content (demo dashboard) -->
+  <main class="page-content">
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#edf8e2"><i data-lucide="users" style="width:20px;height:20px;color:#4a7e11"></i></div>
+        <div class="stat-value">1,248</div>
+        <div class="stat-label">Total Students</div>
+        <div class="stat-change up">↑ 4.2% this term</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#dbeafe"><i data-lucide="briefcase" style="width:20px;height:20px;color:#1d4ed8"></i></div>
+        <div class="stat-value">87</div>
+        <div class="stat-label">Staff Members</div>
+        <div class="stat-change up">↑ 2 new hired</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fef3c7"><i data-lucide="credit-card" style="width:20px;height:20px;color:#d97706"></i></div>
+        <div class="stat-value">₦4.2M</div>
+        <div class="stat-label">Fees Collected</div>
+        <div class="stat-change up">↑ 12% vs last term</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fce7f3"><i data-lucide="file-text" style="width:20px;height:20px;color:#be185d"></i></div>
+        <div class="stat-value">14</div>
+        <div class="stat-label">Pending Applications</div>
+        <div class="stat-change down">↓ 3 this week</div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="section-title">Recent Admissions</div>
+    <div class="demo-table">
+      <div class="demo-table-head">
+        <div class="th">Student</div>
+        <div class="th">Class</div>
+        <div class="th">Date</div>
+        <div class="th">Status</div>
+      </div>
+      <div class="demo-table-row"><div class="td">Oluwasusi Adeola</div><div class="td">JSS 1</div><div class="td">Mar 20, 2026</div><div class="td"><span class="pill green">Approved</span></div></div>
+      <div class="demo-table-row"><div class="td">Chukwuemeka Bright</div><div class="td">SS 2</div><div class="td">Mar 19, 2026</div><div class="td"><span class="pill orange">Pending</span></div></div>
+      <div class="demo-table-row"><div class="td">Fatima Lawal</div><div class="td">JSS 2</div><div class="td">Mar 18, 2026</div><div class="td"><span class="pill green">Approved</span></div></div>
+      <div class="demo-table-row"><div class="td">Adebayo Michael</div><div class="td">SS 1</div><div class="td">Mar 17, 2026</div><div class="td"><span class="pill blue">Under Review</span></div></div>
+      <div class="demo-table-row"><div class="td">Ngozi Okonkwo</div><div class="td">Primary 5</div><div class="td">Mar 15, 2026</div><div class="td"><span class="pill green">Approved</span></div></div>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    © 2026 Progress Intellectual School — Admin Portal. All rights reserved.
+  </footer>
+</div>
+
+<script>
+// ─── Menu config ───
+const MENU = [
+  { name:"Dashboard",     path:"/admin/dashboard",     icon:"layout-dashboard", roles:["super_admin","admin","principal"] },
+  { name:"Students",      path:"/admin/students",      icon:"users",            roles:["super_admin","admin"],
+    children:[
+      { name:"All Students", path:"/admin/students/all",        roles:["super_admin","admin"] },
+      { name:"Add Student",  path:"/admin/students/add",        roles:["super_admin","admin"] },
+      { name:"Promotions",   path:"/admin/students/promotions", roles:["super_admin","admin"] },
+    ]},
+  { name:"Staff",         path:"/admin/staff",         icon:"briefcase",        roles:["super_admin","admin"],
+    children:[
+      { name:"All Staff", path:"/admin/staff/all",     roles:["super_admin","admin"] },
+      { name:"Add Staff", path:"/admin/staff/add",     roles:["super_admin","admin"] },
+      { name:"Payroll",   path:"/admin/staff/payroll", roles:["super_admin","accountant"] },
+    ]},
+  { name:"Academics",     path:"/admin/academics",     icon:"book-open",        roles:["super_admin","admin","principal"],
+    children:[
+      { name:"Classes",   path:"/admin/academics/classes",    roles:["super_admin","admin"] },
+      { name:"Subjects",  path:"/admin/academics/subjects",   roles:["super_admin","admin"] },
+      { name:"Timetable", path:"/admin/academics/timetable",  roles:["super_admin","admin","principal"] },
+    ]},
+  { name:"Attendance",    path:"/admin/attendance",    icon:"calendar",         roles:["super_admin","admin","teacher"] },
+  { name:"Examinations",  path:"/admin/exams",         icon:"file-text",        roles:["super_admin","admin","teacher"],
+    children:[
+      { name:"Create Exam",   path:"/admin/exams/create",  roles:["super_admin","admin"] },
+      { name:"Results",       path:"/admin/exams/results",  roles:["super_admin","admin","teacher"] },
+      { name:"Report Cards",  path:"/admin/exams/reports",  roles:["super_admin","admin"] },
+    ]},
+  { name:"Finance",       path:"/admin/finance",       icon:"credit-card",      roles:["super_admin","accountant"],
+    children:[
+      { name:"Fees",     path:"/admin/finance/fees",     roles:["super_admin","accountant"] },
+      { name:"Payments", path:"/admin/finance/payments", roles:["super_admin","accountant"] },
+      { name:"Invoices", path:"/admin/finance/invoices", roles:["super_admin","accountant"] },
+    ]},
+  { name:"Communication", path:"/admin/communication", icon:"message-square",   roles:["super_admin","admin","principal"] },
+  { name:"Library",       path:"/admin/library",       icon:"library",          roles:["super_admin","admin"] },
+  { name:"Transport",     path:"/admin/transport",     icon:"bus",              roles:["super_admin","admin"] },
+  { name:"Inventory",     path:"/admin/inventory",     icon:"box",              roles:["super_admin","admin"] },
+  { name:"Reports",       path:"/admin/reports",       icon:"bar-chart-2",      roles:["super_admin","admin","principal"] },
+  { name:"Settings",      path:"/admin/settings",      icon:"settings",         roles:["super_admin"] },
+];
+
+const USER_ROLE = "super_admin";
+let activePath = "/admin/dashboard";
+let openMenus  = new Set();
+let collapsed  = localStorage.getItem("sidebar_collapsed") === "true";
+
+// ─── Render sidebar ───
+function renderSidebar() {
+  const nav = document.getElementById("sidebarNav");
+  const sidebar = document.getElementById("sidebar");
+  nav.innerHTML = "";
+
+  if (collapsed) sidebar.classList.add("collapsed");
+  else           sidebar.classList.remove("collapsed");
+
+  const filtered = MENU.filter(m => m.roles.includes(USER_ROLE));
+
+  filtered.forEach(item => {
+    const hasChildren = item.children && item.children.length > 0;
+    const isActive = activePath === item.path;
+    const isParent = hasChildren && item.children.some(c => activePath.startsWith(c.path));
+
+    if (hasChildren) {
+      const wrap = document.createElement("div");
+
+      const btn = document.createElement("button");
+      btn.className = "nav-item" + (isParent ? " parent-active" : "");
+      btn.title = collapsed ? item.name : "";
+      btn.innerHTML = `
+        <span class="icon"><i data-lucide="${item.icon}" style="width:17px;height:17px"></i></span>
+        <span class="nav-item-label">${item.name}</span>
+        <span class="nav-chevron ${openMenus.has(item.path) || isParent ? "open" : ""}">
+          <i data-lucide="chevron-down" style="width:13px;height:13px"></i>
+        </span>`;
+      btn.onclick = () => {
+        openMenus.has(item.path) ? openMenus.delete(item.path) : openMenus.add(item.path);
+        renderSidebar();
+        lucide.createIcons();
+      };
+      wrap.appendChild(btn);
+
+      if ((openMenus.has(item.path) || isParent) && !collapsed) {
+        const sub = document.createElement("div");
+        sub.className = "sub-menu";
+        item.children.filter(c => c.roles.includes(USER_ROLE)).forEach(child => {
+          const a = document.createElement("a");
+          a.className = "sub-item" + (activePath === child.path ? " active" : "");
+          a.href = "#";
+          a.innerHTML = `<span class="sub-dot"></span>${child.name}`;
+          a.onclick = (e) => { e.preventDefault(); navigate(child.path); };
+          sub.appendChild(a);
+        });
+        wrap.appendChild(sub);
+      }
+      nav.appendChild(wrap);
+    } else {
+      const a = document.createElement("a");
+      a.className = "nav-item" + (isActive ? " active" : "");
+      a.href = "#";
+      a.title = collapsed ? item.name : "";
+      a.innerHTML = `
+        <span class="icon"><i data-lucide="${item.icon}" style="width:17px;height:17px"></i></span>
+        <span class="nav-item-label">${item.name}</span>`;
+      a.onclick = (e) => { e.preventDefault(); navigate(item.path); };
+      nav.appendChild(a);
+    }
+  });
+
+  // Collapse icon direction
+  const icon = document.querySelector("#collapseBtn i");
+  if (icon) icon.setAttribute("data-lucide", collapsed ? "chevron-right" : "chevron-left");
+}
+
+function navigate(path) {
+  activePath = path;
+  const segments = path.split("/").filter(Boolean);
+  const title = segments[segments.length - 1].split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  document.querySelector("#appbarTitle h1").textContent = title;
+  document.querySelector(".breadcrumb").innerHTML = `
+    <a><i data-lucide="home" style="width:11px;height:11px;vertical-align:middle"></i></a>
+    ${segments.slice(1).map((s, i) => {
+      const label = s.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+      const isLast = i === segments.length - 2;
+      return `<span class="breadcrumb-sep">›</span>${isLast ? `<span class="breadcrumb-current">${label}</span>` : `<a>${label}</a>`}`;
+    }).join("")}`;
+  renderSidebar();
+  lucide.createIcons();
+  closeMobile();
+}
+
+function toggleCollapse() {
+  collapsed = !collapsed;
+  localStorage.setItem("sidebar_collapsed", collapsed);
+  renderSidebar();
+  lucide.createIcons();
+}
+
+function openMobile()  {
+  const s = document.getElementById("sidebar");
+  const o = document.getElementById("mobileOverlay");
+  s.classList.add("mobile-open");
+  o.style.display = "block";
+  requestAnimationFrame(() => { o.style.opacity = "1"; o.style.pointerEvents = "auto"; });
+}
+function closeMobile() {
+  const s = document.getElementById("sidebar");
+  const o = document.getElementById("mobileOverlay");
+  s.classList.remove("mobile-open");
+  o.style.opacity = "0"; o.style.pointerEvents = "none";
+  setTimeout(() => { o.style.display = "none"; }, 250);
+}
+
+// Dropdown toggles
+let activeDropdown = null;
+function closeAll() { 
+  document.getElementById("profileDropdown").style.display = "none";
+  document.getElementById("notifDropdown").style.display   = "none";
+  document.getElementById("profileChevron").style.transform = "";
+}
+function toggleProfile(e) {
+  e.stopPropagation();
+  const d = document.getElementById("profileDropdown");
+  const chevron = document.getElementById("profileChevron");
+  const open = d.style.display !== "none";
+  closeAll();
+  if (!open) {
+    d.style.display = "block";
+    chevron.style.transform = "rotate(180deg)";
+  }
+}
+function toggleNotif(e) {
+  e.stopPropagation();
+  const d = document.getElementById("notifDropdown");
+  const open = d.style.display !== "none";
+  closeAll();
+  if (!open) d.style.display = "block";
+}
+document.addEventListener("click", closeAll);
+
+// Boot
+renderSidebar();
+lucide.createIcons();
+</script>
+</body>
+</html>
