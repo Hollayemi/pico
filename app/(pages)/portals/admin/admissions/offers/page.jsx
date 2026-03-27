@@ -225,12 +225,12 @@ export default function OffersPage() {
           { label: "Awaiting Response", value: stats.pending, icon: Hourglass, color: "bg-amber-50 text-amber-600" },
           { label: "Declined", value: stats.declined, icon: Ban, color: "bg-red-50 text-red-600" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
+          <div key={s.label} className="bg-brand-700 rounded-2xl border border-gray-100 p-4 shadow-sm">
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2.5 ${s.color}`}>
               <s.icon className="w-4 h-4" />
             </div>
-            <p className="text-2xl font-black text-gray-900">{s.value}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+            <p className="text-2xl font-black text-gray-50">{s.value}</p>
+            <p className="text-xs text-gray-200 mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>

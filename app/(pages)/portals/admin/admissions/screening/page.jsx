@@ -239,12 +239,12 @@ export default function ScreeningPage() {
           { label: "Verified", value: stats.verified, icon: CheckCircle, color: "bg-green-50 text-green-600" },
           { label: "Rejected", value: stats.rejected, icon: XCircle, color: "bg-red-50 text-red-600" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div key={s.label} className="bg-green-700 rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.color}`}>
               <s.icon className="w-5 h-5" />
             </div>
-            <p className="text-2xl font-black text-gray-900">{s.value}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+            <p className="text-2xl font-black text-gray-50">{s.value}</p>
+            <p className="text-xs text-gray-200 mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>

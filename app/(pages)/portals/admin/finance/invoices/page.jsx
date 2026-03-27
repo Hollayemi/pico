@@ -186,13 +186,13 @@ export default function InvoicesPage() {
           { label: "Partial", val: stats.partial, icon: Clock, color: "bg-orange-50 text-orange-600" },
           { label: "Unpaid", val: stats.unpaid, icon: AlertCircle, color: "bg-red-50 text-red-600" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-100 p-4 flex items-center gap-3 shadow-sm">
+          <div key={s.label} className="bg-brand-600 rounded-xl border border-gray-100 p-4 flex items-center gap-3 shadow-sm">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${s.color}`}>
               <s.icon className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900">{s.val}</p>
-              <p className="text-xs text-gray-400">{s.label}</p>
+              <p className="text-lg font-black text-gray-50">{s.val}</p>
+              <p className="text-xs text-gray-100">{s.label}</p>
             </div>
           </div>
         ))}

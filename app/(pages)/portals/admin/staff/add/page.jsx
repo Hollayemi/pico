@@ -380,7 +380,7 @@ export default function AddStaffPage() {
                   <Select field="bank" options={BANKS} placeholder="Select bank" />
                 </Field>
                 <Field label="Account Number" required error={errors.accountNumber}>
-                  <Input field="accountNumber" placeholder="10-digit account number" maxLength={10} />
+                  <Input field="accountNumber" placeholder="Account number" />
                 </Field>
               </div>
               <Field label="Account Name">

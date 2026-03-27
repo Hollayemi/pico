@@ -22,11 +22,6 @@ export const adminMenu = [
         roles: ["super_admin", "admin"],
       },
       {
-        name: "Applicants List",
-        path: "/portals/admin/admissions/applicants",
-        roles: ["super_admin", "admin"],
-      },
-      {
         name: "Admission Screening",
         path: "/portals/admin/admissions/screening",
         roles: ["super_admin", "admin"],

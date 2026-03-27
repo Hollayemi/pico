@@ -202,15 +202,15 @@ export default function ApplicationsPage() {
           { label: "Approved for Screening", value: stats.approved, icon: CheckCircle, color: "bg-green-50 text-green-600", change: "Ready to screen" },
           { label: "Rejected", value: stats.rejected, icon: XCircle, color: "bg-red-50 text-red-600", change: "Final decisions" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div key={s.label} className="bg-brand-600 rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}>
                 <s.icon className="w-5 h-5" />
               </div>
-              <span className="text-xs text-gray-400 font-medium">{s.change}</span>
+              <span className="text-xs text-gray-200 font-medium">{s.change}</span>
             </div>
-            <p className="text-2xl font-black text-gray-900">{s.value}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+            <p className="text-2xl font-black text-gray-50">{s.value}</p>
+            <p className="text-xs text-gray-200 mt-0.5">{s.label}</p>
           </div>
         ))}
       </div>

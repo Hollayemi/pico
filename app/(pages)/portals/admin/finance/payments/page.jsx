@@ -229,14 +229,14 @@ export default function PaymentsPage() {
           const count = allPayments.filter(p => p.method === method).length;
           const Icon = METHOD_ICONS[method] || CreditCard;
           return (
-            <div key={method} className={`bg-white border rounded-xl p-4 cursor-pointer transition-all hover:shadow-sm ${methodFilter === method ? "ring-2 ring-brand-400 border-brand-300" : "border-gray-100"}`}
+            <div key={method} className={`bg-brand-600 border rounded-xl p-4 cursor-pointer transition-all hover:shadow-sm ${methodFilter === method ? "ring-2 ring-brand-400 border-brand-300" : "border-gray-100"}`}
               onClick={() => setMethodFilter(methodFilter === method ? "" : method)}>
               <div className={`w-8 h-8 rounded-lg ${color} border flex items-center justify-center mb-2`}>
                 <Icon className="w-4 h-4" />
               </div>
-              <p className="text-xs text-gray-400 mb-0.5">{method}</p>
-              <p className="text-sm font-black text-gray-800">{fmt(total)}</p>
-              <p className="text-xs text-gray-400">{count} transactions</p>
+              <p className="text-xs text-gray-100 mb-0.5">{method}</p>
+              <p className="text-sm font-black text-gray-300">{fmt(total)}</p>
+              <p className="text-xs text-gray-100">{count} transactions</p>
             </div>
           );
         })}

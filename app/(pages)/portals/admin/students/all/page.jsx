@@ -292,13 +292,13 @@ export default function AllStudentsPage() {
           { label: "Boarding", value: stats.boarding, icon: Home, color: "bg-blue-50 text-blue-600" },
           { label: "Day Students", value: stats.day, icon: GraduationCap, color: "bg-orange-50 text-orange-600" },
         ].map((s) => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3">
+          <div key={s.label} className="bg-brand-600 rounded-xl border border-gray-200 p-4 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${s.color}`}>
               <s.icon className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-900">{s.value}</p>
-              <p className="text-xs text-gray-500">{s.label}</p>
+              <p className="text-xl font-bold text-gray-50">{s.value}</p>
+              <p className="text-xs text-gray-200">{s.label}</p>
             </div>
           </div>
         ))}

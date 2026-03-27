@@ -293,13 +293,13 @@ function FeesPageContent() {
       {/* Summary mini bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "Expected", val: fmt(summary.totalExpected), color: "text-gray-800" },
-          { label: "Collected", val: fmt(summary.totalCollected), color: "text-green-700" },
-          { label: "Outstanding", val: fmt(summary.totalOutstanding), color: "text-red-600" },
-          { label: "Collection Rate", val: `${summary.collectionRate}%`, color: summary.collectionRate >= 75 ? "text-green-600" : "text-orange-600" },
+          { label: "Expected", val: fmt(summary.totalExpected), color: "text-gray-100" },
+          { label: "Collected", val: fmt(summary.totalCollected), color: "text-green-100" },
+          { label: "Outstanding", val: fmt(summary.totalOutstanding), color: "text-red-200" },
+          { label: "Collection Rate", val: `${summary.collectionRate}%`, color: summary.collectionRate >= 75 ? "text-green-200" : "text-orange-200" },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-xl border border-gray-200 px-4 py-3">
-            <p className="text-xs text-gray-400">{s.label}</p>
+          <div key={s.label} className="bg-brand-600 rounded-xl border border-gray-200 px-4 py-3">
+            <p className="text-xs text-gray-50">{s.label}</p>
             <p className={`text-base font-black ${s.color}`}>{s.val}</p>
           </div>
         ))}
