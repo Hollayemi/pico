@@ -45,6 +45,50 @@ const initialForm = {
   password: "", confirmPassword: "",
 };
 
+// Move Field component outside to prevent recreation
+const Field = ({ label, required, error, children }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    {children}
+    {error && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</p>}
+  </div>
+);
+
+// Create stable Input component that doesn't recreate on each render
+const Input = React.memo(({ field, value, onChange, placeholder, type = "text", error, ...rest }) => (
+  <input
+    type={type}
+    value={value}
+    onChange={(e) => onChange(field, e.target.value)}
+    placeholder={placeholder}
+    className={`w-full px-3 py-2.5 border rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-brand-300
+      ${error ? "border-red-300 bg-red-50" : "border-gray-200 bg-white focus:border-brand-400"}`}
+    {...rest}
+  />
+));
+
+Input.displayName = 'Input';
+
+const Select = React.memo(({ field, value, onChange, options, placeholder, error }) => (
+  <select
+    value={value}
+    onChange={(e) => onChange(field, e.target.value)}
+    className={`w-full px-3 py-2.5 border rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-brand-300
+      ${error ? "border-red-300 bg-red-50" : "border-gray-200 bg-white focus:border-brand-400"}`}
+  >
+    <option value="">{placeholder}</option>
+    {options.map((o) => (
+      <option key={typeof o === "string" ? o : o.value} value={typeof o === "string" ? o : o.value}>
+        {typeof o === "string" ? o : o.label}
+      </option>
+    ))}
+  </select>
+));
+
+Select.displayName = 'Select';
+
 export default function AddStaffPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -117,44 +161,6 @@ export default function AddStaffPage() {
   const selectedType = STAFF_TYPES.find((t) => t.value === form.staffType);
   const isTeachingStaff = form.staffType && ["teacher", "class_teacher", "hod_science", "hod_arts", "hod_commercial"].includes(form.staffType);
 
-  const Field = ({ label, required, error, children }) => (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1.5">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{error}</p>}
-    </div>
-  );
-
-  const Input = ({ field, placeholder, type = "text", ...rest }) => (
-    <input
-      type={type}
-      value={form[field]}
-      onChange={(e) => set(field, e.target.value)}
-      placeholder={placeholder}
-      className={`w-full px-3 py-2.5 border rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-brand-300
-        ${errors[field] ? "border-red-300 bg-red-50" : "border-gray-200 bg-white focus:border-brand-400"}`}
-      {...rest}
-    />
-  );
-
-  const Select = ({ field, options, placeholder }) => (
-    <select
-      value={form[field]}
-      onChange={(e) => set(field, e.target.value)}
-      className={`w-full px-3 py-2.5 border rounded-lg text-sm outline-none transition-all focus:ring-2 focus:ring-brand-300
-        ${errors[field] ? "border-red-300 bg-red-50" : "border-gray-200 bg-white focus:border-brand-400"}`}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((o) => (
-        <option key={typeof o === "string" ? o : o.value} value={typeof o === "string" ? o : o.value}>
-          {typeof o === "string" ? o : o.label}
-        </option>
-      ))}
-    </select>
-  );
-
   return (
     <div>
       <div className="max-w-4xl mx-auto">
@@ -192,27 +198,37 @@ export default function AddStaffPage() {
                 <User className="w-4 h-4 text-brand-600" /> Personal Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Field label="Surname" required error={errors.surname}><Input field="surname" placeholder="Adeyemi" /></Field>
-                <Field label="First Name" required error={errors.firstName}><Input field="firstName" placeholder="Samuel" /></Field>
-                <Field label="Middle Name"><Input field="middleName" placeholder="Oluwaseun" /></Field>
+                <Field label="Surname" required error={errors.surname}>
+                  <Input field="surname" value={form.surname} onChange={set} placeholder="Adeyemi" error={errors.surname} />
+                </Field>
+                <Field label="First Name" required error={errors.firstName}>
+                  <Input field="firstName" value={form.firstName} onChange={set} placeholder="Samuel" error={errors.firstName} />
+                </Field>
+                <Field label="Middle Name">
+                  <Input field="middleName" value={form.middleName} onChange={set} placeholder="Oluwaseun" error={errors.middleName} />
+                </Field>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Field label="Gender" required error={errors.gender}>
-                  <Select field="gender" options={["Male", "Female"]} placeholder="Select gender" />
+                  <Select field="gender" value={form.gender} onChange={set} options={["Male", "Female"]} placeholder="Select gender" error={errors.gender} />
                 </Field>
-                <Field label="Date of Birth" required error={errors.dateOfBirth}><Input field="dateOfBirth" type="date" /></Field>
+                <Field label="Date of Birth" required error={errors.dateOfBirth}>
+                  <Input field="dateOfBirth" value={form.dateOfBirth} onChange={set} type="date" error={errors.dateOfBirth} />
+                </Field>
                 <Field label="Marital Status">
-                  <Select field="maritalStatus" options={["Single", "Married", "Divorced", "Widowed"]} placeholder="Select status" />
+                  <Select field="maritalStatus" value={form.maritalStatus} onChange={set} options={["Single", "Married", "Divorced", "Widowed"]} placeholder="Select status" error={errors.maritalStatus} />
                 </Field>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Field label="State of Origin" required error={errors.stateOfOrigin}>
-                  <Select field="stateOfOrigin" options={STATES} placeholder="Select state" />
+                  <Select field="stateOfOrigin" value={form.stateOfOrigin} onChange={set} options={STATES} placeholder="Select state" error={errors.stateOfOrigin} />
                 </Field>
                 <Field label="Religion">
-                  <Select field="religion" options={["Christianity", "Islam", "Others"]} placeholder="Select religion" />
+                  <Select field="religion" value={form.religion} onChange={set} options={["Christianity", "Islam", "Others"]} placeholder="Select religion" error={errors.religion} />
                 </Field>
-                <Field label="NIN" required error={errors.nin}><Input field="nin" placeholder="National Identification Number" /></Field>
+                <Field label="NIN" required error={errors.nin}>
+                  <Input field="nin" value={form.nin} onChange={set} placeholder="National Identification Number" error={errors.nin} />
+                </Field>
               </div>
             </div>
           )}
@@ -256,16 +272,18 @@ export default function AddStaffPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Highest Qualification" required error={errors.qualification}>
-                  <Select field="qualification" options={QUALIFICATIONS} placeholder="Select qualification" />
+                  <Select field="qualification" value={form.qualification} onChange={set} options={QUALIFICATIONS} placeholder="Select qualification" error={errors.qualification} />
                 </Field>
                 <Field label="Specialization / Course Studied">
-                  <Input field="specialization" placeholder="e.g. Mathematics Education" />
+                  <Input field="specialization" value={form.specialization} onChange={set} placeholder="e.g. Mathematics Education" error={errors.specialization} />
                 </Field>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Date of Employment" required error={errors.dateOfEmployment}><Input field="dateOfEmployment" type="date" /></Field>
+                <Field label="Date of Employment" required error={errors.dateOfEmployment}>
+                  <Input field="dateOfEmployment" value={form.dateOfEmployment} onChange={set} type="date" error={errors.dateOfEmployment} />
+                </Field>
                 <Field label="Employment Type">
-                  <Select field="employmentType" options={["Full-time", "Part-time", "Contract", "Volunteer"]} placeholder="Select type" />
+                  <Select field="employmentType" value={form.employmentType} onChange={set} options={["Full-time", "Part-time", "Contract", "Volunteer"]} placeholder="Select type" error={errors.employmentType} />
                 </Field>
               </div>
 
@@ -289,7 +307,7 @@ export default function AddStaffPage() {
                     </div>
                   </div>
                   <Field label="Assigned Class (if Class Teacher)">
-                    <Input field="assignedClass" placeholder="e.g. JSS 1A" />
+                    <Input field="assignedClass" value={form.assignedClass} onChange={set} placeholder="e.g. JSS 1A" error={errors.assignedClass} />
                   </Field>
                 </>
               )}
@@ -303,10 +321,16 @@ export default function AddStaffPage() {
                 <Phone className="w-4 h-4 text-brand-600" /> Contact & Address
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Phone Number" required error={errors.phone}><Input field="phone" placeholder="080XXXXXXXX" /></Field>
-                <Field label="Alternative Phone"><Input field="alternativePhone" placeholder="070XXXXXXXX" /></Field>
+                <Field label="Phone Number" required error={errors.phone}>
+                  <Input field="phone" value={form.phone} onChange={set} placeholder="080XXXXXXXX" error={errors.phone} />
+                </Field>
+                <Field label="Alternative Phone">
+                  <Input field="alternativePhone" value={form.alternativePhone} onChange={set} placeholder="070XXXXXXXX" error={errors.alternativePhone} />
+                </Field>
               </div>
-              <Field label="Email Address" required error={errors.email}><Input field="email" type="email" placeholder="name@progressschools.com" /></Field>
+              <Field label="Email Address" required error={errors.email}>
+                <Input field="email" value={form.email} onChange={set} type="email" placeholder="name@progressschools.com" error={errors.email} />
+              </Field>
               <Field label="Residential Address" required error={errors.address}>
                 <textarea
                   value={form.address}
@@ -320,10 +344,14 @@ export default function AddStaffPage() {
               <div className="border-t border-dashed border-gray-200 pt-5">
                 <p className="text-sm font-semibold text-gray-700 mb-3">Emergency Contact</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Field label="Contact Name"><Input field="emergencyContact" placeholder="Full name" /></Field>
-                  <Field label="Phone"><Input field="emergencyPhone" placeholder="080XXXXXXXX" /></Field>
+                  <Field label="Contact Name">
+                    <Input field="emergencyContact" value={form.emergencyContact} onChange={set} placeholder="Full name" error={errors.emergencyContact} />
+                  </Field>
+                  <Field label="Phone">
+                    <Input field="emergencyPhone" value={form.emergencyPhone} onChange={set} placeholder="080XXXXXXXX" error={errors.emergencyPhone} />
+                  </Field>
                   <Field label="Relationship">
-                    <Select field="emergencyRelation" options={["Spouse", "Parent", "Sibling", "Friend", "Other"]} placeholder="Relationship" />
+                    <Select field="emergencyRelation" value={form.emergencyRelation} onChange={set} options={["Spouse", "Parent", "Sibling", "Friend", "Other"]} placeholder="Relationship" error={errors.emergencyRelation} />
                   </Field>
                 </div>
               </div>
@@ -346,7 +374,7 @@ export default function AddStaffPage() {
                     </div>
                   </Field>
                   <Field label="Confirm Password">
-                    <Input field="confirmPassword" type="password" placeholder="Confirm password" />
+                    <Input field="confirmPassword" value={form.confirmPassword} onChange={set} type="password" placeholder="Confirm password" error={errors.confirmPassword} />
                   </Field>
                 </div>
               </div>
@@ -377,18 +405,22 @@ export default function AddStaffPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Bank" required error={errors.bank}>
-                  <Select field="bank" options={BANKS} placeholder="Select bank" />
+                  <Select field="bank" value={form.bank} onChange={set} options={BANKS} placeholder="Select bank" error={errors.bank} />
                 </Field>
                 <Field label="Account Number" required error={errors.accountNumber}>
-                  <Input field="accountNumber" placeholder="Account number" />
+                  <Input field="accountNumber" value={form.accountNumber} onChange={set} placeholder="Account number" error={errors.accountNumber} />
                 </Field>
               </div>
               <Field label="Account Name">
-                <Input field="accountName" placeholder="Name as it appears on account" />
+                <Input field="accountName" value={form.accountName} onChange={set} placeholder="Name as it appears on account" error={errors.accountName} />
               </Field>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Pension ID (Optional)"><Input field="pensionId" placeholder="PEN/..." /></Field>
-                <Field label="Tax Identification Number (TIN)"><Input field="taxId" placeholder="TIN-..." /></Field>
+                <Field label="Pension ID (Optional)">
+                  <Input field="pensionId" value={form.pensionId} onChange={set} placeholder="PEN/..." error={errors.pensionId} />
+                </Field>
+                <Field label="Tax Identification Number (TIN)">
+                  <Input field="taxId" value={form.taxId} onChange={set} placeholder="TIN-..." error={errors.taxId} />
+                </Field>
               </div>
             </div>
           )}
