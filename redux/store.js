@@ -1,25 +1,47 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer, { authApi } from './slices/authSlice';
-import { userApi } from './slices/userSlice';
-import { admissionApi } from './slices/admissionSlice';
+import { userApi }       from './slices/userSlice';
+import { admissionApi }  from './slices/admissionSlice';
+import { admissionsApi }  from './slices/admissionsSlice';
+import { studentApi }    from './slices/studentSlice';
+import { staffApi }      from './slices/staffSlice';
+import { academicsApi }  from './slices/academicsSlice';
+import { financeApi }    from './slices/financeSlice';
+import { inventoryApi }  from './slices/inventorySlice';
+import { transportApi }  from './slices/transportSlice';
+import { settingsApi }   from './slices/settingsSlice';
 
 export const store = configureStore({
-  reducer: {
-    auth: authReducer,
-    [authApi.reducerPath]: authApi.reducer,
-    [userApi.reducerPath]: userApi.reducer,
-    [admissionApi.reducerPath]: admissionApi.reducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: {
-        // Ignore these action types for file uploads
-        ignoredActions: ['admissionApi/executeMutation/pending'],
-        // Ignore these paths in the state
-        ignoredPaths: ['admissionApi.mutations'],
-      },
-    })
-      .concat(authApi.middleware)
-      .concat(userApi.middleware)
-      .concat(admissionApi.middleware),
+    reducer: {
+        auth: authReducer,
+        [authApi.reducerPath]:      authApi.reducer,
+        [userApi.reducerPath]:      userApi.reducer,
+        [admissionApi.reducerPath]: admissionApi.reducer,
+        [admissionsApi.reducerPath]: admissionsApi.reducer,
+        [studentApi.reducerPath]:   studentApi.reducer,
+        [staffApi.reducerPath]:     staffApi.reducer,
+        [academicsApi.reducerPath]: academicsApi.reducer,
+        [financeApi.reducerPath]:   financeApi.reducer,
+        [inventoryApi.reducerPath]: inventoryApi.reducer,
+        [transportApi.reducerPath]: transportApi.reducer,
+        [settingsApi.reducerPath]:  settingsApi.reducer,
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: {
+                ignoredActions: ['admissionApi/executeMutation/pending'],
+                ignoredPaths: ['admissionApi.mutations'],
+            },
+        })
+            .concat(authApi.middleware)
+            .concat(userApi.middleware)
+            .concat(admissionApi.middleware)
+            .concat(admissionsApi.middleware)
+            .concat(studentApi.middleware)
+            .concat(staffApi.middleware)
+            .concat(academicsApi.middleware)
+            .concat(financeApi.middleware)
+            .concat(inventoryApi.middleware)
+            .concat(transportApi.middleware)
+            .concat(settingsApi.middleware),
 });
