@@ -66,23 +66,23 @@ export const adminMenu = [
       { name: "Timetable", path: "/portals/admin/academics/timetable", roles: ["super_admin", "admin", "principal"] },
     ],
   },
-  {
-    name: "Attendance",
-    path: "/portals/admin/attendance",
-    icon: "calendar",
-    roles: ["super_admin", "admin", "teacher"],
-  },
-  {
-    name: "Examinations",
-    path: "/portals/admin/exams",
-    icon: "file-text",
-    roles: ["super_admin", "admin", "teacher"],
-    children: [
-      { name: "Create Exam", path: "/portals/admin/exams/create", roles: ["super_admin", "admin"] },
-      { name: "Results", path: "/portals/admin/exams/results", roles: ["super_admin", "admin", "teacher"] },
-      { name: "Report Cards", path: "/portals/admin/exams/reports", roles: ["super_admin", "admin"] },
-    ],
-  },
+  // {
+  //   name: "Attendance",
+  //   path: "/portals/admin/attendance",
+  //   icon: "calendar",
+  //   roles: ["super_admin", "admin", "teacher"],
+  // },
+  // {
+  //   name: "Examinations",
+  //   path: "/portals/admin/exams",
+  //   icon: "file-text",
+  //   roles: ["super_admin", "admin", "teacher"],
+  //   children: [
+  //     { name: "Create Exam", path: "/portals/admin/exams/create", roles: ["super_admin", "admin"] },
+  //     { name: "Results", path: "/portals/admin/exams/results", roles: ["super_admin", "admin", "teacher"] },
+  //     { name: "Report Cards", path: "/portals/admin/exams/reports", roles: ["super_admin", "admin"] },
+  //   ],
+  // },
   {
     name: "Finance",
     path: "/portals/admin/finance",
@@ -94,18 +94,18 @@ export const adminMenu = [
       { name: "Invoices", path: "/portals/admin/finance/invoices", roles: ["super_admin", "accountant"] },
     ],
   },
-  {
-    name: "Communication",
-    path: "/portals/admin/communication",
-    icon: "message",
-    roles: ["super_admin", "admin", "principal"],
-  },
-  {
-    name: "Library",
-    path: "/portals/admin/library",
-    icon: "library",
-    roles: ["super_admin", "admin"],
-  },
+  // {
+  //   name: "Communication",
+  //   path: "/portals/admin/communication",
+  //   icon: "message",
+  //   roles: ["super_admin", "admin", "principal"],
+  // },
+  // {
+  //   name: "Library",
+  //   path: "/portals/admin/library",
+  //   icon: "library",
+  //   roles: ["super_admin", "admin"],
+  // },
   {
     name: "Transport",
     path: "/portals/admin/transport",
@@ -118,12 +118,12 @@ export const adminMenu = [
     icon: "box",
     roles: ["super_admin", "admin"],
   },
-  {
-    name: "Reports",
-    path: "/portals/admin/reports",
-    icon: "bar-chart",
-    roles: ["super_admin", "admin", "principal"],
-  },
+  // {
+  //   name: "Reports",
+  //   path: "/portals/admin/reports",
+  //   icon: "bar-chart",
+  //   roles: ["super_admin", "admin", "principal"],
+  // },
   {
     name: "Settings",
     path: "/portals/admin/settings",
