@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer, { authApi } from './slices/authSlice';
-import { userApi }       from './slices/userSlice';
+import { authApi } from './slices/authSlice';
 import { admissionApi }  from './slices/admissionSlice';
 import { admissionsApi }  from './slices/admissionsSlice';
 import { studentApi }    from './slices/studentSlice';
@@ -13,9 +12,7 @@ import { settingsApi }   from './slices/settingsSlice';
 
 export const store = configureStore({
     reducer: {
-        auth: authReducer,
         [authApi.reducerPath]:      authApi.reducer,
-        [userApi.reducerPath]:      userApi.reducer,
         [admissionApi.reducerPath]: admissionApi.reducer,
         [admissionsApi.reducerPath]: admissionsApi.reducer,
         [studentApi.reducerPath]:   studentApi.reducer,
@@ -34,7 +31,6 @@ export const store = configureStore({
             },
         })
             .concat(authApi.middleware)
-            .concat(userApi.middleware)
             .concat(admissionApi.middleware)
             .concat(admissionsApi.middleware)
             .concat(studentApi.middleware)

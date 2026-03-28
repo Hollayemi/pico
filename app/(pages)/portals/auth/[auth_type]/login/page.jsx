@@ -1,7 +1,7 @@
 "use client";
 import React, { use, useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { setCredentials, useLoginMutation, } from "@/redux/slices/authSlice";
+import { useLoginMutation, } from "@/redux/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { isAuthenticated, server } from "@/redux/api/axiosBaseQuery";
 import { useRouter } from "next/navigation";
@@ -44,7 +44,7 @@ const LoginPage = ({ params }) => {
         try {
             const result = await login(formData).unwrap();
             console.log(result);
-            dispatch(setCredentials(result.user));
+            // dispatch(setCredentials(result.user));
             toast.success("Login successful!");
             router.push("/");
         } catch (err) {
