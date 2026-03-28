@@ -2,89 +2,66 @@
 import React, { useState, useMemo } from "react";
 import {
   Plus, Edit2, Trash2, BookOpen, User, Search, X, Check,
-  AlertCircle, Tag, Users, ChevronRight, GraduationCap, Star
+  AlertCircle, Tag, GraduationCap, Star, RefreshCw
 } from "lucide-react";
-
-// ─── Mock Data ─────────────────────────────────────────────────
-export const MOCK_TEACHERS_SUBJECTS = [
-  { id: "STF-0001", name: "Adeyemi Samuel", dept: "Science" },
-  { id: "STF-0002", name: "Okonkwo Emeka", dept: "Languages" },
-  { id: "STF-0003", name: "Hassan Fatima", dept: "Science" },
-  { id: "STF-0004", name: "Adeleke Bola", dept: "Science" },
-  { id: "STF-0005", name: "Babatunde Blessing", dept: "Science" },
-  { id: "STF-0006", name: "Nwachukwu Ngozi", dept: "Commercial" },
-  { id: "STF-0007", name: "Eze Grace", dept: "Arts" },
-  { id: "STF-0008", name: "Ibrahim Usman", dept: "Arts" },
-  { id: "STF-0009", name: "Afolabi Taiwo", dept: "Languages" },
-  { id: "STF-0010", name: "Chukwu Chidi", dept: "Arts" },
-  { id: "STF-0011", name: "Adebisi Kemi", dept: "Commercial" },
-  { id: "STF-0012", name: "Olawale Tunde", dept: "Science" },
-];
-
-export const MOCK_CLASSES = [
-  "JSS 1A", "JSS 1B", "JSS 2A", "JSS 2B", "JSS 3A", "JSS 3B",
-  "SS 1 Science", "SS 1 Arts", "SS 1 Commercial",
-  "SS 2 Science", "SS 2 Arts", "SS 2 Commercial",
-  "SS 3 Science", "SS 3 Arts", "SS 3 Commercial",
-];
+import {
+  useGetAllSubjectsQuery,
+  useCreateSubjectMutation,
+  useUpdateSubjectMutation,
+  useDeleteSubjectMutation,
+} from "@/redux/slices/academicsSlice";
+import { useGetAllStaffQuery } from "@/redux/slices/staffSlice";
+import toast from "react-hot-toast";
 
 const CATEGORY_OPTIONS = ["Core", "Elective", "Vocational"];
-const DEPT_OPTIONS = ["Science", "Arts", "Commercial", "Languages", "Humanities", "General"];
+const DEPT_OPTIONS     = ["Science", "Arts", "Commercial", "Languages", "Humanities", "General"];
 
-const initialSubjects = [
-  { id: "SUB-001", name: "Mathematics", code: "MTH", category: "Core", dept: "Science", teachers: [MOCK_TEACHERS_SUBJECTS[0]], classes: ["JSS 1A","JSS 1B","JSS 2A","JSS 2B","JSS 3A","JSS 3B","SS 1 Science","SS 2 Science","SS 3 Science"], periodsPerWeek: 6, color: "bg-blue-100 text-blue-700" },
-  { id: "SUB-002", name: "English Language", code: "ENG", category: "Core", dept: "Languages", teachers: [MOCK_TEACHERS_SUBJECTS[1]], classes: ["JSS 1A","JSS 1B","JSS 2A","JSS 2B","JSS 3A","JSS 3B","SS 1 Science","SS 1 Arts","SS 1 Commercial","SS 2 Science","SS 2 Arts","SS 2 Commercial","SS 3 Science","SS 3 Arts","SS 3 Commercial"], periodsPerWeek: 6, color: "bg-green-100 text-green-700" },
-  { id: "SUB-003", name: "Physics", code: "PHY", category: "Core", dept: "Science", teachers: [MOCK_TEACHERS_SUBJECTS[2]], classes: ["SS 1 Science","SS 2 Science","SS 3 Science"], periodsPerWeek: 5, color: "bg-indigo-100 text-indigo-700" },
-  { id: "SUB-004", name: "Chemistry", code: "CHE", category: "Core", dept: "Science", teachers: [MOCK_TEACHERS_SUBJECTS[3]], classes: ["SS 1 Science","SS 2 Science","SS 3 Science"], periodsPerWeek: 5, color: "bg-purple-100 text-purple-700" },
-  { id: "SUB-005", name: "Biology", code: "BIO", category: "Core", dept: "Science", teachers: [MOCK_TEACHERS_SUBJECTS[4]], classes: ["SS 1 Science","SS 2 Science","SS 3 Science"], periodsPerWeek: 5, color: "bg-emerald-100 text-emerald-700" },
-  { id: "SUB-006", name: "Economics", code: "ECO", category: "Core", dept: "Commercial", teachers: [MOCK_TEACHERS_SUBJECTS[5]], classes: ["SS 1 Arts","SS 1 Commercial","SS 2 Arts","SS 2 Commercial","SS 3 Arts","SS 3 Commercial"], periodsPerWeek: 4, color: "bg-yellow-100 text-yellow-700" },
-  { id: "SUB-007", name: "Government", code: "GOV", category: "Core", dept: "Arts", teachers: [MOCK_TEACHERS_SUBJECTS[6]], classes: ["SS 1 Arts","SS 2 Arts","SS 3 Arts"], periodsPerWeek: 4, color: "bg-red-100 text-red-700" },
-  { id: "SUB-008", name: "History", code: "HIS", category: "Elective", dept: "Humanities", teachers: [MOCK_TEACHERS_SUBJECTS[7]], classes: ["SS 1 Arts","SS 2 Arts","SS 3 Arts"], periodsPerWeek: 3, color: "bg-amber-100 text-amber-700" },
-  { id: "SUB-009", name: "Literature in English", code: "LIT", category: "Core", dept: "Languages", teachers: [MOCK_TEACHERS_SUBJECTS[8]], classes: ["SS 1 Arts","SS 2 Arts","SS 3 Arts"], periodsPerWeek: 4, color: "bg-teal-100 text-teal-700" },
-  { id: "SUB-010", name: "Geography", code: "GEO", category: "Elective", dept: "Humanities", teachers: [MOCK_TEACHERS_SUBJECTS[9]], classes: ["SS 1 Arts","SS 2 Arts","SS 3 Arts"], periodsPerWeek: 3, color: "bg-cyan-100 text-cyan-700" },
-  { id: "SUB-011", name: "Financial Accounting", code: "ACC", category: "Core", dept: "Commercial", teachers: [MOCK_TEACHERS_SUBJECTS[10]], classes: ["SS 1 Commercial","SS 2 Commercial","SS 3 Commercial"], periodsPerWeek: 5, color: "bg-orange-100 text-orange-700" },
-  { id: "SUB-012", name: "Further Mathematics", code: "FMT", category: "Elective", dept: "Science", teachers: [MOCK_TEACHERS_SUBJECTS[11]], classes: ["SS 1 Science","SS 2 Science","SS 3 Science"], periodsPerWeek: 4, color: "bg-violet-100 text-violet-700" },
-  { id: "SUB-013", name: "Civic Education", code: "CIV", category: "Core", dept: "General", teachers: [MOCK_TEACHERS_SUBJECTS[6]], classes: MOCK_CLASSES, periodsPerWeek: 2, color: "bg-lime-100 text-lime-700" },
-  { id: "SUB-014", name: "Computer Science", code: "CMP", category: "Elective", dept: "Science", teachers: [MOCK_TEACHERS_SUBJECTS[11]], classes: ["JSS 1A","JSS 1B","JSS 2A","JSS 2B","JSS 3A","JSS 3B","SS 1 Science"], periodsPerWeek: 3, color: "bg-sky-100 text-sky-700" },
+const MOCK_CLASSES = [
+  "JSS 1A","JSS 1B","JSS 2A","JSS 2B","JSS 3A","JSS 3B",
+  "SS 1 Science","SS 1 Arts","SS 1 Commercial",
+  "SS 2 Science","SS 2 Arts","SS 2 Commercial",
+  "SS 3 Science","SS 3 Arts","SS 3 Commercial",
 ];
 
 const CATEGORY_STYLES = {
-  Core: "bg-brand-50 text-brand-700 border-brand-200",
-  Elective: "bg-blue-50 text-blue-700 border-blue-200",
-  Vocational: "bg-orange-50 text-orange-700 border-orange-200",
+  Core:      "bg-brand-50 text-brand-700 border-brand-200",
+  Elective:  "bg-blue-50 text-blue-700 border-blue-200",
+  Vocational:"bg-orange-50 text-orange-700 border-orange-200",
 };
 
-// ─── Subject Form Modal ────────────────────────────────────────
-const SubjectModal = ({ subject, onClose, onSave }) => {
+// ─── Subject Modal ─────────────────────────────────────────────
+const SubjectModal = ({ subject, teachers, onClose, onSave, isLoading }) => {
   const isEdit = !!subject?.id;
   const [form, setForm] = useState(subject || {
-    name: "", code: "", category: "Core", dept: "Science",
-    teachers: [], classes: [], periodsPerWeek: 4, color: "bg-blue-100 text-blue-700"
+    name:"", code:"", category:"Core", dept:"Science",
+    teacherIds:[], classes:[], periodsPerWeek:4,
+    color:"bg-blue-100 text-blue-700",
   });
   const [errors, setErrors] = useState({});
 
+  // Normalise teacherIds from full teacher objects (edit mode) to id strings
+  const getTeacherIds = () => {
+    if (!form.teacherIds?.length && form.teachers?.length) {
+      return form.teachers.map(t => t.id);
+    }
+    return form.teacherIds || [];
+  };
+
   const set = (field, value) => { setForm(p => ({ ...p, [field]: value })); setErrors(p => ({ ...p, [field]: undefined })); };
 
-  const toggleTeacher = (t) => {
-    setForm(p => ({
-      ...p,
-      teachers: p.teachers.find(x => x.id === t.id)
-        ? p.teachers.filter(x => x.id !== t.id)
-        : [...p.teachers, t]
-    }));
+  const toggleTeacher = (id) => {
+    const ids = getTeacherIds();
+    set("teacherIds", ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]);
   };
 
   const toggleClass = (c) => {
-    setForm(p => ({
-      ...p,
-      classes: p.classes.includes(c) ? p.classes.filter(x => x !== c) : [...p.classes, c]
-    }));
+    set("classes", form.classes.includes(c) ? form.classes.filter(x => x !== c) : [...form.classes, c]);
   };
 
   const validate = () => {
     const e = {};
-    if (!form.name.trim()) e.name = "Required";
-    if (!form.code.trim()) e.code = "Required";
+    if (!form.name.trim())   e.name = "Required";
+    if (!form.code.trim())   e.code = "Required";
     if (!form.periodsPerWeek || form.periodsPerWeek < 1) e.periodsPerWeek = "Must be > 0";
     return e;
   };
@@ -92,8 +69,10 @@ const SubjectModal = ({ subject, onClose, onSave }) => {
   const handleSave = () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
-    onSave({ ...form, id: form.id || `SUB-${Date.now()}` });
+    onSave({ ...form, teacherIds: getTeacherIds() });
   };
+
+  const selectedTeacherIds = getTeacherIds();
 
   const Field = ({ label, req, err, children }) => (
     <div>
@@ -109,7 +88,6 @@ const SubjectModal = ({ subject, onClose, onSave }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
         <div className="bg-gradient-to-r from-brand-700 to-brand-600 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
@@ -156,23 +134,27 @@ const SubjectModal = ({ subject, onClose, onSave }) => {
 
           {/* Teachers */}
           <Field label="Assign Teachers">
-            <div className="border border-gray-200 rounded-xl p-3 max-h-32 overflow-y-auto bg-gray-50">
-              <div className="grid grid-cols-2 gap-1.5">
-                {MOCK_TEACHERS_SUBJECTS.map(t => {
-                  const selected = form.teachers.find(x => x.id === t.id);
-                  return (
-                    <label key={t.id}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all
-                        ${selected ? "bg-brand-50 border border-brand-300 text-brand-700" : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300"}`}>
-                      <input type="checkbox" checked={!!selected} onChange={() => toggleTeacher(t)} className="accent-brand-600 w-3.5 h-3.5" />
-                      <span className="truncate">{t.name}</span>
-                    </label>
-                  );
-                })}
-              </div>
+            <div className="border border-gray-200 rounded-xl p-3 max-h-40 overflow-y-auto bg-gray-50">
+              {teachers.length === 0 ? (
+                <p className="text-xs text-gray-400 text-center py-3">Loading teachers...</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-1.5">
+                  {teachers.map(t => {
+                    const selected = selectedTeacherIds.includes(t.id);
+                    return (
+                      <label key={t.id}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer text-sm transition-all
+                          ${selected ? "bg-brand-50 border border-brand-300 text-brand-700" : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                        <input type="checkbox" checked={selected} onChange={() => toggleTeacher(t.id)} className="accent-brand-600 w-3.5 h-3.5" />
+                        <span className="truncate">{t.surname} {t.firstName}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-            {form.teachers.length > 0 && (
-              <p className="text-xs text-brand-600 mt-1">{form.teachers.length} teacher{form.teachers.length > 1 ? "s" : ""} selected</p>
+            {selectedTeacherIds.length > 0 && (
+              <p className="text-xs text-brand-600 mt-1">{selectedTeacherIds.length} teacher{selectedTeacherIds.length > 1 ? "s" : ""} selected</p>
             )}
           </Field>
 
@@ -201,9 +183,10 @@ const SubjectModal = ({ subject, onClose, onSave }) => {
 
         <div className="border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3 flex-shrink-0">
           <button onClick={onClose} className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSave}
-            className="flex items-center gap-2 px-5 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 font-semibold">
-            <Check className="w-4 h-4" /> {isEdit ? "Save Changes" : "Create Subject"}
+          <button onClick={handleSave} disabled={isLoading}
+            className="flex items-center gap-2 px-5 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 font-semibold disabled:opacity-60">
+            {isLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check className="w-4 h-4" />}
+            {isEdit ? "Save Changes" : "Create Subject"}
           </button>
         </div>
       </div>
@@ -236,11 +219,11 @@ const SubjectCard = ({ subject, onEdit, onDelete }) => (
       {/* Teachers */}
       <div className="mb-3">
         <p className="text-xs font-semibold text-gray-400 uppercase mb-1.5">Teachers</p>
-        {subject.teachers.length > 0 ? (
+        {subject.teachers?.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {subject.teachers.slice(0, 2).map(t => (
               <span key={t.id} className="flex items-center gap-1 px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full text-xs">
-                <User className="w-2.5 h-2.5" /> {t.name.split(" ")[1]}
+                <User className="w-2.5 h-2.5" /> {t.name?.split(" ").slice(-1)[0] || t.name}
               </span>
             ))}
             {subject.teachers.length > 2 && (
@@ -252,24 +235,23 @@ const SubjectCard = ({ subject, onEdit, onDelete }) => (
 
       {/* Classes */}
       <div className="mb-4">
-        <p className="text-xs font-semibold text-gray-400 uppercase mb-1.5">Classes ({subject.classes.length})</p>
+        <p className="text-xs font-semibold text-gray-400 uppercase mb-1.5">Classes ({subject.classes?.length || 0})</p>
         <div className="flex flex-wrap gap-1 max-h-12 overflow-hidden">
-          {subject.classes.slice(0, 4).map(c => (
+          {subject.classes?.slice(0, 4).map(c => (
             <span key={c} className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">{c}</span>
           ))}
-          {subject.classes.length > 4 && (
+          {(subject.classes?.length || 0) > 4 && (
             <span className="px-2 py-0.5 bg-gray-200 text-gray-500 rounded text-xs">+{subject.classes.length - 4} more</span>
           )}
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-2 pt-3 border-t border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
         <button onClick={() => onEdit(subject)}
           className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs text-brand-600 border border-brand-200 rounded-lg hover:bg-brand-50">
           <Edit2 className="w-3.5 h-3.5" /> Edit
         </button>
-        <button onClick={() => onDelete(subject.id)}
+        <button onClick={() => onDelete(subject)}
           className="flex items-center justify-center px-3 py-2 text-xs text-red-500 border border-red-200 rounded-lg hover:bg-red-50">
           <Trash2 className="w-3.5 h-3.5" />
         </button>
@@ -280,56 +262,79 @@ const SubjectCard = ({ subject, onEdit, onDelete }) => (
 
 // ─── Main Page ─────────────────────────────────────────────────
 export default function SubjectsPage() {
-  const [subjects, setSubjects] = useState(initialSubjects);
-  const [search, setSearch] = useState("");
+  const [search, setSearch]       = useState("");
   const [catFilter, setCatFilter] = useState("");
   const [deptFilter, setDeptFilter] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editSub, setEditSub] = useState(null);
+  const [editSub, setEditSub]     = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    return subjects.filter(s =>
-      (!search || s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q)) &&
-      (!catFilter || s.category === catFilter) &&
-      (!deptFilter || s.dept === deptFilter)
-    );
-  }, [subjects, search, catFilter, deptFilter]);
+  const { data, isLoading, error, refetch } = useGetAllSubjectsQuery({
+    search:   search    || undefined,
+    category: catFilter || undefined,
+    dept:     deptFilter || undefined,
+  });
 
-  const stats = useMemo(() => ({
-    total: subjects.length,
-    core: subjects.filter(s => s.category === "Core").length,
-    elective: subjects.filter(s => s.category === "Elective").length,
-    avgPeriods: Math.round(subjects.reduce((a, s) => a + s.periodsPerWeek, 0) / subjects.length),
-  }), [subjects]);
+  // Teaching staff for the teacher picker
+  const { data: staffData } = useGetAllStaffQuery({
+    staffType: "teacher", limit: 200,
+  });
+  const allTeachers = staffData?.data?.staff || [];
 
-  const handleSave = (sub) => {
-    setSubjects(prev => {
-      const idx = prev.findIndex(s => s.id === sub.id);
-      if (idx >= 0) { const next = [...prev]; next[idx] = sub; return next; }
-      return [...prev, sub];
-    });
-    setModalOpen(false);
-    setEditSub(null);
+  const [createSubject, { isLoading: isCreating }] = useCreateSubjectMutation();
+  const [updateSubject, { isLoading: isUpdating }] = useUpdateSubjectMutation();
+  const [deleteSubject, { isLoading: isDeleting }] = useDeleteSubjectMutation();
+
+  const subjectList = data?.data?.subjects || [];
+  const statsData   = data?.data?.stats    || {};
+
+  const allDepts = [...new Set(subjectList.map(s => s.dept))].sort();
+
+  const handleSave = async (form) => {
+    try {
+      if (editSub?.id) {
+        await updateSubject({ id: editSub.id, ...form }).unwrap();
+        toast.success("Subject updated successfully");
+      } else {
+        await createSubject(form).unwrap();
+        toast.success("Subject created successfully");
+      }
+      setModalOpen(false);
+      setEditSub(null);
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to save subject");
+    }
   };
 
-  const handleDelete = (id) => {
-    setSubjects(prev => prev.filter(s => s.id !== id));
-    setDeleteConfirm(null);
+  const handleDelete = async () => {
+    try {
+      await deleteSubject(deleteConfirm.id).unwrap();
+      toast.success("Subject deleted");
+      setDeleteConfirm(null);
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to delete subject");
+    }
   };
 
-  const allDepts = [...new Set(subjects.map(s => s.dept))].sort();
+  if (error) return (
+    <div className="bg-red-50 border border-red-200 rounded-xl p-8 text-center">
+      <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+      <p className="text-red-700 font-medium">Failed to load subjects</p>
+      <button onClick={refetch} className="mt-3 flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm mx-auto">
+        <RefreshCw className="w-4 h-4" /> Retry
+      </button>
+    </div>
+  );
 
   return (
     <div>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Total Subjects", value: stats.total, icon: BookOpen, color: "bg-brand-50 text-brand-600" },
-          { label: "Core Subjects", value: stats.core, icon: Star, color: "bg-green-50 text-green-600" },
-          { label: "Elective Subjects", value: stats.elective, icon: Tag, color: "bg-blue-50 text-blue-600" },
-          { label: "Avg Periods/Wk", value: stats.avgPeriods, icon: GraduationCap, color: "bg-orange-50 text-orange-600" },
+          { label: "Total Subjects",   value: statsData.total || subjectList.length,  icon: BookOpen,      color: "bg-brand-50 text-brand-600" },
+          { label: "Core Subjects",    value: statsData.core || 0,                     icon: Star,          color: "bg-green-50 text-green-600" },
+          { label: "Elective Subjects",value: statsData.elective || 0,                 icon: Tag,           color: "bg-blue-50 text-blue-600" },
+          { label: "Avg Periods/Wk",   value: statsData.avgPeriodsPerWeek || "—",      icon: GraduationCap, color: "bg-orange-50 text-orange-600" },
         ].map(s => (
           <div key={s.label} className="bg-brand-600 rounded-xl border border-gray-200 p-4 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${s.color}`}><s.icon className="w-5 h-5" /></div>
@@ -370,27 +375,38 @@ export default function SubjectsPage() {
         </button>
       </div>
 
-      <p className="text-xs text-gray-400 mb-4">Showing {filtered.length} of {subjects.length} subjects</p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {filtered.map(s => (
-          <SubjectCard key={s.id} subject={s}
-            onEdit={s => { setEditSub(s); setModalOpen(true); }}
-            onDelete={id => setDeleteConfirm(id)} />
-        ))}
-      </div>
-
-      {!filtered.length && (
+      {isLoading ? (
         <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
-          <BookOpen className="w-12 h-12 text-gray-200 mx-auto mb-3" />
-          <p className="text-gray-400">No subjects match your search</p>
+          <div className="w-8 h-8 border-2 border-brand-300 border-t-brand-600 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-gray-400">Loading subjects...</p>
         </div>
+      ) : (
+        <>
+          <p className="text-xs text-gray-400 mb-4">Showing {subjectList.length} subjects</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {subjectList.map(s => (
+              <SubjectCard key={s.id} subject={s}
+                onEdit={s => { setEditSub(s); setModalOpen(true); }}
+                onDelete={s => setDeleteConfirm(s)} />
+            ))}
+          </div>
+          {!subjectList.length && (
+            <div className="bg-white rounded-xl border border-gray-200 p-16 text-center">
+              <BookOpen className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+              <p className="text-gray-400">No subjects found</p>
+            </div>
+          )}
+        </>
       )}
 
       {modalOpen && (
-        <SubjectModal subject={editSub}
+        <SubjectModal
+          subject={editSub}
+          teachers={allTeachers}
           onClose={() => { setModalOpen(false); setEditSub(null); }}
-          onSave={handleSave} />
+          onSave={handleSave}
+          isLoading={isCreating || isUpdating}
+        />
       )}
 
       {deleteConfirm && (
@@ -401,10 +417,14 @@ export default function SubjectsPage() {
               <Trash2 className="w-6 h-6 text-red-500" />
             </div>
             <h3 className="text-center font-bold text-gray-900 mb-2">Delete Subject?</h3>
-            <p className="text-center text-sm text-gray-500 mb-6">This will remove the subject from all timetables.</p>
+            <p className="text-center text-sm text-gray-500 mb-6">
+              This will remove <strong>{deleteConfirm.name}</strong> from all timetables.
+            </p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
-              <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600">Delete</button>
+              <button onClick={handleDelete} disabled={isDeleting} className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 disabled:opacity-60">
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </div>
         </div>

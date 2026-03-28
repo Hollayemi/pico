@@ -9,6 +9,7 @@ import {
   UserPlus, CreditCard, MessageSquare, RefreshCw,
   Circle, Dot, Hourglass, XCircle
 } from "lucide-react";
+import { useUserData } from "@/context/userContext";
 
 // ── Mock data (mirrors existing slices) ──────────────────────────────────────
 
@@ -141,6 +142,7 @@ const AlertBanner = ({ type, text, link }) => {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function AdminDashboard() {
+  const {userInfo} = useUserData()
   const today = new Date().toLocaleDateString("en-NG", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   const collectionPct = financeStats.collectionRate;
@@ -160,7 +162,7 @@ export default function AdminDashboard() {
           <div className="flex-1">
             <p className="text-brand-100 text-xs font-semibold uppercase tracking-wider mb-1">{today}</p>
             <h1 className="text-white text-2xl font-black leading-tight mb-1">
-              Good morning, Admin 👋
+              Good morning, {userInfo?.role} 👋
             </h1>
             <p className="text-brand-100 text-sm">
               Progress Intellectual School &nbsp;·&nbsp; {CURRENT_SESSION} &nbsp;·&nbsp; {CURRENT_TERM} &nbsp;·&nbsp; {TERM_DATES}
@@ -183,12 +185,10 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Alerts ───────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {alerts.map(a => <AlertBanner key={a.id} {...a} />)}
       </div>
 
-      {/* ── Key Stats Row ─────────────────────────────────────────────────────  */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {

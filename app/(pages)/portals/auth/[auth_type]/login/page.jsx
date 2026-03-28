@@ -1,7 +1,7 @@
 "use client";
 import React, { use, useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useLoginMutation, } from "@/redux/slices/authSlice";
+import { setCredentials, useLoginMutation, } from "@/redux/slices/authSlice";
 import { useDispatch } from "react-redux";
 import { isAuthenticated, server } from "@/redux/api/axiosBaseQuery";
 import { useRouter } from "next/navigation";
@@ -9,7 +9,7 @@ import LoadingSpinner from "@/app/components/Cards/loading";
 import toast from "react-hot-toast";
 
 const LoginPage = ({ params }) => {
-    const { auth_type } = use(params)
+    const { auth_type, returnUrl } = use(params)
     const [login, { isLoading }] = useLoginMutation();
     const dispatch = useDispatch();
     const router = useRouter();
@@ -44,12 +44,12 @@ const LoginPage = ({ params }) => {
         try {
             const result = await login(formData).unwrap();
             console.log(result);
-            // dispatch(setCredentials(result.user));
+            dispatch(setCredentials(result.data));
             toast.success("Login successful!");
-            router.push("/");
+            router.push(returnUrl || "/");
         } catch (err) {
             console.error("Login failed:", err);
-            toast.error(err.data?.message || "Login failed");
+            toast.error(err.data?.error || "Login failed");
         }
     };
 

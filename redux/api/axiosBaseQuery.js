@@ -8,8 +8,7 @@ export const server = process.env.NODE_ENV === "production"
 
 
 const getAuthHeaders = async (by = "user") => {
-    const tokenType = by === "user" ? "user_token" : "store_token"
-    const token = localStorage.getItem(tokenType) || "";
+    const token = localStorage.getItem("token") || "";
     return {
         'Content-Type': 'application/json',
         ...({ Authorization: `Bearer ${token}` }),
@@ -82,7 +81,7 @@ export const axiosBaseQuery = (tokenOwner) => async (requestConfig) => {
 
     } catch (error) {
 
-        toast.error(error.data.message)
+        toast.error(error.data.error)
         return {
             error: {
                 status: status || 0,
@@ -94,10 +93,9 @@ export const axiosBaseQuery = (tokenOwner) => async (requestConfig) => {
 };
 
 // Token validation
-const checkTokenStatus = (account = "user") => {
-    const tokenType = account === "user" ? "user_token" : "store_token"
+const checkTokenStatus = () => {
     try {
-        const token = localStorage.getItem(tokenType);
+        const token = localStorage.getItem("token");
         if (!token) return { isValid: false, needsRefresh: false };
 
         const decodedToken = jwtDecode(token);
@@ -128,9 +126,8 @@ export const needsTokenRefresh = () => {
 };
 
 export const clearAuthData = () => {
-    localStorage.removeItem("store_token");
+    localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user_data");
 };
 
 // Default instance

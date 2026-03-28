@@ -1,61 +1,37 @@
 "use client";
 import React, { useState, useMemo } from "react";
-import AdminWrapper from "@/app/components/Admin/AdminWrapper";
 import {
-  Search, Filter, Eye, Edit2, Trash2, Download, UserPlus,
-  ChevronLeft, ChevronRight, X, Phone, Mail, MapPin,
-  Calendar, BookOpen, Heart, Users, GraduationCap, Home,
-  MoreVertical, CheckCircle, XCircle, Clock, AlertCircle,
-  Printer, RefreshCw
+  Search, Eye, Edit2, Trash2, Download, UserPlus,
+  ChevronLeft, ChevronRight, X, Calendar,
+  Users, GraduationCap, Home,
+  CheckCircle, XCircle, Printer, AlertCircle, RefreshCw,
+  Loader2
 } from "lucide-react";
 import Link from "next/link";
+import {
+  useGetAllStudentsQuery,
+  useDeleteStudentMutation,
+  useUpdateStudentStatusMutation,
+} from "@/redux/slices/studentSlice";
+import toast from "react-hot-toast";
 
-// ─── Mock Data ───────────────────────────────────────────────
-const CLASSES = ["Nursery 1", "Nursery 2", "KG 1", "KG 2", "Primary 1", "Primary 2",
-  "Primary 3", "Primary 4", "Primary 5", "Primary 6",
-  "JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
-
+// ─── Constants ────────────────────────────────────────────────
+const CLASSES = [
+  "Nursery 1", "Nursery 2", "KG 1", "KG 2",
+  "Primary 1", "Primary 2", "Primary 3", "Primary 4", "Primary 5", "Primary 6",
+  "JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3",
+];
 const STATUS_OPTS = ["Active", "Inactive", "Graduated", "Suspended", "Transferred"];
 const SCHOOLING_OPTS = ["Boarding", "Day"];
-
-const mockStudents = Array.from({ length: 60 }, (_, i) => {
-  const classes = CLASSES;
-  const cls = classes[i % classes.length];
-  const gender = i % 2 === 0 ? "Male" : "Female";
-  const statuses = ["Active", "Active", "Active", "Active", "Suspended", "Transferred"];
-  return {
-    id: `STU-2024-${String(i + 1).padStart(4, "0")}`,
-    surname: ["Adeyemi", "Okonkwo", "Hassan", "Adeleke", "Babatunde", "Nwachukwu", "Eze", "Ibrahim"][i % 8],
-    firstName: ["Chioma", "Emeka", "Fatima", "Tunde", "Blessing", "Samuel", "Grace", "Usman"][i % 8],
-    middleName: ["Ngozi", "Chukwuemeka", "Aisha", "Olawale", "", "Oluwaseun", "Chidinma", ""][i % 8],
-    gender,
-    dateOfBirth: `${2010 + (i % 8)}-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
-    class: cls,
-    schoolingOption: i % 3 === 0 ? "Boarding" : "Day",
-    status: statuses[i % statuses.length],
-    stateOfOrigin: ["Ondo", "Anambra", "Lagos", "Kano", "Osun", "Ogun", "Enugu", "Kogi"][i % 8],
-    bloodGroup: ["A+", "B+", "O+", "AB+", "A-", "B-", "O-"][i % 7],
-    genotype: ["AA", "AS", "AA", "SS", "AC"][i % 5],
-    fatherName: `Mr. ${["Adeyemi John", "Okonkwo Peter", "Hassan Musa", "Adeleke Bola"][i % 4]}`,
-    fatherPhone: `080${String(i + 30000000).padStart(8, "0")}`,
-    motherName: `Mrs. ${["Adeyemi Ruth", "Okonkwo Ada", "Hassan Fatima", "Adeleke Kemi"][i % 4]}`,
-    motherPhone: `070${String(i + 30000000).padStart(8, "0")}`,
-    correspondenceEmail: `parent${i + 1}@gmail.com`,
-    admissionDate: `202${2 + (i % 3)}-09-01`,
-    photo: null,
-    classTeacher: ["Mr. Olawale", "Mrs. Adebisi", "Mr. Babatunde", "Ms. Ngozi"][i % 4],
-    fees: { paid: i % 3 !== 2, amount: [50000, 75000, 100000][i % 3] },
-    attendance: Math.floor(70 + (i % 30)),
-  };
-});
+const PER_PAGE = 15;
 
 // ─── Status Badge ─────────────────────────────────────────────
 const StatusBadge = ({ status }) => {
   const map = {
-    Active: "bg-green-100 text-green-700 border-green-200",
-    Inactive: "bg-gray-100 text-gray-600 border-gray-200",
-    Graduated: "bg-blue-100 text-blue-700 border-blue-200",
-    Suspended: "bg-red-100 text-red-700 border-red-200",
+    Active:      "bg-green-100 text-green-700 border-green-200",
+    Inactive:    "bg-gray-100 text-gray-600 border-gray-200",
+    Graduated:   "bg-blue-100 text-blue-700 border-blue-200",
+    Suspended:   "bg-red-100 text-red-700 border-red-200",
     Transferred: "bg-orange-100 text-orange-700 border-orange-200",
   };
   return (
@@ -100,14 +76,11 @@ const StudentModal = ({ student, onClose }) => {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 px-6 flex gap-1 bg-gray-50">
+        <div className="border-b border-gray-200 px-6 flex gap-1 bg-gray-50 overflow-x-auto">
           {tabs.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors
-                ${tab === t ? "border-brand-600 text-brand-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}
-            >
+            <button key={t} onClick={() => setTab(t)}
+              className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors whitespace-nowrap
+                ${tab === t ? "border-brand-600 text-brand-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
               {t === "info" ? "Personal Info" : t === "parents" ? "Parents/Guardian" : t}
             </button>
           ))}
@@ -118,15 +91,15 @@ const StudentModal = ({ student, onClose }) => {
           {tab === "info" && (
             <div className="grid grid-cols-2 gap-4">
               {[
-                ["Full Name", `${student.surname} ${student.firstName} ${student.middleName}`],
+                ["Full Name", `${student.surname} ${student.firstName} ${student.middleName || ""}`],
                 ["Student ID", student.id],
                 ["Gender", student.gender],
-                ["Date of Birth", new Date(student.dateOfBirth).toLocaleDateString("en-NG", { dateStyle: "long" })],
+                ["Date of Birth", student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString("en-NG", { dateStyle: "long" }) : "—"],
                 ["Class", student.class],
                 ["Schooling", student.schoolingOption],
                 ["State of Origin", student.stateOfOrigin],
-                ["Admission Date", new Date(student.admissionDate).toLocaleDateString("en-NG", { dateStyle: "long" })],
-                ["Class Teacher", student.classTeacher],
+                ["Admission Date", student.admissionDate ? new Date(student.admissionDate).toLocaleDateString("en-NG", { dateStyle: "long" }) : "—"],
+                ["Class Teacher", student.classTeacher || "—"],
                 ["Status", student.status],
               ].map(([label, value]) => (
                 <div key={label} className="bg-gray-50 rounded-xl p-3">
@@ -148,18 +121,18 @@ const StudentModal = ({ student, onClose }) => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <p className="text-xs text-gray-400">Full Name</p>
-                      <p className="text-sm font-medium text-gray-800">{p.name}</p>
+                      <p className="text-sm font-medium text-gray-800">{p.name || "—"}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400">Phone</p>
-                      <p className="text-sm font-medium text-gray-800">{p.phone}</p>
+                      <p className="text-sm font-medium text-gray-800">{p.phone || "—"}</p>
                     </div>
                   </div>
                 </div>
               ))}
               <div className="bg-gray-50 rounded-xl p-4">
                 <p className="text-xs text-gray-400 mb-0.5">Correspondence Email</p>
-                <p className="text-sm font-medium text-gray-800">{student.correspondenceEmail}</p>
+                <p className="text-sm font-medium text-gray-800">{student.correspondenceEmail || "—"}</p>
               </div>
             </div>
           )}
@@ -167,10 +140,10 @@ const StudentModal = ({ student, onClose }) => {
           {tab === "health" && (
             <div className="grid grid-cols-2 gap-4">
               {[
-                ["Blood Group", student.bloodGroup],
-                ["Genotype", student.genotype],
-                ["Food Allergy", "None recorded"],
-                ["Infectious Disease", "None recorded"],
+                ["Blood Group", student.bloodGroup || "—"],
+                ["Genotype", student.genotype || "—"],
+                ["Food Allergy", student.health?.foodAllergy || "None recorded"],
+                ["Infectious Disease", student.health?.infectiousDisease || "None recorded"],
               ].map(([label, value]) => (
                 <div key={label} className="bg-gray-50 rounded-xl p-3">
                   <p className="text-xs text-gray-400 mb-0.5">{label}</p>
@@ -184,7 +157,7 @@ const StudentModal = ({ student, onClose }) => {
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4">
                 <div className="bg-brand-50 rounded-xl p-4 text-center">
-                  <p className="text-2xl font-bold text-brand-700">{student.attendance}%</p>
+                  <p className="text-2xl font-bold text-brand-700">{student.attendance ?? "—"}%</p>
                   <p className="text-xs text-gray-500 mt-1">Attendance</p>
                 </div>
                 <div className="bg-green-50 rounded-xl p-4 text-center">
@@ -204,17 +177,17 @@ const StudentModal = ({ student, onClose }) => {
 
           {tab === "finance" && (
             <div className="space-y-4">
-              <div className={`rounded-xl p-4 flex items-center gap-3 ${student.fees.paid ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
-                {student.fees.paid
+              <div className={`rounded-xl p-4 flex items-center gap-3 ${student.fees?.paid ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}>
+                {student.fees?.paid
                   ? <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
                   : <AlertCircle className="w-6 h-6 text-red-500 flex-shrink-0" />
                 }
                 <div>
-                  <p className={`font-semibold text-sm ${student.fees.paid ? "text-green-800" : "text-red-700"}`}>
-                    Fees {student.fees.paid ? "Paid" : "Outstanding"}
+                  <p className={`font-semibold text-sm ${student.fees?.paid ? "text-green-800" : "text-red-700"}`}>
+                    Fees {student.fees?.paid ? "Paid" : "Outstanding"}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Amount: ₦{student.fees.amount.toLocaleString()}
+                    Amount: ₦{student.fees?.amount?.toLocaleString() ?? "—"}
                   </p>
                 </div>
               </div>
@@ -225,7 +198,7 @@ const StudentModal = ({ student, onClose }) => {
           )}
         </div>
 
-        {/* Footer actions */}
+        {/* Footer */}
         <div className="border-t border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50">
           <div className="flex gap-2">
             <button className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-white transition-colors text-gray-600">
@@ -244,53 +217,118 @@ const StudentModal = ({ student, onClose }) => {
   );
 };
 
-// ─── Main Page ────────────────────────────────────────────────
+// ─── Delete Confirm Modal ──────────────────────────────────────
+const DeleteConfirmModal = ({ student, onClose, onConfirm, isLoading }) => {
+  if (!student) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+        <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+          <Trash2 className="w-6 h-6 text-red-500" />
+        </div>
+        <h3 className="text-center font-bold text-gray-900 mb-2">Delete Student?</h3>
+        <p className="text-center text-sm text-gray-500 mb-6">
+          This will permanently remove <strong>{student.surname} {student.firstName}</strong>'s record. This action cannot be undone.
+        </p>
+        <div className="flex gap-3">
+          <button onClick={onClose} disabled={isLoading}
+            className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">
+            Cancel
+          </button>
+          <button onClick={onConfirm} disabled={isLoading}
+            className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 flex items-center justify-center gap-2 disabled:opacity-60">
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Main Page ─────────────────────────────────────────────────
 export default function AllStudentsPage() {
-  const [search, setSearch] = useState("");
-  const [classFilter, setClassFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [search, setSearch]               = useState("");
+  const [classFilter, setClassFilter]     = useState("");
+  const [statusFilter, setStatusFilter]   = useState("");
   const [schoolingFilter, setSchoolingFilter] = useState("");
-  const [page, setPage] = useState(1);
+  const [page, setPage]                   = useState(1);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [viewMode, setViewMode] = useState("table"); // table | grid
-  const PER_PAGE = 15;
+  const [deleteTarget, setDeleteTarget]   = useState(null);
 
-  const filtered = useMemo(() => {
-    return mockStudents.filter((s) => {
-      const q = search.toLowerCase();
-      const matchSearch =
-        !search ||
-        s.surname.toLowerCase().includes(q) ||
-        s.firstName.toLowerCase().includes(q) ||
-        s.id.toLowerCase().includes(q);
-      return (
-        matchSearch &&
-        (!classFilter || s.class === classFilter) &&
-        (!statusFilter || s.status === statusFilter) &&
-        (!schoolingFilter || s.schoolingOption === schoolingFilter)
-      );
-    });
-  }, [search, classFilter, statusFilter, schoolingFilter]);
+  // ── RTK Query ──────────────────────────────────────────────
+  const { data, isLoading, isError, refetch, isFetching } = useGetAllStudentsQuery({
+    page,
+    limit: PER_PAGE,
+    search:          search || undefined,
+    class:           classFilter || undefined,
+    status:          statusFilter || undefined,
+    schoolingOption: schoolingFilter || undefined,
+  });
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const [deleteStudent, { isLoading: isDeleting }] = useDeleteStudentMutation();
+  const [updateStatus] = useUpdateStudentStatusMutation();
 
+  const students   = data?.data?.students    ?? [];
+  const pagination = data?.data?.pagination  ?? { total: 0, page: 1, limit: PER_PAGE, totalPages: 1 };
+  const totalPages = pagination.totalPages;
+
+  // Summary stats derived from current page data (full counts come from pagination.total)
   const stats = useMemo(() => ({
-    total: mockStudents.length,
-    active: mockStudents.filter((s) => s.status === "Active").length,
-    boarding: mockStudents.filter((s) => s.schoolingOption === "Boarding").length,
-    day: mockStudents.filter((s) => s.schoolingOption === "Day").length,
-  }), []);
+    total:    pagination.total,
+    active:   students.filter((s) => s.status === "Active").length,
+    boarding: students.filter((s) => s.schoolingOption === "Boarding").length,
+    day:      students.filter((s) => s.schoolingOption === "Day").length,
+  }), [students, pagination.total]);
+
+  // ── Handlers ───────────────────────────────────────────────
+  const handleSearch = (value) => { setSearch(value); setPage(1); };
+  const handleClassFilter = (value) => { setClassFilter(value); setPage(1); };
+  const handleStatusFilter = (value) => { setStatusFilter(value); setPage(1); };
+  const handleSchoolingFilter = (value) => { setSchoolingFilter(value); setPage(1); };
+
+  const clearFilters = () => {
+    setSearch(""); setClassFilter(""); setStatusFilter(""); setSchoolingFilter("");
+    setPage(1);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteStudent(deleteTarget.id).unwrap();
+      toast.success("Student deleted successfully");
+      setDeleteTarget(null);
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to delete student");
+    }
+  };
+
+  const hasFilters = search || classFilter || statusFilter || schoolingFilter;
+
+  // ── Loading / Error States ─────────────────────────────────
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <AlertCircle className="w-12 h-12 text-red-400" />
+        <p className="text-gray-600 font-medium">Failed to load students</p>
+        <button onClick={refetch}
+          className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-lg text-sm hover:bg-brand-700">
+          <RefreshCw className="w-4 h-4" /> Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Total Students", value: stats.total, icon: Users, color: "bg-brand-50 text-brand-600" },
-          { label: "Active", value: stats.active, icon: CheckCircle, color: "bg-green-50 text-green-600" },
-          { label: "Boarding", value: stats.boarding, icon: Home, color: "bg-blue-50 text-blue-600" },
-          { label: "Day Students", value: stats.day, icon: GraduationCap, color: "bg-orange-50 text-orange-600" },
+          { label: "Total Students",  value: isLoading ? "—" : pagination.total, icon: Users,          color: "bg-brand-50 text-brand-600" },
+          { label: "Active",          value: isLoading ? "—" : stats.active,      icon: CheckCircle,    color: "bg-green-50 text-green-600" },
+          { label: "Boarding",        value: isLoading ? "—" : stats.boarding,    icon: Home,           color: "bg-blue-50 text-blue-600" },
+          { label: "Day Students",    value: isLoading ? "—" : stats.day,         icon: GraduationCap,  color: "bg-orange-50 text-orange-600" },
         ].map((s) => (
           <div key={s.label} className="bg-brand-600 rounded-xl border border-gray-200 p-4 flex items-center gap-3">
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${s.color}`}>
@@ -307,65 +345,60 @@ export default function AllStudentsPage() {
       {/* Toolbar */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Search */}
           <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 flex-1 min-w-48">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              onChange={(e) => handleSearch(e.target.value)}
               placeholder="Search by name or ID..."
               className="bg-transparent text-sm outline-none flex-1 text-gray-700 placeholder-gray-400"
             />
           </div>
 
-          {/* Filters */}
-          <select
-            value={classFilter}
-            onChange={(e) => { setClassFilter(e.target.value); setPage(1); }}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white outline-none focus:ring-2 focus:ring-brand-300"
-          >
+          <select value={classFilter} onChange={(e) => handleClassFilter(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white outline-none focus:ring-2 focus:ring-brand-300">
             <option value="">All Classes</option>
             {CLASSES.map((c) => <option key={c}>{c}</option>)}
           </select>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white outline-none focus:ring-2 focus:ring-brand-300"
-          >
+          <select value={statusFilter} onChange={(e) => handleStatusFilter(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white outline-none focus:ring-2 focus:ring-brand-300">
             <option value="">All Status</option>
             {STATUS_OPTS.map((s) => <option key={s}>{s}</option>)}
           </select>
 
-          <select
-            value={schoolingFilter}
-            onChange={(e) => { setSchoolingFilter(e.target.value); setPage(1); }}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white outline-none focus:ring-2 focus:ring-brand-300"
-          >
+          <select value={schoolingFilter} onChange={(e) => handleSchoolingFilter(e.target.value)}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white outline-none focus:ring-2 focus:ring-brand-300">
             <option value="">All Types</option>
             {SCHOOLING_OPTS.map((s) => <option key={s}>{s}</option>)}
           </select>
 
           <div className="flex items-center gap-2 ml-auto">
-            {(search || classFilter || statusFilter || schoolingFilter) && (
-              <button
-                onClick={() => { setSearch(""); setClassFilter(""); setStatusFilter(""); setSchoolingFilter(""); }}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-dashed border-gray-300 rounded-lg"
-              >
+            {hasFilters && (
+              <button onClick={clearFilters}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-dashed border-gray-300 rounded-lg">
                 <X className="w-4 h-4" /> Clear
               </button>
             )}
+            <button onClick={refetch} disabled={isFetching}
+              className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 disabled:opacity-50">
+              <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+            </button>
             <button className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">
               <Download className="w-4 h-4" /> Export
             </button>
-            <Link href="/portals/admin/student/add" className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition-colors">
+            <Link href="/portals/admin/students/add"
+              className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition-colors">
               <UserPlus className="w-4 h-4" /> Add Student
             </Link>
           </div>
         </div>
 
         <p className="text-xs text-gray-400 mt-2">
-          Showing {paginated.length} of {filtered.length} students
+          {isLoading
+            ? "Loading..."
+            : `Showing ${students.length} of ${pagination.total} students`
+          }
         </p>
       </div>
 
@@ -375,23 +408,37 @@ export default function AllStudentsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Student</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">ID</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Class</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Type</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Fees</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Attendance</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Actions</th>
+                {["Student", "ID", "Class", "Type", "Fees", "Attendance", "Status", "Actions"].map((h) => (
+                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {paginated.map((student) => (
+              {/* Loading skeleton */}
+              {isLoading && Array.from({ length: 8 }).map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gray-200" />
+                      <div className="space-y-1.5">
+                        <div className="h-3 w-28 bg-gray-200 rounded" />
+                        <div className="h-2.5 w-20 bg-gray-100 rounded" />
+                      </div>
+                    </div>
+                  </td>
+                  {[...Array(7)].map((_, j) => (
+                    <td key={j} className="px-4 py-3"><div className="h-3 bg-gray-200 rounded w-20" /></td>
+                  ))}
+                </tr>
+              ))}
+
+              {/* Data rows */}
+              {!isLoading && students.map((student) => (
                 <tr key={student.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-bold flex-shrink-0">
-                        {student.firstName[0]}{student.surname[0]}
+                        {student.firstName?.[0]}{student.surname?.[0]}
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{student.surname} {student.firstName}</p>
@@ -409,84 +456,103 @@ export default function AllStudentsPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    {student.fees.paid
+                    {student.fees?.paid
                       ? <span className="flex items-center gap-1 text-green-600 text-xs"><CheckCircle className="w-3.5 h-3.5" />Paid</span>
                       : <span className="flex items-center gap-1 text-red-500 text-xs"><XCircle className="w-3.5 h-3.5" />Owing</span>
                     }
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 bg-gray-200 rounded-full h-1.5 w-16">
-                        <div
-                          className={`h-1.5 rounded-full ${student.attendance >= 85 ? "bg-green-500" : student.attendance >= 70 ? "bg-orange-400" : "bg-red-400"}`}
-                          style={{ width: `${student.attendance}%` }}
-                        />
+                    {student.attendance != null ? (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 bg-gray-200 rounded-full h-1.5 w-16">
+                          <div
+                            className={`h-1.5 rounded-full ${student.attendance >= 85 ? "bg-green-500" : student.attendance >= 70 ? "bg-orange-400" : "bg-red-400"}`}
+                            style={{ width: `${student.attendance}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-500">{student.attendance}%</span>
                       </div>
-                      <span className="text-xs text-gray-500">{student.attendance}%</span>
-                    </div>
+                    ) : <span className="text-xs text-gray-400">—</span>}
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={student.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setSelectedStudent(student)}
-                        className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
-                        title="View Profile"
-                      >
+                      <button onClick={() => setSelectedStudent(student)}
+                        className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors" title="View Profile">
                         <Eye className="w-4 h-4" />
                       </button>
-                      <button className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
+                      <Link href={`/portals/admin/students/edit/${student.id}`}
+                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit">
                         <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
+                      </Link>
+                      <button onClick={() => setDeleteTarget(student)}
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
                 </tr>
               ))}
+
+              {/* Empty state */}
+              {!isLoading && students.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="px-4 py-16 text-center">
+                    <GraduationCap className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                    <p className="text-gray-400 text-sm">
+                      {hasFilters ? "No students match your filters" : "No students found"}
+                    </p>
+                    {hasFilters && (
+                      <button onClick={clearFilters} className="mt-3 text-xs text-brand-600 hover:underline">
+                        Clear filters
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
         <div className="border-t border-gray-200 px-4 py-3 flex items-center justify-between">
-          <p className="text-xs text-gray-500">Page {page} of {totalPages}</p>
+          <p className="text-xs text-gray-500">
+            Page {pagination.page} of {totalPages} — {pagination.total} total records
+          </p>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-40 hover:bg-gray-100 rounded-lg transition-colors"
-            >
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1 || isFetching}
+              className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-40 hover:bg-gray-100 rounded-lg transition-colors">
               <ChevronLeft className="w-4 h-4" />
             </button>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               const pg = page <= 3 ? i + 1 : page + i - 2;
               if (pg < 1 || pg > totalPages) return null;
               return (
-                <button
-                  key={pg}
-                  onClick={() => setPage(pg)}
-                  className={`w-8 h-8 text-xs rounded-lg transition-colors ${pg === page ? "bg-brand-600 text-white" : "text-gray-500 hover:bg-gray-100"}`}
-                >
+                <button key={pg} onClick={() => setPage(pg)} disabled={isFetching}
+                  className={`w-8 h-8 text-xs rounded-lg transition-colors ${pg === page ? "bg-brand-600 text-white" : "text-gray-500 hover:bg-gray-100"}`}>
                   {pg}
                 </button>
               );
             })}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-40 hover:bg-gray-100 rounded-lg transition-colors"
-            >
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages || isFetching}
+              className="p-1.5 text-gray-500 hover:text-gray-700 disabled:opacity-40 hover:bg-gray-100 rounded-lg transition-colors">
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Student Profile Modal */}
+      {/* Modals */}
       {selectedStudent && (
         <StudentModal student={selectedStudent} onClose={() => setSelectedStudent(null)} />
+      )}
+      {deleteTarget && (
+        <DeleteConfirmModal
+          student={deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDelete}
+          isLoading={isDeleting}
+        />
       )}
     </div>
   );

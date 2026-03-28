@@ -13,6 +13,9 @@ import {
   Search,
 } from "lucide-react";
 import Breadcrumb from "./Breadcrumb";
+import { useUserData } from "@/context/userContext";
+import { logoutUser } from "@/redux/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const NOTIFICATIONS = [
   { id: 1, text: "New admission application received", time: "2m ago", read: false },
@@ -31,7 +34,10 @@ function getPageTitle(pathname) {
 }
 
 export default function AppBar({ onMenuToggle, user, darkMode, setDarkMode }) {
+  const { userInfo } = useUserData()
+  console.log(userInfo)
   const pathname = usePathname();
+  const dispatch = useDispatch()
   const title = getPageTitle(pathname);
 
   const [profileOpen, setProfileOpen] = useState(false);
@@ -150,14 +156,14 @@ export default function AppBar({ onMenuToggle, user, darkMode, setDarkMode }) {
               className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-100 transition-colors group"
             >
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center flex-shrink-0 text-white font-bold text-sm shadow-sm">
-                {user?.name?.charAt(0) || "A"}
+                {userInfo?.fullName?.charAt(0) || "A"}
               </div>
               <div className="hidden md:block text-left min-w-0">
                 <p className="text-xs font-semibold text-gray-800 truncate max-w-[90px]">
-                  {user?.name || "Admin"}
+                  {userInfo?.fullName || "Admin"}
                 </p>
                 <p className="text-xs text-gray-400 capitalize truncate max-w-[90px]">
-                  {user?.role?.replace("_", " ") || "Super Admin"}
+                  {userInfo?.role?.replace("_", " ") || "Super Admin"}
                 </p>
               </div>
               <ChevronDown
@@ -172,10 +178,10 @@ export default function AppBar({ onMenuToggle, user, darkMode, setDarkMode }) {
               <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50">
                 <div className="px-4 py-3 bg-gradient-to-br from-brand-50 to-white border-b border-gray-100">
                   <p className="text-sm font-semibold text-gray-800">
-                    {user?.name || "Administrator"}
+                    {userInfo.department || "Administrator"}
                   </p>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    {user?.email || "admin@progressschool.com"}
+                    {userInfo?.email || "admin@progressschool.com"}
                   </p>
                 </div>
                 <div className="py-1.5">
@@ -194,7 +200,7 @@ export default function AppBar({ onMenuToggle, user, darkMode, setDarkMode }) {
                   ))}
                 </div>
                 <div className="border-t border-gray-100 py-1.5">
-                  <button className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                  <button onClick={() => dispatch(logoutUser())} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
                     <LogOut size={15} />
                     Sign Out
                   </button>
