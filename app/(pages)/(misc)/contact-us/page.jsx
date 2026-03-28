@@ -1,8 +1,11 @@
 'use client'
 import React from 'react'
 
-export const ContactUs = () => {
+const ContactUs = () => {
     return (
         <div>ContactUs</div>
     )
 }
+
+
+export default ContactUs

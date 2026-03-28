@@ -1,40 +1,19 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   Search, CheckCircle, XCircle, Clock, Send, Download,
   FileText, ChevronLeft, ChevronRight, X, Mail, Calendar,
   Users, AlertCircle, Eye, RefreshCw, Check, Hourglass,
   Award, MailOpen, CalendarClock, Ban
 } from "lucide-react";
+import {
+  useGetOffersListQuery,
+  useSendOfferLetterMutation,
+  useUpdateOfferAcceptanceStatusMutation,
+} from "@/redux/slices/admissionsSlice";
+import toast from "react-hot-toast";
 
-// ─── Mock Data ─────────────────────────────────────────────────
-const MOCK_OFFERS = Array.from({ length: 28 }, (_, i) => {
-  const firstNames = ["Chioma", "Emeka", "Fatima", "Tunde", "Blessing", "Samuel", "Grace", "Usman", "Ngozi", "Chidi"];
-  const surnames = ["Adeyemi", "Okonkwo", "Hassan", "Adeleke", "Babatunde", "Nwachukwu", "Eze", "Ibrahim", "Afolabi", "Chukwu"];
-  const classes = ["JSS 1", "JSS 2", "JSS 3", "SS 1", "SS 2", "SS 3"];
-  const acceptanceStatuses = ["Pending", "Accepted", "Declined", "Pending", "Pending", "Accepted", "Accepted"];
-
-  const offerDate = new Date(Date.now() - i * 86400000);
-  const deadline = new Date(offerDate.getTime() + 14 * 86400000);
-
-  return {
-    id: `APP-2025-${String(i + 1).padStart(4, "0")}`,
-    offerId: `OFR-2025-${String(i + 1).padStart(4, "0")}`,
-    firstName: firstNames[i % 10],
-    surname: surnames[i % 10],
-    email: `parent${i + 1}@gmail.com`,
-    phone: `080${String(i + 30000000).padStart(8, "0")}`,
-    appliedClass: classes[i % classes.length],
-    schoolingOption: i % 2 === 0 ? "Boarding" : "Day",
-    offerSent: i % 4 !== 3,
-    offerDate: offerDate.toISOString().split("T")[0],
-    acceptanceDeadline: deadline.toISOString().split("T")[0],
-    acceptanceStatus: i % 4 === 3 ? null : acceptanceStatuses[i % acceptanceStatuses.length],
-    emailSent: i % 4 !== 3,
-    pdfGenerated: i % 5 !== 4,
-    gender: i % 2 === 0 ? "Male" : "Female",
-  };
-});
+const PER_PAGE = 12;
 
 // ─── Offer Status Badge ────────────────────────────────────────
 const OfferStatusBadge = ({ status, sent }) => {
@@ -45,8 +24,8 @@ const OfferStatusBadge = ({ status, sent }) => {
   );
   const map = {
     Accepted: { cls: "bg-green-50 text-green-700 border-green-200", icon: CheckCircle },
-    Declined:  { cls: "bg-red-50 text-red-600 border-red-200",        icon: XCircle },
-    Pending:   { cls: "bg-amber-50 text-amber-700 border-amber-200",  icon: Hourglass },
+    Declined: { cls: "bg-red-50 text-red-600 border-red-200", icon: XCircle },
+    Pending: { cls: "bg-amber-50 text-amber-700 border-amber-200", icon: Hourglass },
   };
   const cfg = map[status] || map.Pending;
   const Icon = cfg.icon;
@@ -58,19 +37,18 @@ const OfferStatusBadge = ({ status, sent }) => {
 };
 
 // ─── Offer Detail / Send Modal ─────────────────────────────────
-const OfferModal = ({ offer, onClose, onUpdate }) => {
+const OfferModal = ({ offer, onClose, onSend, onUpdateStatus, isSending, isUpdating }) => {
   if (!offer) return null;
   const [deadline, setDeadline] = useState(offer.acceptanceDeadline || "");
-  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const handleSendOffer = () => {
-    setSending(true);
-    setTimeout(() => {
-      setSending(false);
+  const handleSendOffer = async () => {
+    try {
+      await onSend({ id: offer.id, acceptanceDeadline: deadline, resend: offer.offerSent });
       setSent(true);
-      onUpdate({ ...offer, offerSent: true, emailSent: true, acceptanceStatus: "Pending", acceptanceDeadline: deadline, offerDate: new Date().toISOString().split("T")[0] });
-    }, 1500);
+    } catch {
+      // error toast handled in parent
+    }
   };
 
   const isOverdue = deadline && new Date(deadline) < new Date();
@@ -84,7 +62,7 @@ const OfferModal = ({ offer, onClose, onUpdate }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-white/20 flex items-center justify-center text-white font-black">
-                {offer.firstName[0]}{offer.surname[0]}
+                {offer.firstName?.[0]}{offer.surname?.[0]}
               </div>
               <div>
                 <h2 className="text-white font-bold">{offer.surname} {offer.firstName}</h2>
@@ -124,7 +102,7 @@ const OfferModal = ({ offer, onClose, onUpdate }) => {
             {isOverdue && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />Selected date is in the past</p>}
           </div>
 
-          {/* Status */}
+          {/* Status (if sent) */}
           {offer.offerSent && (
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -140,6 +118,27 @@ const OfferModal = ({ offer, onClose, onUpdate }) => {
               ))}
             </div>
           )}
+
+          {/* Admin override for acceptance status */}
+          {offer.offerSent && offer.acceptanceStatus && (
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Update Acceptance Status (Admin Override)</label>
+              <div className="flex gap-2">
+                {["Accepted", "Pending", "Declined"].map(s => (
+                  <button key={s}
+                    onClick={() => onUpdateStatus({ id: offer.id, acceptanceStatus: s })}
+                    disabled={isUpdating || offer.acceptanceStatus === s}
+                    className={`flex-1 py-2 text-xs font-semibold rounded-lg border transition-all disabled:opacity-50
+                      ${offer.acceptanceStatus === s
+                        ? s === "Accepted" ? "bg-green-50 border-green-300 text-green-700" : s === "Declined" ? "bg-red-50 border-red-200 text-red-600" : "bg-amber-50 border-amber-200 text-amber-700"
+                        : "border-gray-200 text-gray-500 hover:bg-gray-50"
+                      }`}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -152,12 +151,12 @@ const OfferModal = ({ offer, onClose, onUpdate }) => {
           </button>
           <button
             onClick={handleSendOffer}
-            disabled={sending || sent || !deadline || isOverdue}
+            disabled={isSending || sent || !deadline || isOverdue}
             className={`ml-auto flex items-center gap-2 px-5 py-2 text-sm rounded-xl font-semibold transition-all
-              ${sent ? "bg-green-50 text-green-700 border border-green-200" :
-                "bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"}`}
+              ${sent ? "bg-green-50 text-green-700 border border-green-200"
+                : "bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"}`}
           >
-            {sending ? (
+            {isSending ? (
               <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Sending...</>
             ) : sent ? (
               <><CheckCircle className="w-4 h-4" />Offer Sent!</>
@@ -173,37 +172,45 @@ const OfferModal = ({ offer, onClose, onUpdate }) => {
 
 // ─── Main Page ────────────────────────────────────────────────
 export default function OffersPage() {
-  const [offers, setOffers] = useState(MOCK_OFFERS);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [selected, setSelected] = useState(null);
   const [page, setPage] = useState(1);
-  const PER_PAGE = 12;
+  const [selected, setSelected] = useState(null);
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    return offers.filter(o => {
-      const matchSearch = !search || `${o.surname} ${o.firstName}`.toLowerCase().includes(q) || o.id.toLowerCase().includes(q);
-      const matchStatus = !statusFilter ||
-        (statusFilter === "Not Sent" && !o.offerSent) ||
-        (o.acceptanceStatus === statusFilter);
-      return matchSearch && matchStatus;
-    });
-  }, [offers, search, statusFilter]);
+  // RTK Query
+  const { data, isLoading, isFetching, error, refetch } = useGetOffersListQuery({
+    page,
+    limit: PER_PAGE,
+    search: search || undefined,
+    acceptanceStatus: statusFilter || undefined,
+  });
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const [sendOffer, { isLoading: isSending }] = useSendOfferLetterMutation();
+  const [updateAcceptance, { isLoading: isUpdating }] = useUpdateOfferAcceptanceStatusMutation();
 
-  const stats = useMemo(() => ({
-    total: offers.length,
-    sent: offers.filter(o => o.offerSent).length,
-    accepted: offers.filter(o => o.acceptanceStatus === "Accepted").length,
-    pending: offers.filter(o => o.acceptanceStatus === "Pending").length,
-    declined: offers.filter(o => o.acceptanceStatus === "Declined").length,
-  }), [offers]);
+  const offers = data?.data?.offers || [];
+  const pagination = data?.data?.pagination || { total: 0, totalPages: 1 };
+  const stats = data?.data?.stats || { total: 0, sent: 0, accepted: 0, pending: 0, declined: 0 };
+  const totalPages = pagination.totalPages;
 
-  const handleUpdate = (updated) => {
-    setOffers(prev => prev.map(o => o.id === updated.id ? updated : o));
+  const handleSendOffer = async ({ id, acceptanceDeadline, resend }) => {
+    try {
+      await sendOffer({ id, acceptanceDeadline, resend }).unwrap();
+      toast.success("Offer letter sent successfully");
+      setSelected(null);
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to send offer letter");
+      throw err;
+    }
+  };
+
+  const handleUpdateStatus = async ({ id, acceptanceStatus }) => {
+    try {
+      await updateAcceptance({ id, acceptanceStatus }).unwrap();
+      toast.success(`Acceptance status updated to ${acceptanceStatus}`);
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to update acceptance status");
+    }
   };
 
   const isDeadlineNear = (deadline) => {
@@ -211,8 +218,17 @@ export default function OffersPage() {
     const diff = new Date(deadline) - new Date();
     return diff > 0 && diff < 3 * 86400000;
   };
-
   const isOverdue = (deadline) => deadline && new Date(deadline) < new Date();
+
+  if (error) return (
+    <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+      <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+      <p className="text-red-700 font-medium">Failed to load offers</p>
+      <button onClick={refetch} className="mt-3 flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm mx-auto">
+        <RefreshCw className="w-4 h-4" /> Retry
+      </button>
+    </div>
+  );
 
   return (
     <div className="space-y-5">
@@ -229,7 +245,7 @@ export default function OffersPage() {
             <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2.5 ${s.color}`}>
               <s.icon className="w-4 h-4" />
             </div>
-            <p className="text-2xl font-black text-gray-50">{s.value}</p>
+            <p className="text-2xl font-black text-gray-50">{isLoading ? "—" : s.value}</p>
             <p className="text-xs text-gray-200 mt-0.5">{s.label}</p>
           </div>
         ))}
@@ -273,11 +289,15 @@ export default function OffersPage() {
           <option value="Declined">Declined</option>
         </select>
         {(search || statusFilter) && (
-          <button onClick={() => { setSearch(""); setStatusFilter(""); }}
+          <button onClick={() => { setSearch(""); setStatusFilter(""); setPage(1); }}
             className="flex items-center gap-1 px-3 py-2.5 text-sm text-gray-500 border border-dashed border-gray-300 rounded-xl">
             <X className="w-4 h-4" /> Clear
           </button>
         )}
+        <button onClick={refetch} disabled={isFetching}
+          className="p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-40">
+          <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+        </button>
         <button className="ml-auto flex items-center gap-1.5 px-4 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">
           <Download className="w-4 h-4" /> Export Report
         </button>
@@ -285,81 +305,88 @@ export default function OffersPage() {
 
       {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                {["Applicant", "Offer ID", "Class", "Offer Date", "Deadline", "Email", "Acceptance", "Actions"].map(h => (
-                  <th key={h} className="text-left px-4 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wide">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {paginated.map(offer => (
-                <tr key={offer.id} className="hover:bg-gray-50/60 transition-colors group">
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-brand-700 text-xs font-black flex-shrink-0">
-                        {offer.firstName[0]}{offer.surname[0]}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900 text-sm">{offer.surname} {offer.firstName}</p>
-                        <p className="text-xs text-gray-400">{offer.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{offer.offerId}</span>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <span className="text-sm font-medium text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg">{offer.appliedClass}</span>
-                  </td>
-                  <td className="px-4 py-3.5 text-sm text-gray-500">
-                    {offer.offerSent ? new Date(offer.offerDate).toLocaleDateString("en-NG", { day: "numeric", month: "short" }) : "—"}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    {offer.acceptanceDeadline ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className={`text-xs font-medium ${isOverdue(offer.acceptanceDeadline) ? "text-red-500" : isDeadlineNear(offer.acceptanceDeadline) ? "text-amber-600" : "text-gray-600"}`}>
-                          {new Date(offer.acceptanceDeadline).toLocaleDateString("en-NG", { day: "numeric", month: "short" })}
-                        </span>
-                        {isOverdue(offer.acceptanceDeadline) && offer.acceptanceStatus === "Pending" && (
-                          <span className="text-xs text-red-500 bg-red-50 px-1.5 py-0.5 rounded font-medium">Overdue</span>
-                        )}
-                        {isDeadlineNear(offer.acceptanceDeadline) && !isOverdue(offer.acceptanceDeadline) && (
-                          <span className="text-xs text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium">Soon</span>
-                        )}
-                      </div>
-                    ) : <span className="text-gray-400 text-xs">Not set</span>}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    {offer.emailSent
-                      ? <span className="flex items-center gap-1 text-green-600 text-xs"><MailOpen className="w-3.5 h-3.5" />Sent</span>
-                      : <span className="flex items-center gap-1 text-gray-400 text-xs"><Mail className="w-3.5 h-3.5" />Not Sent</span>
-                    }
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <OfferStatusBadge status={offer.acceptanceStatus} sent={offer.offerSent} />
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button onClick={() => setSelected(offer)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
-                          ${offer.offerSent
-                            ? "border border-brand-200 text-brand-600 hover:bg-brand-50"
-                            : "bg-brand-600 text-white hover:bg-brand-700"
-                          }`}>
-                        {offer.offerSent ? <><Eye className="w-3.5 h-3.5" />View</> : <><Send className="w-3.5 h-3.5" />Send</>}
-                      </button>
-                    </div>
-                  </td>
+        {isLoading ? (
+          <div className="py-16 text-center">
+            <div className="w-8 h-8 border-2 border-brand-300 border-t-brand-600 rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-gray-400 text-sm">Loading offers...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  {["Applicant", "Offer ID", "Class", "Offer Date", "Deadline", "Email", "Acceptance", "Actions"].map(h => (
+                    <th key={h} className="text-left px-4 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wide">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {offers.map(offer => (
+                  <tr key={offer.id} className="hover:bg-gray-50/60 transition-colors group">
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-brand-700 text-xs font-black flex-shrink-0">
+                          {offer.firstName?.[0]}{offer.surname?.[0]}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm">{offer.surname} {offer.firstName}</p>
+                          <p className="text-xs text-gray-400">{offer.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="font-mono text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{offer.offerId || "—"}</span>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className="text-sm font-medium text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg">{offer.appliedClass}</span>
+                    </td>
+                    <td className="px-4 py-3.5 text-sm text-gray-500">
+                      {offer.offerSent ? new Date(offer.offerDate).toLocaleDateString("en-NG", { day: "numeric", month: "short" }) : "—"}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {offer.acceptanceDeadline ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-xs font-medium ${isOverdue(offer.acceptanceDeadline) ? "text-red-500" : isDeadlineNear(offer.acceptanceDeadline) ? "text-amber-600" : "text-gray-600"}`}>
+                            {new Date(offer.acceptanceDeadline).toLocaleDateString("en-NG", { day: "numeric", month: "short" })}
+                          </span>
+                          {isOverdue(offer.acceptanceDeadline) && offer.acceptanceStatus === "Pending" && (
+                            <span className="text-xs text-red-500 bg-red-50 px-1.5 py-0.5 rounded font-medium">Overdue</span>
+                          )}
+                          {isDeadlineNear(offer.acceptanceDeadline) && !isOverdue(offer.acceptanceDeadline) && (
+                            <span className="text-xs text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded font-medium">Soon</span>
+                          )}
+                        </div>
+                      ) : <span className="text-gray-400 text-xs">Not set</span>}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {offer.emailSent
+                        ? <span className="flex items-center gap-1 text-green-600 text-xs"><MailOpen className="w-3.5 h-3.5" />Sent</span>
+                        : <span className="flex items-center gap-1 text-gray-400 text-xs"><Mail className="w-3.5 h-3.5" />Not Sent</span>
+                      }
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <OfferStatusBadge status={offer.acceptanceStatus} sent={offer.offerSent} />
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => setSelected(offer)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all
+                            ${offer.offerSent
+                              ? "border border-brand-200 text-brand-600 hover:bg-brand-50"
+                              : "bg-brand-600 text-white hover:bg-brand-700"
+                            }`}>
+                          {offer.offerSent ? <><Eye className="w-3.5 h-3.5" />View</> : <><Send className="w-3.5 h-3.5" />Send</>}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        {!paginated.length && (
+        {!isLoading && !offers.length && (
           <div className="py-16 text-center">
             <Award className="w-12 h-12 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-400 text-sm">No offers match your search</p>
@@ -368,7 +395,7 @@ export default function OffersPage() {
 
         {/* Pagination */}
         <div className="border-t border-gray-100 px-4 py-3 flex items-center justify-between">
-          <p className="text-xs text-gray-500">Showing {paginated.length} of {filtered.length} offers</p>
+          <p className="text-xs text-gray-500">Showing {offers.length} of {pagination.total || 0} offers</p>
           <div className="flex items-center gap-1.5">
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
               className="p-1.5 text-gray-400 disabled:opacity-30 hover:bg-gray-100 rounded-lg">
@@ -393,7 +420,14 @@ export default function OffersPage() {
       </div>
 
       {selected && (
-        <OfferModal offer={selected} onClose={() => setSelected(null)} onUpdate={handleUpdate} />
+        <OfferModal
+          offer={selected}
+          onClose={() => setSelected(null)}
+          onSend={handleSendOffer}
+          onUpdateStatus={handleUpdateStatus}
+          isSending={isSending}
+          isUpdating={isUpdating}
+        />
       )}
     </div>
   );

@@ -1,21 +1,22 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer, { authApi } from './slices/authSlice';
-import { admissionApi }  from './slices/admissionSlice';
+import { admissionApi }   from './slices/admissionSlice';
 import { admissionsApi }  from './slices/admissionsSlice';
-import { studentApi }    from './slices/studentSlice';
-import { staffApi }      from './slices/staffSlice';
-import { academicsApi }  from './slices/academicsSlice';
-import { financeApi }    from './slices/financeSlice';
-import { inventoryApi }  from './slices/inventorySlice';
-import { transportApi }  from './slices/transportSlice';
-import { settingsApi }   from './slices/settingsSlice';
+import { studentApi }     from './slices/studentSlice';
+import { staffApi }       from './slices/staffSlice';
+import { academicsApi }   from './slices/academicsSlice';
+import { financeApi }     from './slices/financeSlice';
+import { inventoryApi }   from './slices/inventorySlice';
+import { transportApi }   from './slices/transportSlice';
+import { settingsApi }    from './slices/settingsSlice';
+import { dashboardApi }   from './slices/dashboardSlice';   // ← added
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
         [authApi.reducerPath]:      authApi.reducer,
         [admissionApi.reducerPath]: admissionApi.reducer,
-        [admissionsApi.reducerPath]: admissionsApi.reducer,
+        [admissionsApi.reducerPath]:admissionsApi.reducer,
         [studentApi.reducerPath]:   studentApi.reducer,
         [staffApi.reducerPath]:     staffApi.reducer,
         [academicsApi.reducerPath]: academicsApi.reducer,
@@ -23,12 +24,13 @@ export const store = configureStore({
         [inventoryApi.reducerPath]: inventoryApi.reducer,
         [transportApi.reducerPath]: transportApi.reducer,
         [settingsApi.reducerPath]:  settingsApi.reducer,
+        [dashboardApi.reducerPath]: dashboardApi.reducer,  // ← added
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
                 ignoredActions: ['admissionApi/executeMutation/pending'],
-                ignoredPaths: ['admissionApi.mutations'],
+                ignoredPaths:   ['admissionApi.mutations'],
             },
         })
             .concat(authApi.middleware)
@@ -40,5 +42,6 @@ export const store = configureStore({
             .concat(financeApi.middleware)
             .concat(inventoryApi.middleware)
             .concat(transportApi.middleware)
-            .concat(settingsApi.middleware),
+            .concat(settingsApi.middleware)
+            .concat(dashboardApi.middleware),  // ← added
 });

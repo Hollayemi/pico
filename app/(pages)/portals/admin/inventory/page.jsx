@@ -2,181 +2,101 @@
 import React, { useState, useMemo } from "react";
 import {
   Box, Plus, Search, X, Check, AlertCircle, Edit2, Trash2,
-  ChevronLeft, ChevronRight, Eye, Download, Filter,
-  Package, BookOpen, Monitor, Microscope, Wrench,
-  AlertTriangle, CheckCircle, Clock, BarChart2,
-  RefreshCw, Tag, Building, GraduationCap, Archive
+  ChevronLeft, ChevronRight, Download, Package, BookOpen,
+  Monitor, Microscope, Wrench, AlertTriangle, GraduationCap,
+  Archive, Tag, Building, RefreshCw, Loader2
 } from "lucide-react";
+import {
+  useGetInventorySummaryQuery,
+  useGetAllItemsQuery,
+  useCreateItemMutation,
+  useUpdateItemMutation,
+  useDeleteItemMutation,
+} from "@/redux/slices/inventorySlice";
+import toast from "react-hot-toast";
 
-// ─── Location Data ─────────────────────────────────────────────
-const LOCATIONS = [
-  { id: "LOC-CLS", type: "class", label: "Classes", items: [
-    "JSS 1A","JSS 1B","JSS 2A","JSS 2B","JSS 3A","JSS 3B",
-    "SS 1 Science","SS 1 Arts","SS 1 Commercial",
-    "SS 2 Science","SS 2 Arts","SS 2 Commercial",
-    "SS 3 Science","SS 3 Arts","SS 3 Commercial",
-  ]},
-  { id: "LOC-OFF", type: "office", label: "Offices", items: [
-    "Principal's Office","Vice Principal's Office","Bursar's Office",
-    "School Library","Science Laboratory","Computer Lab",
-    "Staff Room","Admin Office","Store Room","Sick Bay",
-  ]},
-];
-
-const ALL_LOCATIONS = [
-  ...LOCATIONS[0].items,
-  ...LOCATIONS[1].items,
-];
-
+// ─── Constants ─────────────────────────────────────────────────
 const CATEGORIES = ["Furniture","Electronics","Books/Stationery","Lab Equipment","Sports","Cleaning","Office Supplies","Teaching Aids","Miscellaneous"];
+const CONDITIONS  = ["Excellent","Good","Fair","Poor","Condemned"];
+const UNITS       = ["piece","set","box","ream","volume","pair","roll","litre","kg","unit"];
 
-const CONDITIONS = ["Excellent","Good","Fair","Poor","Condemned"];
+const CLASS_LOCATIONS = [
+  "JSS 1A","JSS 1B","JSS 2A","JSS 2B","JSS 3A","JSS 3B",
+  "SS 1 Science","SS 1 Arts","SS 1 Commercial",
+  "SS 2 Science","SS 2 Arts","SS 2 Commercial",
+  "SS 3 Science","SS 3 Arts","SS 3 Commercial",
+];
+const OFFICE_LOCATIONS = [
+  "Principal's Office","Vice Principal's Office","Bursar's Office",
+  "School Library","Science Laboratory","Computer Lab",
+  "Staff Room","Admin Office","Store Room","Sick Bay",
+];
+const ALL_LOCATIONS = [...CLASS_LOCATIONS, ...OFFICE_LOCATIONS];
 
 const CONDITION_COLORS = {
   Excellent: "bg-green-100 text-green-700 border-green-200",
-  Good: "bg-brand-100 text-brand-700 border-brand-200",
-  Fair: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  Poor: "bg-orange-100 text-orange-700 border-orange-200",
+  Good:      "bg-brand-100 text-brand-700 border-brand-200",
+  Fair:      "bg-yellow-100 text-yellow-700 border-yellow-200",
+  Poor:      "bg-orange-100 text-orange-700 border-orange-200",
   Condemned: "bg-red-100 text-red-700 border-red-200",
 };
 
+const CONDITION_DOT = {
+  Excellent: "bg-green-500", Good: "bg-brand-500", Fair: "bg-yellow-500",
+  Poor: "bg-orange-500", Condemned: "bg-red-500",
+};
+
 const CATEGORY_ICONS = {
-  Furniture: Box,
-  Electronics: Monitor,
-  "Books/Stationery": BookOpen,
-  "Lab Equipment": Microscope,
-  Sports: Package,
-  Cleaning: Package,
-  "Office Supplies": Archive,
-  "Teaching Aids": GraduationCap,
-  Miscellaneous: Tag,
+  Furniture: Box, Electronics: Monitor, "Books/Stationery": BookOpen,
+  "Lab Equipment": Microscope, Sports: Package, Cleaning: Package,
+  "Office Supplies": Archive, "Teaching Aids": GraduationCap, Miscellaneous: Tag,
 };
-
-// ─── Seed inventory data ───────────────────────────────────────
-const seedItems = () => {
-  const items = [];
-  let id = 1;
-
-  const classItems = [
-    { name: "Student Desk", cat: "Furniture", unit: "piece", qty: 40, conditions: ["Good","Good","Excellent","Fair"] },
-    { name: "Teacher's Table", cat: "Furniture", unit: "piece", qty: 1, conditions: ["Good"] },
-    { name: "Teacher's Chair", cat: "Furniture", unit: "piece", qty: 1, conditions: ["Good"] },
-    { name: "Whiteboard", cat: "Teaching Aids", unit: "piece", qty: 1, conditions: ["Good","Fair","Excellent"] },
-    { name: "Whiteboard Marker Set", cat: "Teaching Aids", unit: "set", qty: 2, conditions: ["Good"] },
-    { name: "Student Chair", cat: "Furniture", unit: "piece", qty: 40, conditions: ["Good","Fair","Poor"] },
-    { name: "Dustbin", cat: "Cleaning", unit: "piece", qty: 1, conditions: ["Good","Fair"] },
-    { name: "Class Register", cat: "Books/Stationery", unit: "piece", qty: 1, conditions: ["Good"] },
-  ];
-
-  const officeItems = {
-    "Principal's Office": [
-      { name: "Executive Desk", cat: "Furniture", unit: "piece", qty: 1, conditions: ["Excellent"] },
-      { name: "Office Chair", cat: "Furniture", unit: "piece", qty: 3, conditions: ["Good"] },
-      { name: "Desktop Computer", cat: "Electronics", unit: "piece", qty: 1, conditions: ["Good"] },
-      { name: "Printer", cat: "Electronics", unit: "piece", qty: 1, conditions: ["Good"] },
-      { name: "Filing Cabinet", cat: "Office Supplies", unit: "piece", qty: 2, conditions: ["Good"] },
-      { name: "Air Conditioner", cat: "Electronics", unit: "piece", qty: 1, conditions: ["Excellent"] },
-    ],
-    "School Library": [
-      { name: "Bookshelf", cat: "Furniture", unit: "piece", qty: 20, conditions: ["Good","Fair"] },
-      { name: "Reading Table", cat: "Furniture", unit: "piece", qty: 8, conditions: ["Good"] },
-      { name: "Reference Books", cat: "Books/Stationery", unit: "volume", qty: 340, conditions: ["Good","Fair","Poor"] },
-      { name: "Fiction Books", cat: "Books/Stationery", unit: "volume", qty: 180, conditions: ["Good","Fair"] },
-      { name: "Library Computer", cat: "Electronics", unit: "piece", qty: 2, conditions: ["Fair"] },
-    ],
-    "Science Laboratory": [
-      { name: "Lab Bench", cat: "Furniture", unit: "piece", qty: 10, conditions: ["Good","Fair"] },
-      { name: "Microscope", cat: "Lab Equipment", unit: "piece", qty: 8, conditions: ["Good","Fair","Poor"] },
-      { name: "Bunsen Burner", cat: "Lab Equipment", unit: "piece", qty: 12, conditions: ["Good"] },
-      { name: "Beaker Set", cat: "Lab Equipment", unit: "set", qty: 10, conditions: ["Good","Fair"] },
-      { name: "Safety Goggles", cat: "Lab Equipment", unit: "piece", qty: 30, conditions: ["Good","Fair"] },
-      { name: "Lab Coat", cat: "Lab Equipment", unit: "piece", qty: 20, conditions: ["Good","Fair","Condemned"] },
-      { name: "First Aid Box", cat: "Miscellaneous", unit: "piece", qty: 1, conditions: ["Good"] },
-    ],
-    "Computer Lab": [
-      { name: "Desktop Computer", cat: "Electronics", unit: "piece", qty: 30, conditions: ["Good","Fair","Poor"] },
-      { name: "Computer Table", cat: "Furniture", unit: "piece", qty: 30, conditions: ["Good"] },
-      { name: "UPS", cat: "Electronics", unit: "piece", qty: 30, conditions: ["Good","Fair"] },
-      { name: "Projector", cat: "Electronics", unit: "piece", qty: 1, conditions: ["Good"] },
-      { name: "Projector Screen", cat: "Teaching Aids", unit: "piece", qty: 1, conditions: ["Good"] },
-    ],
-  };
-
-  // Class items
-  ALL_LOCATIONS.slice(0, 15).forEach((loc, li) => {
-    classItems.forEach((template, ti) => {
-      const cond = template.conditions[(li + ti) % template.conditions.length];
-      items.push({
-        id: `INV-${String(id++).padStart(5, "0")}`,
-        name: template.name,
-        category: template.cat,
-        location: loc,
-        locationType: "class",
-        quantity: template.qty + (li % 3 === 0 ? -2 : li % 3 === 1 ? 0 : 1),
-        unit: template.unit,
-        condition: cond,
-        lastUpdated: `2025-${String((li % 3) + 9).padStart(2, "0")}-${String((ti % 20) + 1).padStart(2, "0")}`,
-        notes: cond === "Poor" ? "Needs maintenance" : cond === "Condemned" ? "To be disposed" : "",
-        unitValue: 0,
-      });
-    });
-  });
-
-  // Office items
-  Object.entries(officeItems).forEach(([loc, templates]) => {
-    templates.forEach((template, ti) => {
-      const cond = template.conditions[ti % template.conditions.length];
-      items.push({
-        id: `INV-${String(id++).padStart(5, "0")}`,
-        name: template.name,
-        category: template.cat,
-        location: loc,
-        locationType: "office",
-        quantity: template.qty,
-        unit: template.unit,
-        condition: cond,
-        lastUpdated: `2025-09-${String((ti % 20) + 1).padStart(2, "0")}`,
-        notes: cond === "Poor" ? "Needs maintenance" : cond === "Condemned" ? "To be disposed" : "",
-        unitValue: 0,
-      });
-    });
-  });
-
-  return items;
-};
-
-const MOCK_ITEMS = seedItems();
 
 // ─── Item Form Modal ───────────────────────────────────────────
-const ItemModal = ({ item, onClose, onSave }) => {
+const ItemModal = ({ item, onClose }) => {
   const isEdit = !!item?.id;
   const [form, setForm] = useState(item || {
-    name: "", category: "Furniture", location: ALL_LOCATIONS[0],
+    name: "", category: "Furniture", location: CLASS_LOCATIONS[0],
     locationType: "class", quantity: 1, unit: "piece",
     condition: "Good", notes: "",
   });
   const [errors, setErrors] = useState({});
 
+  const [createItem, { isLoading: isCreating }] = useCreateItemMutation();
+  const [updateItem, { isLoading: isUpdating }] = useUpdateItemMutation();
+  const isLoading = isCreating || isUpdating;
+
   const set = (f, v) => { setForm(p => ({ ...p, [f]: v })); setErrors(p => ({ ...p, [f]: undefined })); };
 
   const handleLocationChange = (loc) => {
-    const isClass = LOCATIONS[0].items.includes(loc);
-    set("location", loc);
-    set("locationType", isClass ? "class" : "office");
+    const isClass = CLASS_LOCATIONS.includes(loc);
+    setForm(p => ({ ...p, location: loc, locationType: isClass ? "class" : "office" }));
   };
 
   const validate = () => {
     const e = {};
     if (!form.name.trim()) e.name = "Required";
     if (!form.location) e.location = "Required";
-    if (!form.quantity || form.quantity < 0) e.quantity = "Must be ≥ 0";
-    return e;
+    if (form.quantity === "" || form.quantity < 0) e.quantity = "Must be ≥ 0";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const handleSave = () => {
-    const e = validate();
-    if (Object.keys(e).length) { setErrors(e); return; }
-    onSave({ ...form, id: form.id || `INV-${Date.now()}`, lastUpdated: new Date().toISOString().split("T")[0] });
+  const handleSave = async () => {
+    if (!validate()) return;
+    const payload = { ...form, quantity: Number(form.quantity) };
+    try {
+      if (isEdit) {
+        await updateItem({ id: item.id, ...payload }).unwrap();
+        toast.success("Item updated successfully");
+      } else {
+        await createItem(payload).unwrap();
+        toast.success("Item added successfully");
+      }
+      onClose();
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to save item");
+    }
   };
 
   const Field = ({ label, req, err, children }) => (
@@ -224,10 +144,10 @@ const ItemModal = ({ item, onClose, onSave }) => {
             <select value={form.location} onChange={e => handleLocationChange(e.target.value)}
               className={`w-full px-3 py-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-brand-300 ${errors.location ? "border-red-300 bg-red-50" : "border-gray-200"}`}>
               <optgroup label="Classrooms">
-                {LOCATIONS[0].items.map(l => <option key={l}>{l}</option>)}
+                {CLASS_LOCATIONS.map(l => <option key={l}>{l}</option>)}
               </optgroup>
               <optgroup label="Offices & Facilities">
-                {LOCATIONS[1].items.map(l => <option key={l}>{l}</option>)}
+                {OFFICE_LOCATIONS.map(l => <option key={l}>{l}</option>)}
               </optgroup>
             </select>
           </Field>
@@ -240,7 +160,7 @@ const ItemModal = ({ item, onClose, onSave }) => {
             <Field label="Unit">
               <select value={form.unit} onChange={e => set("unit", e.target.value)}
                 className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-brand-300">
-                {["piece","set","box","ream","volume","pair","roll","litre","kg","unit"].map(u => <option key={u}>{u}</option>)}
+                {UNITS.map(u => <option key={u}>{u}</option>)}
               </select>
             </Field>
           </div>
@@ -253,8 +173,9 @@ const ItemModal = ({ item, onClose, onSave }) => {
 
         <div className="border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3">
           <button onClick={onClose} className="px-4 py-2 text-sm border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50">Cancel</button>
-          <button onClick={handleSave} className="flex items-center gap-2 px-5 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 font-semibold">
-            <Check className="w-4 h-4" />{isEdit ? "Save Changes" : "Add Item"}
+          <button onClick={handleSave} disabled={isLoading}
+            className="flex items-center gap-2 px-5 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 font-semibold disabled:opacity-60">
+            {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" />{isEdit ? "Saving..." : "Adding..."}</> : <><Check className="w-4 h-4" />{isEdit ? "Save Changes" : "Add Item"}</>}
           </button>
         </div>
       </div>
@@ -264,81 +185,83 @@ const ItemModal = ({ item, onClose, onSave }) => {
 
 // ─── Main Page ─────────────────────────────────────────────────
 export default function InventoryPage() {
-  const [items, setItems] = useState(MOCK_ITEMS);
   const [search, setSearch] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [conditionFilter, setConditionFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState(""); // class | office
-  const [viewMode, setViewMode] = useState("table"); // table | location
-  const [modalItem, setModalItem] = useState(null); // null | "new" | item
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [typeFilter, setTypeFilter] = useState("");
+  const [viewMode, setViewMode] = useState("table");
+  const [modalItem, setModalItem] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [page, setPage] = useState(1);
-  const PER_PAGE = 20;
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    return items.filter(item =>
-      (!search || item.name.toLowerCase().includes(q) || item.id.toLowerCase().includes(q) || item.location.toLowerCase().includes(q)) &&
-      (!locationFilter || item.location === locationFilter) &&
-      (!categoryFilter || item.category === categoryFilter) &&
-      (!conditionFilter || item.condition === conditionFilter) &&
-      (!typeFilter || item.locationType === typeFilter)
-    );
-  }, [items, search, locationFilter, categoryFilter, conditionFilter, typeFilter]);
+  // Queries
+  const { data: summaryData, isLoading: summaryLoading } = useGetInventorySummaryQuery();
+  const summary = summaryData?.data || {};
+  const conditionBreakdown = summary.conditionBreakdown || {};
 
-  const totalPages = Math.ceil(filtered.length / PER_PAGE);
-  const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const { data, isLoading, isError, refetch, isFetching } = useGetAllItemsQuery({
+    page, limit: 20,
+    search: search || undefined,
+    locationType: typeFilter || undefined,
+    location: locationFilter || undefined,
+    category: categoryFilter || undefined,
+    condition: conditionFilter || undefined,
+  });
 
-  const stats = useMemo(() => ({
-    totalItems: items.length,
-    totalQty: items.reduce((a, i) => a + i.quantity, 0),
-    poor: items.filter(i => i.condition === "Poor" || i.condition === "Condemned").length,
-    locations: new Set(items.map(i => i.location)).size,
-    byCondition: CONDITIONS.reduce((acc, c) => ({ ...acc, [c]: items.filter(i => i.condition === c).length }), {}),
-    byCategory: CATEGORIES.reduce((acc, c) => ({ ...acc, [c]: items.filter(i => i.category === c).length }), {}),
-  }), [items]);
+  const items = data?.data?.items || [];
+  const pagination = data?.data?.pagination || { total: 0, page: 1, limit: 20, totalPages: 1 };
 
-  // Group by location for location view
+  // For location view — group by location from current page
   const byLocation = useMemo(() => {
     const groups = {};
-    filtered.forEach(item => {
+    items.forEach(item => {
       if (!groups[item.location]) groups[item.location] = [];
       groups[item.location].push(item);
     });
     return groups;
-  }, [filtered]);
+  }, [items]);
 
-  const handleSave = (item) => {
-    setItems(prev => {
-      const idx = prev.findIndex(i => i.id === item.id);
-      if (idx >= 0) { const next = [...prev]; next[idx] = item; return next; }
-      return [...prev, item];
-    });
-    setModalItem(null);
+  // Mutations
+  const [deleteItem, { isLoading: isDeleting }] = useDeleteItemMutation();
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteItem(deleteTarget.id).unwrap();
+      toast.success("Item deleted successfully");
+      setDeleteTarget(null);
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to delete item");
+    }
   };
 
-  const handleDelete = (id) => {
-    setItems(prev => prev.filter(i => i.id !== id));
-    setDeleteConfirm(null);
-  };
-
-  const clearFilters = () => { setSearch(""); setLocationFilter(""); setCategoryFilter(""); setConditionFilter(""); setTypeFilter(""); };
+  const clearFilters = () => { setSearch(""); setLocationFilter(""); setCategoryFilter(""); setConditionFilter(""); setTypeFilter(""); setPage(1); };
   const hasFilters = search || locationFilter || categoryFilter || conditionFilter || typeFilter;
+
+  if (isError) return (
+    <div className="bg-red-50 border border-red-200 rounded-2xl p-10 text-center">
+      <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+      <p className="text-red-700 font-semibold mb-3">Failed to load inventory</p>
+      <button onClick={refetch} className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm mx-auto">
+        <RefreshCw className="w-4 h-4" /> Retry
+      </button>
+    </div>
+  );
 
   return (
     <div className="space-y-5">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Item Types", value: stats.totalItems, icon: Box, color: "bg-brand-50 text-brand-600" },
-          { label: "Total Quantity", value: stats.totalQty.toLocaleString(), icon: Package, color: "bg-blue-50 text-blue-600" },
-          { label: "Locations", value: stats.locations, icon: Building, color: "bg-purple-50 text-purple-600" },
-          { label: "Needs Attention", value: stats.poor, icon: AlertTriangle, color: "bg-red-50 text-red-600" },
+          { label: "Total Item Types", value: summary.totalItems || 0,   icon: Box,           color: "bg-brand-50 text-brand-600" },
+          { label: "Total Quantity",   value: (summary.totalQuantity || 0).toLocaleString(), icon: Package, color: "bg-blue-50 text-blue-600" },
+          { label: "Locations",        value: summary.locations || 0,     icon: Building,      color: "bg-purple-50 text-purple-600" },
+          { label: "Needs Attention",  value: summary.needsAttention || 0,icon: AlertTriangle, color: "bg-red-50 text-red-600" },
         ].map(s => (
           <div key={s.label} className="bg-brand-600 rounded-2xl border border-gray-100 p-5 shadow-sm">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${s.color}`}><s.icon className="w-5 h-5" /></div>
-            <p className="text-2xl font-black text-gray-50">{s.value}</p>
+            <p className="text-2xl font-black text-gray-50">{summaryLoading ? "—" : s.value}</p>
             <p className="text-xs text-gray-100 mt-0.5">{s.label}</p>
           </div>
         ))}
@@ -349,12 +272,12 @@ export default function InventoryPage() {
         <p className="text-sm font-bold text-gray-700 mb-4">Condition Overview</p>
         <div className="flex flex-wrap gap-2">
           {CONDITIONS.map(c => (
-            <button key={c} onClick={() => setConditionFilter(conditionFilter === c ? "" : c)}
+            <button key={c} onClick={() => { setConditionFilter(conditionFilter === c ? "" : c); setPage(1); }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all
                 ${conditionFilter === c ? CONDITION_COLORS[c] : "border-gray-200 text-gray-500 bg-white hover:border-gray-300"}`}>
-              <span className={`w-2 h-2 rounded-full ${c === "Excellent" ? "bg-green-500" : c === "Good" ? "bg-brand-500" : c === "Fair" ? "bg-yellow-500" : c === "Poor" ? "bg-orange-500" : "bg-red-500"}`} />
+              <span className={`w-2 h-2 rounded-full ${CONDITION_DOT[c]}`} />
               {c}
-              <span className="px-1.5 py-0.5 rounded-full bg-black/10">{stats.byCondition[c]}</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-black/10">{summaryLoading ? "—" : conditionBreakdown[c] || 0}</span>
             </button>
           ))}
         </div>
@@ -369,7 +292,7 @@ export default function InventoryPage() {
               className="bg-transparent text-sm outline-none flex-1 text-gray-700 placeholder-gray-400" />
           </div>
 
-          <select value={typeFilter} onChange={e => { setTypeFilter(e.target.value); setPage(1); setLocationFilter(""); }}
+          <select value={typeFilter} onChange={e => { setTypeFilter(e.target.value); setLocationFilter(""); setPage(1); }}
             className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-600 bg-white outline-none">
             <option value="">All Types</option>
             <option value="class">Classrooms</option>
@@ -379,7 +302,7 @@ export default function InventoryPage() {
           <select value={locationFilter} onChange={e => { setLocationFilter(e.target.value); setPage(1); }}
             className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-600 bg-white outline-none min-w-44">
             <option value="">All Locations</option>
-            {(typeFilter === "class" ? LOCATIONS[0].items : typeFilter === "office" ? LOCATIONS[1].items : ALL_LOCATIONS).map(l => (
+            {(typeFilter === "class" ? CLASS_LOCATIONS : typeFilter === "office" ? OFFICE_LOCATIONS : ALL_LOCATIONS).map(l => (
               <option key={l}>{l}</option>
             ))}
           </select>
@@ -399,13 +322,17 @@ export default function InventoryPage() {
           <div className="flex items-center gap-2 ml-auto">
             {/* View Toggle */}
             <div className="flex border border-gray-200 rounded-xl overflow-hidden">
-              {[["table","Table"],["location","By Location"]].map(([v,l]) => (
+              {[["table","Table"],["location","By Location"]].map(([v, l]) => (
                 <button key={v} onClick={() => setViewMode(v)}
                   className={`px-3 py-2 text-xs font-medium transition-colors ${viewMode === v ? "bg-brand-600 text-white" : "text-gray-600 hover:bg-gray-50"}`}>
                   {l}
                 </button>
               ))}
             </div>
+            <button onClick={() => refetch()} disabled={isFetching}
+              className="p-2 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 disabled:opacity-40">
+              <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+            </button>
             <button className="flex items-center gap-1.5 px-3 py-2 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50">
               <Download className="w-4 h-4" /> Export
             </button>
@@ -415,7 +342,9 @@ export default function InventoryPage() {
             </button>
           </div>
         </div>
-        <p className="text-xs text-gray-400">Showing {filtered.length} item records across {new Set(filtered.map(i => i.location)).size} locations</p>
+        <p className="text-xs text-gray-400">
+          {isFetching ? "Loading..." : `Showing ${items.length} of ${pagination.total} item records`}
+        </p>
       </div>
 
       {/* ── Table View ── */}
@@ -431,7 +360,18 @@ export default function InventoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {paginated.map(item => {
+                {isLoading && [...Array(6)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-gray-200" />
+                        <div className="space-y-1"><div className="h-3 w-28 bg-gray-200 rounded" /><div className="h-2.5 w-16 bg-gray-100 rounded" /></div>
+                      </div>
+                    </td>
+                    {[...Array(8)].map((_, j) => <td key={j} className="px-4 py-3"><div className="h-3 bg-gray-200 rounded w-16" /></td>)}
+                  </tr>
+                ))}
+                {!isLoading && items.map(item => {
                   const CatIcon = CATEGORY_ICONS[item.category] || Box;
                   return (
                     <tr key={item.id} className="hover:bg-gray-50/70 transition-colors group">
@@ -457,11 +397,11 @@ export default function InventoryPage() {
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-lg font-medium">{item.category}</span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="font-semibold text-gray-800">{item.quantity.toLocaleString()}</span>
+                        <span className="font-semibold text-gray-800">{(item.quantity || 0).toLocaleString()}</span>
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-400">{item.unit}</td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${CONDITION_COLORS[item.condition]}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${CONDITION_COLORS[item.condition] || CONDITION_COLORS.Good}`}>
                           {item.condition}
                         </span>
                       </td>
@@ -470,27 +410,33 @@ export default function InventoryPage() {
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => setModalItem(item)}
                             className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => setDeleteConfirm(item.id)}
+                          <button onClick={() => setDeleteTarget(item)}
                             className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>
                     </tr>
                   );
                 })}
+                {!isLoading && items.length === 0 && (
+                  <tr><td colSpan={9} className="px-4 py-16 text-center text-gray-400 text-sm">No items found</td></tr>
+                )}
               </tbody>
             </table>
           </div>
 
+          {/* Pagination */}
           <div className="border-t border-gray-100 px-5 py-3 flex items-center justify-between bg-gray-50">
-            <p className="text-xs text-gray-500">Page {page} of {totalPages}</p>
+            <p className="text-xs text-gray-500">Page {page} of {pagination.totalPages} · {pagination.total} records</p>
             <div className="flex items-center gap-1.5">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 text-gray-400 disabled:opacity-30 hover:bg-white rounded-lg border border-gray-200"><ChevronLeft className="w-4 h-4" /></button>
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                className="p-1.5 text-gray-400 disabled:opacity-30 hover:bg-white rounded-lg border border-gray-200"><ChevronLeft className="w-4 h-4" /></button>
+              {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
                 const pg = page <= 3 ? i + 1 : page + i - 2;
-                if (pg < 1 || pg > totalPages) return null;
+                if (pg < 1 || pg > pagination.totalPages) return null;
                 return <button key={pg} onClick={() => setPage(pg)} className={`w-8 h-8 text-xs rounded-lg border ${pg === page ? "bg-brand-600 text-white border-brand-600" : "bg-white text-gray-500 border-gray-200 hover:bg-gray-50"}`}>{pg}</button>;
               })}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-1.5 text-gray-400 disabled:opacity-30 hover:bg-white rounded-lg border border-gray-200"><ChevronRight className="w-4 h-4" /></button>
+              <button onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))} disabled={page === pagination.totalPages}
+                className="p-1.5 text-gray-400 disabled:opacity-30 hover:bg-white rounded-lg border border-gray-200"><ChevronRight className="w-4 h-4" /></button>
             </div>
           </div>
         </div>
@@ -499,8 +445,10 @@ export default function InventoryPage() {
       {/* ── Location View ── */}
       {viewMode === "location" && (
         <div className="space-y-4">
-          {Object.entries(byLocation).map(([location, locItems]) => {
-            const isClass = LOCATIONS[0].items.includes(location);
+          {isLoading ? (
+            [...Array(3)].map((_, i) => <div key={i} className="h-48 bg-gray-100 rounded-2xl animate-pulse" />)
+          ) : Object.entries(byLocation).map(([location, locItems]) => {
+            const isClass = CLASS_LOCATIONS.includes(location);
             const condemned = locItems.filter(i => i.condition === "Poor" || i.condition === "Condemned").length;
             return (
               <div key={location} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -552,13 +500,13 @@ export default function InventoryPage() {
                           </td>
                           <td className="px-4 py-2.5 font-semibold text-gray-800">{item.quantity} <span className="text-xs text-gray-400 font-normal">{item.unit}</span></td>
                           <td className="px-4 py-2.5">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${CONDITION_COLORS[item.condition]}`}>{item.condition}</span>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${CONDITION_COLORS[item.condition] || CONDITION_COLORS.Good}`}>{item.condition}</span>
                           </td>
                           <td className="px-4 py-2.5 text-xs text-gray-400 max-w-40 truncate">{item.notes || "—"}</td>
                           <td className="px-4 py-2.5">
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button onClick={() => setModalItem(item)} className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg"><Edit2 className="w-3.5 h-3.5" /></button>
-                              <button onClick={() => setDeleteConfirm(item.id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
+                              <button onClick={() => setDeleteTarget(item)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-3.5 h-3.5" /></button>
                             </div>
                           </td>
                         </tr>
@@ -569,8 +517,7 @@ export default function InventoryPage() {
               </div>
             );
           })}
-
-          {Object.keys(byLocation).length === 0 && (
+          {!isLoading && Object.keys(byLocation).length === 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center shadow-sm">
               <Box className="w-12 h-12 text-gray-200 mx-auto mb-3" />
               <p className="text-gray-400">No items match your filters</p>
@@ -579,19 +526,25 @@ export default function InventoryPage() {
         </div>
       )}
 
-      {/* Modals */}
-      {modalItem && <ItemModal item={modalItem === "new" ? null : modalItem} onClose={() => setModalItem(null)} onSave={handleSave} />}
+      {/* Item Modal */}
+      {modalItem && <ItemModal item={modalItem === "new" ? null : modalItem} onClose={() => setModalItem(null)} />}
 
-      {deleteConfirm && (
+      {/* Delete Confirm */}
+      {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setDeleteConfirm(null)} />
+          <div className="absolute inset-0 bg-black/50" onClick={() => setDeleteTarget(null)} />
           <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4"><Trash2 className="w-6 h-6 text-red-500" /></div>
             <h3 className="text-center font-bold text-gray-900 mb-2">Delete Item?</h3>
-            <p className="text-center text-sm text-gray-500 mb-6">This item will be permanently removed from the inventory.</p>
+            <p className="text-center text-sm text-gray-500 mb-6">
+              This will permanently remove <strong>{deleteTarget.name}</strong> from the inventory.
+            </p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteConfirm(null)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
-              <button onClick={() => handleDelete(deleteConfirm)} className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600">Delete</button>
+              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
+              <button onClick={handleDelete} disabled={isDeleting}
+                className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600 disabled:opacity-60 flex items-center justify-center gap-2">
+                {isDeleting ? <><Loader2 className="w-4 h-4 animate-spin" />Deleting...</> : "Delete"}
+              </button>
             </div>
           </div>
         </div>

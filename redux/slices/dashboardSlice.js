@@ -7,27 +7,22 @@ export const dashboardApi = createApi({
     tagTypes: ['DashboardSummary'],
     endpoints: (builder) => ({
 
-        // ─── DASHBOARD SUMMARY ───────────────────────────────────────────────────
-
         // GET /dashboard/summary
         getDashboardSummary: builder.query({
-            query: ({ period = 'current', year, month, week } = {}) => ({
+            query: ({ session, term } = {}) => ({
                 url: '/dashboard/summary',
                 method: 'GET',
-                params: { period, year, month, week },
+                params: {
+                    ...(session && { session }),
+                    ...(term && { term }),
+                },
             }),
             providesTags: ['DashboardSummary'],
-            transformResponse: (response) => {
-                // The API already returns role-based filtered data
-                // (accountant gets finance-only, admin/principal get full)
-                return response;
-            },
+
+            // Typed transform so consumers get a flat, predictable shape
+            transformResponse: (response) => response?.data ?? null,
         }),
     }),
 });
 
-// ─── EXPORT HOOKS ─────────────────────────────────────────────────────────────
-
-export const {
-    useGetDashboardSummaryQuery,
-} = dashboardApi;
+export const { useGetDashboardSummaryQuery } = dashboardApi;

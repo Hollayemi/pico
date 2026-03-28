@@ -1,5 +1,6 @@
 import AdminLayout from "@/app/components/Admin/AdminLayout";
 import { adminMenu } from "@/app/components/Admin/menuConfig";
+import { Suspense } from "react";
 
 
 // In a real app this comes from auth session / cookies
@@ -16,7 +17,9 @@ export default function AdminRootLayout({ children }) {
       userRole={MOCK_USER.role}
       user={MOCK_USER}
     >
-      {children}
+      <Suspense fallback={<div>Loading...</div>}>
+        {children}
+      </Suspense>
     </AdminLayout>
   );
 }

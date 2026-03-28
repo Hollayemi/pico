@@ -7,108 +7,19 @@ export const admissionsApi = createApi({
     tagTypes: ['Application', 'Screening', 'Offer', 'Stats'],
     endpoints: (builder) => ({
 
-        // ─── PUBLIC SUBMISSION ───────────────────────────────────────────────────
-
-        // POST /admissions (public - no auth)
-        submitApplication: builder.mutation({
-            query: (data) => ({
-                url: '/admissions',
-                method: 'POST',
-                data,
-            }),
-            invalidatesTags: ['Application', 'Stats'],
-        }),
-
-        // ─── STATISTICS ──────────────────────────────────────────────────────────
-
-        // GET /admissions/stats
-        getAdmissionsStats: builder.query({
-            query: () => ({
-                url: '/admissions/stats',
-                method: 'GET',
-            }),
-            providesTags: ['Stats'],
-        }),
-
-        // ─── SCREENING ───────────────────────────────────────────────────────────
-
-        // GET /admissions/screening
-        getScreeningList: builder.query({
-            query: ({ status, dateFrom, dateTo } = {}) => ({
-                url: '/admissions/screening',
-                method: 'GET',
-                params: { status, dateFrom, dateTo },
-            }),
-            providesTags: ['Screening'],
-        }),
-
-        // PUT /admissions/:id/screening
-        updateScreeningRecord: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/admissions/${id}/screening`,
-                method: 'PUT',
-                data,
-            }),
-            invalidatesTags: (result, error, { id }) => [
-                { type: 'Application', id },
-                { type: 'Screening' },
-                'Stats'
-            ],
-        }),
-
-        // ─── OFFERS ──────────────────────────────────────────────────────────────
-
-        // GET /admissions/offers
-        getOffersList: builder.query({
-            query: ({ status, sentAfter, accepted } = {}) => ({
-                url: '/admissions/offers',
-                method: 'GET',
-                params: { status, sentAfter, accepted },
-            }),
-            providesTags: ['Offer'],
-        }),
-
-        // POST /admissions/:id/offer
-        sendOfferLetter: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/admissions/${id}/offer`,
-                method: 'POST',
-                data,
-            }),
-            invalidatesTags: (result, error, { id }) => [
-                { type: 'Application', id },
-                { type: 'Offer' },
-                'Stats'
-            ],
-        }),
-
-        // PATCH /admissions/:id/offer/status
-        updateOfferAcceptanceStatus: builder.mutation({
-            query: ({ id, ...data }) => ({
-                url: `/admissions/${id}/offer/status`,
-                method: 'PATCH',
-                data,
-            }),
-            invalidatesTags: (result, error, { id }) => [
-                { type: 'Application', id },
-                { type: 'Offer' },
-                'Stats'
-            ],
-        }),
-
-        // ─── APPLICATIONS ────────────────────────────────────────────────────────
+        // ─── APPLICATIONS ────────────────────────────────────────────────────
 
         // GET /admissions
         getAllApplications: builder.query({
-            query: ({ page, limit, status, sort, fromDate, toDate } = {}) => ({
+            query: ({ page, limit, search, status, appliedClass, schoolingOption, dateFrom } = {}) => ({
                 url: '/admissions',
                 method: 'GET',
-                params: { page, limit, status, sort, fromDate, toDate },
+                params: { page, limit, search, status, appliedClass, schoolingOption, dateFrom },
             }),
-            providesTags: (result) => 
+            providesTags: (result) =>
                 result?.data
                     ? [
-                        ...result.data.map(({ id }) => ({ type: 'Application', id })),
+                        ...( result.data.applications || []).map(({ id }) => ({ type: 'Application', id })),
                         { type: 'Application', id: 'LIST' },
                       ]
                     : [{ type: 'Application', id: 'LIST' }],
@@ -123,19 +34,29 @@ export const admissionsApi = createApi({
             providesTags: (result, error, id) => [{ type: 'Application', id }],
         }),
 
+        // POST /admissions (public — used by the apply form)
+        submitApplication: builder.mutation({
+            query: (data) => ({
+                url: '/admissions',
+                method: 'POST',
+                data,
+            }),
+            invalidatesTags: [{ type: 'Application', id: 'LIST' }, 'Stats'],
+        }),
+
         // PATCH /admissions/:id/status
         updateApplicationStatus: builder.mutation({
-            query: ({ id, ...data }) => ({
+            query: ({ id, status, reviewedBy, adminNotes }) => ({
                 url: `/admissions/${id}/status`,
                 method: 'PATCH',
-                data,
+                data: { status, reviewedBy, adminNotes },
             }),
             invalidatesTags: (result, error, { id }) => [
                 { type: 'Application', id },
                 { type: 'Application', id: 'LIST' },
-                { type: 'Screening' },
-                { type: 'Offer' },
-                'Stats'
+                'Screening',
+                'Offer',
+                'Stats',
             ],
         }),
 
@@ -148,35 +69,91 @@ export const admissionsApi = createApi({
             invalidatesTags: (result, error, id) => [
                 { type: 'Application', id },
                 { type: 'Application', id: 'LIST' },
-                { type: 'Screening' },
-                { type: 'Offer' },
-                'Stats'
+                'Stats',
             ],
+        }),
+
+        // ─── SCREENING ───────────────────────────────────────────────────────
+
+        // GET /admissions/screening
+        getScreeningList: builder.query({
+            query: ({ page, limit, search, screeningStatus } = {}) => ({
+                url: '/admissions/screening',
+                method: 'GET',
+                params: { page, limit, search, screeningStatus },
+            }),
+            providesTags: ['Screening'],
+        }),
+
+        // PUT /admissions/:id/screening
+        updateScreeningRecord: builder.mutation({
+            query: ({ id, docs, screeningStatus, assignedOfficer, notes }) => ({
+                url: `/admissions/${id}/screening`,
+                method: 'PUT',
+                data: { docs, screeningStatus, assignedOfficer, notes },
+            }),
+            invalidatesTags: ['Screening', 'Stats'],
+        }),
+
+        // ─── OFFERS ──────────────────────────────────────────────────────────
+
+        // GET /admissions/offers
+        getOffersList: builder.query({
+            query: ({ page, limit, search, acceptanceStatus } = {}) => ({
+                url: '/admissions/offers',
+                method: 'GET',
+                params: { page, limit, search, acceptanceStatus },
+            }),
+            providesTags: ['Offer'],
+        }),
+
+        // POST /admissions/:id/offer
+        sendOfferLetter: builder.mutation({
+            query: ({ id, acceptanceDeadline, resend = false }) => ({
+                url: `/admissions/${id}/offer`,
+                method: 'POST',
+                data: { acceptanceDeadline, resend },
+            }),
+            invalidatesTags: ['Offer', 'Stats'],
+        }),
+
+        // PATCH /admissions/:id/offer/status
+        updateOfferAcceptanceStatus: builder.mutation({
+            query: ({ id, acceptanceStatus }) => ({
+                url: `/admissions/${id}/offer/status`,
+                method: 'PATCH',
+                data: { acceptanceStatus },
+            }),
+            invalidatesTags: ['Offer', 'Stats'],
+        }),
+
+        // ─── STATS ───────────────────────────────────────────────────────────
+
+        // GET /admissions/stats
+        getAdmissionsStats: builder.query({
+            query: () => ({
+                url: '/admissions/stats',
+                method: 'GET',
+            }),
+            providesTags: ['Stats'],
         }),
     }),
 });
 
-// ─── EXPORT HOOKS ─────────────────────────────────────────────────────────────
-
 export const {
-    // Public
+    // Applications
+    useGetAllApplicationsQuery,
+    useGetApplicationQuery,
     useSubmitApplicationMutation,
-    
-    // Stats
-    useGetAdmissionsStatsQuery,
-    
+    useUpdateApplicationStatusMutation,
+    useDeleteApplicationMutation,
     // Screening
     useGetScreeningListQuery,
     useUpdateScreeningRecordMutation,
-    
     // Offers
     useGetOffersListQuery,
     useSendOfferLetterMutation,
     useUpdateOfferAcceptanceStatusMutation,
-    
-    // Applications
-    useGetAllApplicationsQuery,
-    useGetApplicationQuery,
-    useUpdateApplicationStatusMutation,
-    useDeleteApplicationMutation,
+    // Stats
+    useGetAdmissionsStatsQuery,
 } = admissionsApi;
