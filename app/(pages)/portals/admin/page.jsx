@@ -183,7 +183,7 @@ export default function AdminDashboard() {
         <button onClick={refetch} disabled={isFetching}
           className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-gray-50 disabled:opacity-50">
           <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
-          {isFetching ? "Refreshing…" : "Refresh"}
+          <span className="hidden md:block">{isFetching ? "Refreshing…" : "Refresh"}</span>
         </button>
       </div>
 

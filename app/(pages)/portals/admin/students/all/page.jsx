@@ -373,7 +373,7 @@ export default function AllStudentsPage() {
             {SCHOOLING_OPTS.map((s) => <option key={s}>{s}</option>)}
           </select>
 
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-2 md:ml-auto">
             {hasFilters && (
               <button onClick={clearFilters}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-dashed border-gray-300 rounded-lg">

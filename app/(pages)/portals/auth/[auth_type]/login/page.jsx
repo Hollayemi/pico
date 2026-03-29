@@ -46,7 +46,7 @@ const LoginPage = ({ params }) => {
             console.log(result);
             dispatch(setCredentials(result.data));
             toast.success("Login successful!");
-            router.push(returnUrl || "/");
+            router.push(returnUrl || "/portal/admin");
         } catch (err) {
             console.error("Login failed:", err);
             toast.error(err.data?.error || "Login failed");

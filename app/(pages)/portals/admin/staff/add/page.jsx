@@ -174,7 +174,7 @@ export default function AddStaffPage() {
       <div className="max-w-4xl mx-auto">
         {/* Stepper */}
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-          <div className="flex items-center justify-between overflow-x-auto gap-2">
+          <div className="flex items-center justify-between overflow-x-auto gap-2 h-14">
             {STEPS.map((s, i) => (
               <React.Fragment key={s.id}>
                 <button onClick={() => step > s.id && setStep(s.id)}

@@ -1,0 +1,49 @@
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  Calendar,
+  CreditCard,
+  MessageSquare,
+  FileText,
+  Settings,
+  Bell,
+  ChevronDown,
+  Menu,
+  X,
+  LogOut,
+  User,
+  Moon,
+  Sun,
+  Search,
+  Home,
+} from "lucide-react";
+
+const iconMap = {
+  "layout-dashboard": LayoutDashboard,
+  dashboard: LayoutDashboard,
+  home: Home,
+  users: Users,
+  "book-open": BookOpen,
+  book: BookOpen,
+  calendar: Calendar,
+  "calendar-days": Calendar,
+  "credit-card": CreditCard,
+  "message-square": MessageSquare,
+  message: MessageSquare,
+  "file-text": FileText,
+  settings: Settings,
+  bell: Bell,
+  chevronDown: ChevronDown,
+  menu: Menu,
+  x: X,
+  logout: LogOut,
+  user: User,
+  moon: Moon,
+  sun: Sun,
+  search: Search,
+};
+
+export function getParentIcon(name) {
+  return iconMap[name] || LayoutDashboard;
+}

@@ -374,7 +374,7 @@ export default function AllStaffPage() {
             <option value="">All Status</option>
             {["Active","Inactive","On Leave"].map((s) => <option key={s}>{s}</option>)}
           </select>
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-2 md:ml-auto">
             {(search || typeFilter || deptFilter || statusFilter) && (
               <button onClick={() => { setSearch(""); setTypeFilter(""); setDeptFilter(""); setStatusFilter(""); setPage(1); }}
                 className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 border border-dashed border-gray-300 rounded-lg">
@@ -408,7 +408,7 @@ export default function AllStaffPage() {
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   {["Staff Member","ID","Role","Department","Contact","Salary","Status","Actions"].map(h => (
-                    <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                    <th key={h} className="text-left px-4 py-3  text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -417,9 +417,9 @@ export default function AllStaffPage() {
                   const typeInfo = getTypeInfo(staff.staffType);
                   return (
                     <tr key={staff.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 min-w-[200px]">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-bold flex-shrink-0">
+                          <div className="w-8 h-9 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-bold flex-shrink-0">
                             {staff.firstName?.[0]}{staff.surname?.[0]}
                           </div>
                           <div>
@@ -428,9 +428,9 @@ export default function AllStaffPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-gray-500 font-mono text-xs">{staff.id}</td>
+                      <td className="px-4 py-3 text-gray-500 word-nowrap font-mono w-16! text-xs">{staff.id}</td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${typeInfo.color}`}>
+                        <span className={`inline-flex word-nowrap items-center px-2 py-0.5 rounded-full text-xs font-medium ${typeInfo.color}`}>
                           {typeInfo.label}
                         </span>
                       </td>

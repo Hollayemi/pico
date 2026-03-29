@@ -209,7 +209,7 @@ export default function ApplicationsPage() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="p-4 flex flex-wrap items-center gap-3">
           {/* Search */}
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex-1 min-w-52">
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 flex-1 w-full md:min-w-52">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
             <input
               value={search}
@@ -248,8 +248,8 @@ export default function ApplicationsPage() {
 
         {/* Filter row */}
         {showFilters && (
-          <div className="border-t border-gray-100 px-4 py-3 flex flex-wrap gap-3 bg-gray-50/60">
-            <div>
+          <div className="border-t border-gray-100 py-3 grid grid-cols-2 md:grid-cols-4 gap-3 bg-gray-50/60">
+            <div className="grid">
               <label className="block text-xs font-semibold text-gray-500 mb-1">Status</label>
               <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
                 className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:ring-2 focus:ring-brand-300 min-w-40">
@@ -294,7 +294,7 @@ export default function ApplicationsPage() {
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
                   {["Applicant", "Application ID", "Class Applied", "Type", "Date Applied", "Docs", "Status", "Actions"].map(h => (
-                    <th key={h} className="text-left px-4 py-3.5 text-xs font-bold text-gray-500 uppercase tracking-wide">{h}</th>
+                    <th key={h} className="text-left px-4 py-3.5 text-xs min-w-[170px] font-bold text-gray-500 uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
               </thead>
