@@ -1,7 +1,5 @@
 const RenderStage4 = ({ formData, renderErrorMessage, handleInputChange, handleFileChange, errors }) => (
     <>
-
-
         {/* Supporting Documents */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
             <div className="bg-brand-100 rounded-t-lg px-6 py-4 border-l-4 border-brand-400">
@@ -13,7 +11,6 @@ const RenderStage4 = ({ formData, renderErrorMessage, handleInputChange, handleF
                         { key: 'birthCertificate', label: 'Birth Certificate', required: true },
                         { key: 'formerSchoolReport', label: 'Former School Report', required: false },
                         { key: 'medicalReport', label: 'Medical Report', required: false },
-
                     ].map(({ key, label, required }) => (
                         <div key={key}>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -49,51 +46,53 @@ const RenderStage4 = ({ formData, renderErrorMessage, handleInputChange, handleF
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
             <div className="p-6">
                 <p className="text-sm text-gray-600 mb-4">
-                    *Please provide a correspondence email address in the text below. This correspondence email may or may not be any of the email addresses you provided earlier!
+                    *Please provide a correspondence email address below. This may or may not be any of the email addresses you provided earlier.
                 </p>
+
+                {/* BUG FIX: Was value={formData.correspondenceEmail} — wrong, reads from root.
+                    Correct path is formData.correspondenceEmail (matches hook state shape) */}
                 <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Correspondence Email <span className="text-red-500">*</span>
                     </label>
                     <input
                         type="email"
-                        value={formData.correspondenceEmail}
-                        onChange={(e) => handleInputChange('correspondenceEmail', e.target.value, "contact")}
+                        value={formData?.correspondenceEmail || ''}
+                        onChange={(e) => handleInputChange('correspondenceEmail', e.target.value)}
                         placeholder="Enter an email address with which we can contact you"
-                        className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 transition-colors placeholder-gray-400 ${renderErrorMessage('correspondenceEmail')
-                            ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
-                            : 'border-brand-300 focus:ring-brand-500 focus:border-brand-500'
-                            }`}
+                        className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 transition-colors placeholder-gray-400 ${
+                            renderErrorMessage('correspondenceEmail')
+                                ? 'border-red-300 focus:ring-red-500 focus:border-red-500'
+                                : 'border-brand-300 focus:ring-brand-500 focus:border-brand-500'
+                        }`}
                     />
                     {renderErrorMessage('correspondenceEmail') && (
                         <p className="text-red-500 text-xs mt-1">{renderErrorMessage('correspondenceEmail')}</p>
                     )}
                 </div>
-                <div>
-                    <select
-                        value={formData.stateOfOrigin}
-                        onChange={(e) => handleInputChange('stateOfOrigin', e.target.value)}
-                        className={`w-full px-4 py-3 border-2 rounded-md focus:ring-2 focus:ring-brand-500 transition-colors ${renderErrorMessage('stateOfOrigin')  ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-brand-500'
-                            }`}
-                    >
 
+                {/* BUG FIX: Was value={formData.stateOfOrigin} with onChange setting stateOfOrigin — completely wrong field.
+                    Correct: value={formData.howDidYouKnow}, onChange targets 'contact' parent */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        How did you know about our school?
+                    </label>
+                    <select
+                        value={formData?.howDidYouKnow || ''}
+                        onChange={(e) => handleInputChange('howDidYouKnow', e.target.value)}
+                        className="w-full px-4 py-3 border-2 border-brand-300 rounded-md focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-colors mb-3"
+                    >
+                        <option value="">Select an option</option>
                         {['Social Media', 'Friend/Family', 'Website', 'Advertisement', 'Former Student', 'Other'].map((option) => (
                             <option key={option} value={option}>
                                 {option}
                             </option>
                         ))}
                     </select>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">How did you know about our school?</label>
-                    <textarea
-                        value={formData.howDidYouKnow}
-                        onChange={(e) => handleInputChange('howDidYouKnow', e.target.value, 'contact')}
-                        rows={4}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    />
                 </div>
             </div>
         </div>
     </>
 );
 
-export default RenderStage4
+export default RenderStage4;

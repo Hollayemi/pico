@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Users,
+  UserPlus,
   BookOpen,
   Calendar,
   CreditCard,
@@ -24,6 +25,7 @@ const iconMap = {
   dashboard: LayoutDashboard,
   home: Home,
   users: Users,
+  "user-plus": UserPlus,
   "book-open": BookOpen,
   book: BookOpen,
   calendar: Calendar,

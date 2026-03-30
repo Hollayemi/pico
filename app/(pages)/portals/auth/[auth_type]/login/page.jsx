@@ -9,7 +9,8 @@ import LoadingSpinner from "@/app/components/Cards/loading";
 import toast from "react-hot-toast";
 
 const LoginPage = ({ params }) => {
-    const { auth_type, returnUrl } = use(params)
+    const { auth_type } = use(params)
+    const returnUrl = new URLSearchParams(window.location.search).get("returnurl");
     const [login, { isLoading }] = useLoginMutation();
     const dispatch = useDispatch();
     const router = useRouter();
@@ -21,15 +22,16 @@ const LoginPage = ({ params }) => {
     };
 
 
-    useEffect(() => {
-        if (isAuth) {
-            router.push("/");
-        }
-    }, [isAuth, router]);
+    // useEffect(() => {
+    //     if (isAuth) {
+    //         router.push("/");
+    //     }
+    // }, [isAuth, router]);
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         email: "",
         password: "",
+        login_type: auth_type,
     });
 
     const handleInputChange = (field, value) => {
@@ -46,7 +48,7 @@ const LoginPage = ({ params }) => {
             console.log(result);
             dispatch(setCredentials(result.data));
             toast.success("Login successful!");
-            router.push(returnUrl || "/portal/admin");
+            router.push(returnUrl || `/portal/${auth_type}`);
         } catch (err) {
             console.error("Login failed:", err);
             toast.error(err.data?.error || "Login failed");

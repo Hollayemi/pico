@@ -8,11 +8,7 @@ import {
   Hourglass, Award, Activity, BarChart2, CreditCard, XCircle,
   WifiOff, RefreshCw,
 } from "lucide-react";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// NOTE: Wire these to real API slices as they become available.
-// For now mock data mirrors the expected API shape so the swap is a one-liner.
-// ─────────────────────────────────────────────────────────────────────────────
+import { useUserData } from "@/context/userContext";
 
 const MOCK_CHILDREN = [
   {
@@ -58,9 +54,6 @@ const MOCK_RECENT_PAYMENTS = [
   { id: 2, child: "Adeyemi Emeka",   amount: 200000, method: "POS",           date: "2025-09-12", term: "1st Term" },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// helpers
-// ─────────────────────────────────────────────────────────────────────────────
 const fmt  = (n) => `₦${Number(n ?? 0).toLocaleString()}`;
 const pct  = (paid, total) => total ? Math.round((paid / total) * 100) : 0;
 
@@ -87,9 +80,6 @@ function feeStatusBadge(status) {
   return map[status] ?? map.Unpaid;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// sub-components
-// ─────────────────────────────────────────────────────────────────────────────
 function ChildCard({ child }) {
   const feePct = pct(child.fees.totalPaid, child.fees.totalFee);
 
@@ -211,6 +201,8 @@ export default function ParentDashboard() {
   const events        = MOCK_UPCOMING_EVENTS;
   const payments      = MOCK_RECENT_PAYMENTS;
 
+  const { userInfo } = useUserData();
+
   const totalOwed     = children.reduce((a, c) => a + c.fees.balance, 0);
   const avgAttendance = Math.round(children.reduce((a, c) => a + c.attendance, 0) / children.length);
 
@@ -231,8 +223,8 @@ export default function ParentDashboard() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-5">
           <div className="flex-1">
             <p className="text-teal-100 text-xs font-semibold uppercase tracking-wider mb-1">{today}</p>
-            <h1 className="text-white text-2xl font-black leading-tight mb-1">
-              Welcome back 👋
+            <h1 className="text-white text-2xl font-black leading-tight mb-1 capitalize">
+              Welcome back, {userInfo?.familyName&&`${userInfo?.familyName}'s family`} 👋
             </h1>
             <p className="text-teal-100 text-sm">
               Progress Intellectual School &nbsp;·&nbsp; 2025/2026 &nbsp;·&nbsp; 1st Term

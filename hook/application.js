@@ -93,11 +93,10 @@ const useApplicationForm = () => {
             proofOfPayment: null
         },
 
-        // Contact
-        contact: {
+        
             correspondenceEmail: '',
             howDidYouKnow: ''
-        }
+        
     });
     console.log(errors)
     const handleInputChange = (field, value, parentField = null) => {
@@ -184,7 +183,8 @@ const useApplicationForm = () => {
                 schema = stage4Schema;
                 dataToValidate = {
                     documents: formData.documents,
-                    contact: formData.contact
+                    correspondenceEmail: formData.correspondenceEmail,
+                    howDidYouKnow: formData.howDidYouKnow
                 };
                 break;
             default:
@@ -259,7 +259,7 @@ const useApplicationForm = () => {
             toast.success("Application submitted successfully!");
 
             // Redirect to success page with application reference
-            router.push(`/admissions/success?ref=${result.data.applicationRef}`);
+            // router.push(`/admissions/success?ref=${result.data.applicationRef}`);
 
         } catch (error) {
             console.error('Submission error:', error);

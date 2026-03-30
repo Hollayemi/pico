@@ -16,6 +16,16 @@ export const parentMenu = [
     ],
   },
   {
+    name: "Admissions",
+    path: "/portals/parent/admissions",
+    icon: "user-plus",
+    roles: ["parent"],
+    children: [
+      { name: "My Applications", path: "/portals/parent/admissions",       roles: ["parent"] },
+      { name: "New Application",  path: "/portals/parent/admissions/apply", roles: ["parent"] },
+    ],
+  },
+  {
     name: "Academics",
     path: "/portals/parent/academics",
     icon: "book-open",

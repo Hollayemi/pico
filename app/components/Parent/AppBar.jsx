@@ -30,6 +30,8 @@ export default function ParentAppBar({ onMenuToggle, darkMode, setDarkMode }) {
   const dispatch  = useDispatch();
   const title     = getTitle(pathname);
 
+  console.log("ParentAppBar userInfo:", userInfo);
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [notifOpen,   setNotifOpen]   = useState(false);
   const profileRef = useRef(null);
@@ -114,11 +116,11 @@ export default function ParentAppBar({ onMenuToggle, darkMode, setDarkMode }) {
               className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl hover:bg-gray-100 transition-colors group">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center
                 flex-shrink-0 text-white font-bold text-sm shadow-sm">
-                {userInfo?.fullName?.charAt(0) ?? "P"}
+                {userInfo?.familyName?.charAt(0).toUpperCase() ?? "P"}
               </div>
               <div className="hidden md:block text-left min-w-0">
                 <p className="text-xs font-semibold text-gray-800 truncate max-w-[90px]">
-                  {userInfo?.fullName ?? "Parent"}
+                  {userInfo?.familyName ?? "Parent"}
                 </p>
                 <p className="text-xs text-gray-400 truncate max-w-[90px]">Parent</p>
               </div>

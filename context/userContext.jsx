@@ -40,7 +40,7 @@ const UserDataProvider = ({ children }) => {
     return (
         <DataContext.Provider
             value={{
-                userInfo: userInfo?.data?.staff || {},
+                userInfo: userInfo?.data?.staff || userInfo?.data?.parent || {},
                 refetchUser: refetch,
                 selectedAddress: {},
                 loading,
