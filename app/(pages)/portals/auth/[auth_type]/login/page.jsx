@@ -48,7 +48,7 @@ const LoginPage = ({ params }) => {
             console.log(result);
             dispatch(setCredentials(result.data));
             toast.success("Login successful!");
-            router.push(returnUrl || `/portal/${auth_type}`);
+            router.push(returnUrl || `/portals/${auth_type}`);
         } catch (err) {
             console.error("Login failed:", err);
             toast.error(err.data?.error || "Login failed");
