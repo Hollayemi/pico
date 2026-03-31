@@ -72,17 +72,16 @@ export const adminMenu = [
   //   icon: "calendar",
   //   roles: ["super_admin", "admin", "teacher"],
   // },
-  // {
-  //   name: "Examinations",
-  //   path: "/portals/admin/exams",
-  //   icon: "file-text",
-  //   roles: ["super_admin", "admin", "teacher"],
-  //   children: [
-  //     { name: "Create Exam", path: "/portals/admin/exams/create", roles: ["super_admin", "admin"] },
-  //     { name: "Results", path: "/portals/admin/exams/results", roles: ["super_admin", "admin", "teacher"] },
-  //     { name: "Report Cards", path: "/portals/admin/exams/reports", roles: ["super_admin", "admin"] },
-  //   ],
-  // },
+  {
+    name: "Report",
+    path: "/portals/admin/report",
+    icon: "file-text",
+    roles: ["super_admin", "admin", "teacher"],
+    children: [
+      { name: "Results", path: "/portals/admin/reports/results", roles: ["super_admin", "admin", "teacher"] },
+      { name: "Report Cards", path: "/portals/admin/reports/cards", roles: ["super_admin", "admin"] },
+    ],
+  },
   {
     name: "Finance",
     path: "/portals/admin/finance",

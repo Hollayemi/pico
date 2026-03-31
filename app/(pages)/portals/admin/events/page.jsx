@@ -1,657 +1,1008 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import {
-  Calendar, Plus, Search, X, Edit2, Trash2, Bell,
-  ChevronLeft, ChevronRight, Clock, MapPin, DollarSign,
-  Users, CheckCircle, AlertCircle, Eye, Send, RefreshCw,
-  Loader2, Tag, Info, BellRing, FileText, Globe
+    Calendar, Clock, MapPin, DollarSign, Bell, BellRing,
+    CheckCircle, AlertCircle, ChevronRight, Search, X,
+    Globe, Loader2, RefreshCw, Plus, Pencil, Trash2,
+    Filter, Send, Eye, MoreVertical, BarChart2,
+    TrendingUp, Users, CreditCard, CalendarCheck,
+    ChevronDown, Tag, Info, Megaphone,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import {
-  useGetAllEventsQuery,
-  useCreateEventMutation,
-  useUpdateEventMutation,
-  useDeleteEventMutation,
-  useNotifyParentsMutation,
+    useGetAllEventsQuery,
+    useCreateEventMutation,
+    useUpdateEventMutation,
+    useDeleteEventMutation,
+    useNotifyParentsMutation,
 } from "@/redux/slices/eventsSlice";
 
-// ─── Constants ─────────────────────────────────────────────────
-const EVENT_TYPES = [
-  "Academic", "Cultural", "Sports", "PTA Meeting", "Examination",
-  "Holiday", "Trip", "Ceremony", "Health", "General"
-];
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const TYPE_COLORS = {
-  Academic:    "bg-blue-100 text-blue-700 border-blue-200",
-  Cultural:    "bg-purple-100 text-purple-700 border-purple-200",
-  Sports:      "bg-green-100 text-green-700 border-green-200",
-  "PTA Meeting":"bg-amber-100 text-amber-700 border-amber-200",
-  Examination: "bg-red-100 text-red-700 border-red-200",
-  Holiday:     "bg-teal-100 text-teal-700 border-teal-200",
-  Trip:        "bg-indigo-100 text-indigo-700 border-indigo-200",
-  Ceremony:    "bg-pink-100 text-pink-700 border-pink-200",
-  Health:      "bg-cyan-100 text-cyan-700 border-cyan-200",
-  General:     "bg-gray-100 text-gray-600 border-gray-200",
+    Academic:      { pill: "bg-blue-100 text-blue-700 border-blue-200",      bar: "bg-blue-500",    dot: "bg-blue-500",    icon: "🎓" },
+    Cultural:      { pill: "bg-purple-100 text-purple-700 border-purple-200", bar: "bg-purple-500",  dot: "bg-purple-500",  icon: "🎭" },
+    Sports:        { pill: "bg-green-100 text-green-700 border-green-200",    bar: "bg-green-500",   dot: "bg-green-500",   icon: "🏆" },
+    "PTA Meeting": { pill: "bg-amber-100 text-amber-700 border-amber-200",    bar: "bg-amber-500",   dot: "bg-amber-500",   icon: "👥" },
+    Examination:   { pill: "bg-red-100 text-red-700 border-red-200",          bar: "bg-red-500",     dot: "bg-red-500",     icon: "📝" },
+    Holiday:       { pill: "bg-teal-100 text-teal-700 border-teal-200",       bar: "bg-teal-500",    dot: "bg-teal-500",    icon: "🎉" },
+    Trip:          { pill: "bg-indigo-100 text-indigo-700 border-indigo-200", bar: "bg-indigo-500",  dot: "bg-indigo-500",  icon: "🚌" },
+    Ceremony:      { pill: "bg-pink-100 text-pink-700 border-pink-200",       bar: "bg-pink-500",    dot: "bg-pink-500",    icon: "🎖️" },
+    Health:        { pill: "bg-cyan-100 text-cyan-700 border-cyan-200",       bar: "bg-cyan-500",    dot: "bg-cyan-500",    icon: "🏥" },
+    General:       { pill: "bg-gray-100 text-gray-600 border-gray-200",       bar: "bg-gray-400",    dot: "bg-gray-400",    icon: "📢" },
 };
 
-const AUDIENCE_OPTIONS = ["All", "Junior Secondary", "Senior Secondary", "Primary", "Boarding", "Day Students", "SS3 Only", "JSS3 Only"];
+const STATUS_COLORS = {
+    Upcoming:  { pill: "bg-blue-100 text-blue-700",   dot: "bg-blue-500"  },
+    Ongoing:   { pill: "bg-green-100 text-green-700", dot: "bg-green-500" },
+    Completed: { pill: "bg-gray-100 text-gray-500",   dot: "bg-gray-400"  },
+    Cancelled: { pill: "bg-red-100 text-red-600",     dot: "bg-red-500"   },
+};
 
-// ─── Mock data (replace with API when ready) ───────────────────
-const MOCK_EVENTS = [
-  {
-    id: "EVT-001",
-    title: "1st Term Examination",
-    type: "Examination",
-    date: "2025-11-10",
-    endDate: "2025-11-20",
-    time: "8:00 AM",
-    location: "Examination Hall",
-    description: "First term examinations for all classes. Students must arrive by 7:45 AM. No mobile phones allowed in the hall.",
-    requiresPayment: false,
-    paymentAmount: 0,
-    paymentDeadline: null,
-    targetAudience: ["All"],
-    status: "Upcoming",
-    notifiedAt: null,
-    createdAt: "2025-10-01",
-  },
-  {
-    id: "EVT-002",
-    title: "Inter-House Sports Day",
-    type: "Sports",
-    date: "2025-11-15",
-    endDate: "2025-11-15",
-    time: "9:00 AM",
-    location: "School Sports Field",
-    description: "Annual inter-house sports competition. All students are expected to participate in their respective houses. Parents are welcome to attend.",
-    requiresPayment: false,
-    paymentAmount: 0,
-    paymentDeadline: null,
-    targetAudience: ["All"],
-    status: "Upcoming",
-    notifiedAt: "2025-10-15T10:00:00Z",
-    createdAt: "2025-10-01",
-  },
-  {
-    id: "EVT-003",
-    title: "PTA Meeting",
-    type: "PTA Meeting",
-    date: "2025-11-18",
-    endDate: "2025-11-18",
-    time: "10:00 AM",
-    location: "School Assembly Hall",
-    description: "Quarterly PTA meeting to discuss student performance, school development plans and upcoming events. All parents are strongly encouraged to attend.",
-    requiresPayment: false,
-    paymentAmount: 0,
-    paymentDeadline: null,
-    targetAudience: ["All"],
-    status: "Upcoming",
-    notifiedAt: null,
-    createdAt: "2025-10-05",
-  },
-  {
-    id: "EVT-004",
-    title: "Akure Science Museum Trip",
-    type: "Trip",
-    date: "2025-11-25",
-    endDate: "2025-11-25",
-    time: "7:00 AM",
-    location: "Akure Science Museum",
-    description: "Educational trip to Akure Science Museum for SS1 and SS2 Science students. Students must bring their lunch and a notepad for observations.",
-    requiresPayment: true,
-    paymentAmount: 5000,
-    paymentDeadline: "2025-11-18",
-    targetAudience: ["Senior Secondary"],
-    status: "Upcoming",
-    notifiedAt: "2025-10-20T08:00:00Z",
-    createdAt: "2025-10-10",
-  },
-  {
-    id: "EVT-005",
-    title: "1st Term Closing Day",
-    type: "Academic",
-    date: "2025-12-13",
-    endDate: "2025-12-13",
-    time: "12:00 PM",
-    location: "School Premises",
-    description: "End of first term. Result collection for day students. Boarding students to be picked up latest by 4 PM. Report cards will be distributed.",
-    requiresPayment: false,
-    paymentAmount: 0,
-    paymentDeadline: null,
-    targetAudience: ["All"],
-    status: "Upcoming",
-    notifiedAt: null,
-    createdAt: "2025-10-01",
-  },
+const EVENT_TYPES = [
+    "Academic", "Cultural", "Sports", "PTA Meeting",
+    "Examination", "Holiday", "Trip", "Ceremony", "Health", "General",
 ];
 
-// ─── Event Form Modal ───────────────────────────────────────────
-const EventFormModal = ({ event, onClose }) => {
-  const isEdit = !!event?.id;
+const EVENT_STATUSES = ["Upcoming", "Ongoing", "Completed", "Cancelled"];
 
-  const [form, setForm] = useState(event || {
-    title: "",
-    type: "General",
-    date: "",
-    endDate: "",
-    time: "",
-    location: "",
-    description: "",
-    requiresPayment: false,
-    paymentAmount: "",
-    paymentDeadline: "",
-    targetAudience: ["All"],
-    status: "Upcoming",
-  });
-  const [errors, setErrors] = useState({});
+const TARGET_AUDIENCES = [
+    "All", "Junior Secondary", "Senior Secondary",
+    "Boarding", "Day", "Parents", "Staff",
+];
 
-  const [createEvent, { isLoading: isCreating }] = useCreateEventMutation?.() || [() => {}, { isLoading: false }];
-  const [updateEvent, { isLoading: isUpdating }] = useUpdateEventMutation?.() || [() => {}, { isLoading: false }];
-  const isLoading = isCreating || isUpdating;
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-  const set = (f, v) => {
-    setForm(p => ({ ...p, [f]: v }));
-    setErrors(p => ({ ...p, [f]: undefined }));
-  };
-
-  const toggleAudience = (a) => setForm(p => ({
-    ...p,
-    targetAudience: p.targetAudience.includes(a)
-      ? p.targetAudience.filter(x => x !== a)
-      : [...p.targetAudience, a]
-  }));
-
-  const validate = () => {
-    const e = {};
-    if (!form.title.trim()) e.title = "Required";
-    if (!form.date) e.date = "Required";
-    if (!form.description.trim()) e.description = "Required";
-    if (form.requiresPayment && (!form.paymentAmount || Number(form.paymentAmount) <= 0)) e.paymentAmount = "Enter a valid amount";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleSave = async () => {
-    if (!validate()) return;
-    const payload = { ...form, paymentAmount: form.requiresPayment ? Number(form.paymentAmount) : 0 };
-    try {
-      if (isEdit) {
-        await updateEvent({ id: event.id, ...payload }).unwrap();
-        toast.success("Event updated");
-      } else {
-        await createEvent(payload).unwrap();
-        toast.success("Event created and parents will be notified");
-      }
-      onClose();
-    } catch {
-      // Simulating success for mock data
-      toast.success(isEdit ? "Event updated!" : "Event created!");
-      onClose();
-    }
-  };
-
-  const Field = ({ label, req, err, children }) => (
-    <div>
-      <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-        {label}{req && <span className="text-red-400 ml-1">*</span>}
-      </label>
-      {children}
-      {err && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{err}</p>}
-    </div>
-  );
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-brand-700 to-brand-600 px-6 py-4 flex items-center justify-between flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-white" />
-            </div>
-            <h2 className="text-white font-bold">{isEdit ? "Edit Event" : "Create New Event"}</h2>
-          </div>
-          <button onClick={onClose} className="text-white/70 hover:text-white p-1 rounded-lg"><X className="w-5 h-5" /></button>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {/* Basic Info */}
-          <Field label="Event Title" req err={errors.title}>
-            <input value={form.title} onChange={e => set("title", e.target.value)}
-              placeholder="e.g. Inter-House Sports Day"
-              className={`w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300 ${errors.title ? "border-red-300 bg-red-50" : "border-gray-200"}`} />
-          </Field>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Event Type" req>
-              <select value={form.type} onChange={e => set("type", e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300">
-                {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
-              </select>
-            </Field>
-            <Field label="Status">
-              <select value={form.status} onChange={e => set("status", e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300">
-                {["Upcoming", "Ongoing", "Completed", "Cancelled"].map(s => <option key={s}>{s}</option>)}
-              </select>
-            </Field>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <Field label="Start Date" req err={errors.date}>
-              <input type="date" value={form.date} onChange={e => set("date", e.target.value)}
-                className={`w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300 ${errors.date ? "border-red-300 bg-red-50" : "border-gray-200"}`} />
-            </Field>
-            <Field label="End Date">
-              <input type="date" value={form.endDate} min={form.date} onChange={e => set("endDate", e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300" />
-            </Field>
-            <Field label="Time">
-              <input value={form.time} onChange={e => set("time", e.target.value)} placeholder="e.g. 9:00 AM"
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300" />
-            </Field>
-          </div>
-
-          <Field label="Location / Venue">
-            <input value={form.location} onChange={e => set("location", e.target.value)} placeholder="e.g. School Assembly Hall"
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300" />
-          </Field>
-
-          <Field label="Description / Details" req err={errors.description}>
-            <textarea value={form.description} onChange={e => set("description", e.target.value)} rows={4}
-              placeholder="Provide full details about the event, what parents and students should know, bring, or prepare..."
-              className={`w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300 resize-none ${errors.description ? "border-red-300 bg-red-50" : "border-gray-200"}`} />
-          </Field>
-
-          {/* Target Audience */}
-          <Field label="Target Audience">
-            <div className="border border-gray-200 rounded-xl p-3 bg-gray-50">
-              <div className="flex flex-wrap gap-2">
-                {AUDIENCE_OPTIONS.map(a => {
-                  const sel = form.targetAudience.includes(a);
-                  return (
-                    <label key={a} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg cursor-pointer text-xs font-medium transition-all
-                      ${sel ? "bg-brand-50 border border-brand-300 text-brand-700" : "bg-white border border-gray-200 text-gray-600 hover:border-gray-300"}`}>
-                      <input type="checkbox" checked={sel} onChange={() => toggleAudience(a)} className="accent-brand-600 w-3 h-3" />
-                      {a}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          </Field>
-
-          {/* Payment */}
-          <div className="border border-gray-200 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="text-sm font-semibold text-gray-700">Requires Payment</p>
-                <p className="text-xs text-gray-400">Enable if parents/students need to pay for this event</p>
-              </div>
-              <button onClick={() => set("requiresPayment", !form.requiresPayment)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0 ${form.requiresPayment ? "bg-brand-600" : "bg-gray-200"}`}>
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${form.requiresPayment ? "translate-x-6" : "translate-x-1"}`} />
-              </button>
-            </div>
-            {form.requiresPayment && (
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="Amount (₦)" req err={errors.paymentAmount}>
-                  <input type="number" value={form.paymentAmount} onChange={e => set("paymentAmount", e.target.value)}
-                    placeholder="0" min={1}
-                    className={`w-full px-3 py-2.5 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300 ${errors.paymentAmount ? "border-red-300 bg-red-50" : "border-gray-200"}`} />
-                </Field>
-                <Field label="Payment Deadline">
-                  <input type="date" value={form.paymentDeadline} onChange={e => set("paymentDeadline", e.target.value)}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-brand-300" />
-                </Field>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-gray-100 px-6 py-4 flex items-center justify-end gap-3 flex-shrink-0 bg-gray-50">
-          <button onClick={onClose} className="px-4 py-2 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-white">Cancel</button>
-          <button onClick={handleSave} disabled={isLoading}
-            className="flex items-center gap-2 px-5 py-2 bg-brand-600 text-white text-sm rounded-xl hover:bg-brand-700 font-semibold disabled:opacity-60">
-            {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : <><CheckCircle className="w-4 h-4" />{isEdit ? "Save Changes" : "Create Event"}</>}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+const fmt = (d) => {
+    if (!d) return "";
+    return new Date(d).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
 };
 
-// ─── Event Detail Modal ─────────────────────────────────────────
-const EventDetailModal = ({ event, onClose, onEdit, onNotify, isNotifying }) => {
-  if (!event) return null;
-  const typeColor = TYPE_COLORS[event.type] || TYPE_COLORS.General;
+const fmtInput = (d) => {
+    if (!d) return "";
+    return new Date(d).toISOString().split("T")[0];
+};
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 px-6 py-5 text-white">
-          <div className="flex items-start justify-between mb-3">
-            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${typeColor}`}>
-              <Tag className="w-3 h-3" />{event.type}
-            </span>
-            <button onClick={onClose} className="text-white/70 hover:text-white p-1 rounded-lg"><X className="w-5 h-5" /></button>
-          </div>
-          <h2 className="text-xl font-black leading-tight mb-1">{event.title}</h2>
-          <p className="text-gray-400 text-xs">{event.id}</p>
+const isEventPast = (e) => new Date(e.endDate || e.date) < new Date();
+const getDaysUntil = (d) => Math.ceil((new Date(d) - new Date()) / 864e5);
+
+// ─── EMPTY FORM ───────────────────────────────────────────────────────────────
+
+const EMPTY_FORM = {
+    title: "", type: "General", description: "", date: "",
+    endDate: "", time: "", location: "",
+    targetAudience: ["All"], status: "Upcoming",
+    requiresPayment: false, paymentAmount: "", paymentDeadline: "",
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUB-COMPONENTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
+
+const StatCard = ({ icon: Icon, label, value, sub, color = "text-gray-700", bg = "bg-gray-50" }) => (
+    <div className={`${bg} rounded-2xl p-4 flex items-start gap-3 border border-white/60`}>
+        <div className="p-2 bg-white rounded-xl shadow-sm">
+            <Icon className={`w-4 h-4 ${color}`} />
         </div>
+        <div>
+            <p className="text-xs text-gray-500 font-medium">{label}</p>
+            <p className="text-xl font-black text-gray-900 leading-tight">{value}</p>
+            {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+        </div>
+    </div>
+);
 
-        {/* Body */}
-        <div className="p-5 space-y-4 max-h-[55vh] overflow-y-auto">
-          {/* Meta */}
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { icon: Calendar, label: "Date", value: event.endDate && event.endDate !== event.date ? `${event.date} → ${event.endDate}` : event.date },
-              { icon: Clock, label: "Time", value: event.time || "All Day" },
-              { icon: MapPin, label: "Venue", value: event.location || "School Premises" },
-              { icon: Users, label: "Audience", value: (event.targetAudience || []).join(", ") },
-            ].map(({ icon: Icon, label, value }) => (
-              <div key={label} className="bg-gray-50 rounded-xl p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Icon className="w-3.5 h-3.5 text-gray-400" />
-                  <p className="text-xs text-gray-400">{label}</p>
+// ─── Type Pill ────────────────────────────────────────────────────────────────
+
+const TypePill = ({ type, small }) => {
+    const m = TYPE_COLORS[type] || TYPE_COLORS.General;
+    return (
+        <span className={`inline-flex items-center gap-1 border rounded-full font-semibold ${m.pill} ${
+            small ? "px-1.5 py-0.5 text-xs" : "px-2 py-0.5 text-xs"
+        }`}>
+            <span>{m.icon}</span>{type}
+        </span>
+    );
+};
+
+// ─── Status Badge ─────────────────────────────────────────────────────────────
+
+const StatusBadge = ({ status }) => {
+    const m = STATUS_COLORS[status] || STATUS_COLORS.Upcoming;
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${m.pill}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${m.dot}`} />
+            {status}
+        </span>
+    );
+};
+
+// ─── Dropdown Menu ────────────────────────────────────────────────────────────
+
+const DropdownMenu = ({ items, onClose }) => {
+    const ref = useRef(null);
+    useEffect(() => {
+        const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [onClose]);
+
+    return (
+        <div
+            ref={ref}
+            className="absolute right-0 top-8 z-30 bg-white rounded-xl shadow-xl border border-gray-100 py-1 min-w-[160px] overflow-hidden"
+        >
+            {items.map((item) => (
+                <button
+                    key={item.label}
+                    onClick={() => { item.onClick(); onClose(); }}
+                    disabled={item.disabled}
+                    className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2.5 transition-colors ${
+                        item.danger
+                            ? "text-red-600 hover:bg-red-50"
+                            : item.disabled
+                            ? "text-gray-300 cursor-not-allowed"
+                            : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                >
+                    {item.icon && <item.icon className="w-4 h-4 flex-shrink-0" />}
+                    {item.label}
+                </button>
+            ))}
+        </div>
+    );
+};
+
+// ─── Event Row (table row) ────────────────────────────────────────────────────
+
+const EventRow = ({ event, onEdit, onView, onDelete, onNotify, notifying }) => {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const past = isEventPast(event);
+    const meta = TYPE_COLORS[event.type] || TYPE_COLORS.General;
+
+    const menuItems = [
+        { label: "View Details", icon: Eye,       onClick: () => onView(event) },
+        { label: "Edit",         icon: Pencil,     onClick: () => onEdit(event) },
+        { label: "Notify Parents", icon: Megaphone, onClick: () => onNotify(event.id),
+          disabled: notifying || past || event.status === "Cancelled" },
+        { label: "Delete",       icon: Trash2,     onClick: () => onDelete(event), danger: true },
+    ];
+
+    return (
+        <tr className="border-b border-gray-50 hover:bg-gray-50/60 transition-colors group">
+            {/* Type bar + title */}
+            <td className="px-4 py-3">
+                <div className="flex items-center gap-3">
+                    <div className={`w-1 h-10 rounded-full flex-shrink-0 ${meta.bar}`} />
+                    <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate max-w-[240px]">
+                            {event.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                            <TypePill type={event.type} small />
+                            {event.isNew && !past && (
+                                <span className="text-xs bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded-full">
+                                    New
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
-                <p className="text-sm font-semibold text-gray-800">{value}</p>
-              </div>
-            ))}
-          </div>
+            </td>
 
-          {/* Payment */}
-          {event.requiresPayment && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
-              <DollarSign className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <div>
-                <p className="text-sm font-bold text-amber-800">Payment Required: ₦{Number(event.paymentAmount).toLocaleString()}</p>
-                {event.paymentDeadline && <p className="text-xs text-amber-600">Deadline: {event.paymentDeadline}</p>}
-              </div>
-            </div>
-          )}
+            {/* Date */}
+            <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">
+                <div className="flex flex-col">
+                    <span>{fmt(event.date)}</span>
+                    {event.endDate && event.endDate !== event.date && (
+                        <span className="text-xs text-gray-400">→ {fmt(event.endDate)}</span>
+                    )}
+                </div>
+            </td>
 
-          {/* Description */}
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Description / Details</p>
-            <p className="text-sm text-gray-700 leading-relaxed">{event.description}</p>
-          </div>
+            {/* Status */}
+            <td className="px-4 py-3">
+                <StatusBadge status={event.status} />
+            </td>
 
-          {/* Notification status */}
-          <div className={`rounded-xl p-3 flex items-center gap-2 ${event.notifiedAt ? "bg-green-50 border border-green-200" : "bg-gray-50 border border-gray-200"}`}>
-            {event.notifiedAt
-              ? <><CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" /><p className="text-xs text-green-700 font-medium">Parents notified on {new Date(event.notifiedAt).toLocaleDateString("en-NG", { dateStyle: "long" })}</p></>
-              : <><BellRing className="w-4 h-4 text-gray-400 flex-shrink-0" /><p className="text-xs text-gray-500">Parents have not been notified yet</p></>
-            }
-          </div>
-        </div>
+            {/* Audience */}
+            <td className="px-4 py-3">
+                <span className="text-xs text-gray-500">
+                    {(event.targetAudience || []).join(", ")}
+                </span>
+            </td>
 
-        {/* Footer */}
-        <div className="border-t border-gray-100 px-5 py-4 flex gap-2 bg-gray-50">
-          <button onClick={onClose} className="px-3 py-2 text-sm border border-gray-200 rounded-xl text-gray-600 hover:bg-white">Close</button>
-          <button onClick={() => { onClose(); onEdit(event); }}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm border border-brand-200 text-brand-700 rounded-xl hover:bg-brand-50">
-            <Edit2 className="w-3.5 h-3.5" /> Edit
-          </button>
-          <button onClick={() => onNotify(event.id)} disabled={isNotifying}
-            className="flex-1 flex items-center justify-center gap-2 py-2 bg-brand-600 text-white text-sm rounded-xl hover:bg-brand-700 font-semibold disabled:opacity-60">
-            {isNotifying ? <><Loader2 className="w-4 h-4 animate-spin" />Sending...</> : <><Send className="w-4 h-4" />{event.notifiedAt ? "Re-notify Parents" : "Notify Parents"}</>}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+            {/* Payment */}
+            <td className="px-4 py-3">
+                {event.requiresPayment ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        <DollarSign className="w-3 h-3" />
+                        ₦{Number(event.paymentAmount).toLocaleString()}
+                    </span>
+                ) : (
+                    <span className="text-xs text-gray-300">—</span>
+                )}
+            </td>
+
+            {/* Notified */}
+            <td className="px-4 py-3">
+                {event.notifiedAt ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-green-700">
+                        <BellRing className="w-3 h-3" />
+                        {fmt(event.notifiedAt)}
+                    </span>
+                ) : (
+                    <span className="text-xs text-gray-300">Not sent</span>
+                )}
+            </td>
+
+            {/* Actions */}
+            <td className="px-4 py-3">
+                <div className="relative flex justify-end">
+                    <button
+                        onClick={() => setMenuOpen((p) => !p)}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
+                        <MoreVertical className="w-4 h-4" />
+                    </button>
+                    {menuOpen && (
+                        <DropdownMenu items={menuItems} onClose={() => setMenuOpen(false)} />
+                    )}
+                </div>
+            </td>
+        </tr>
+    );
 };
 
-// ─── Event Card ─────────────────────────────────────────────────
-const EventCard = ({ event, onView, onEdit, onDelete, onNotify, isNotifying }) => {
-  const typeColor = TYPE_COLORS[event.type] || TYPE_COLORS.General;
-  const isPast = new Date(event.date) < new Date();
-  const daysUntil = Math.ceil((new Date(event.date) - new Date()) / (1000 * 60 * 60 * 24));
+// ─── Skeleton Row ─────────────────────────────────────────────────────────────
 
-  return (
-    <div className={`bg-white rounded-2xl border shadow-sm hover:shadow-md transition-all overflow-hidden group ${isPast ? "border-gray-200 opacity-75" : "border-gray-100"}`}>
-      <div className={`h-1.5 ${event.type === "Examination" ? "bg-red-500" : event.type === "Sports" ? "bg-green-500" : event.type === "Trip" ? "bg-indigo-500" : event.type === "PTA Meeting" ? "bg-amber-500" : "bg-brand-500"}`} />
-      <div className="p-5">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-3">
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${typeColor}`}>
-            <Tag className="w-3 h-3" />{event.type}
-          </span>
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button onClick={() => onView(event)} className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg"><Eye className="w-4 h-4" /></button>
-            <button onClick={() => onEdit(event)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg"><Edit2 className="w-4 h-4" /></button>
-            <button onClick={() => onDelete(event)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
-          </div>
-        </div>
-
-        <h3 className="font-bold text-gray-900 text-base leading-tight mb-3">{event.title}</h3>
-
-        {/* Meta */}
-        <div className="space-y-1.5 mb-4">
-          <div className="flex items-center gap-2 text-xs text-gray-500">
-            <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>{event.date}{event.endDate && event.endDate !== event.date ? ` → ${event.endDate}` : ""}</span>
-          </div>
-          {event.time && (
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Clock className="w-3.5 h-3.5 flex-shrink-0" />
-              <span>{event.time}</span>
-            </div>
-          )}
-          {event.location && (
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-              <span className="truncate">{event.location}</span>
-            </div>
-          )}
-          {event.requiresPayment && (
-            <div className="flex items-center gap-2 text-xs text-amber-600 font-medium">
-              <DollarSign className="w-3.5 h-3.5 flex-shrink-0" />
-              <span>₦{Number(event.paymentAmount).toLocaleString()} required</span>
-            </div>
-          )}
-        </div>
-
-        {/* Description snippet */}
-        <p className="text-xs text-gray-500 line-clamp-2 mb-4">{event.description}</p>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div>
-            {!isPast && daysUntil >= 0 && (
-              <span className={`text-xs font-bold ${daysUntil <= 7 ? "text-red-600" : daysUntil <= 14 ? "text-amber-600" : "text-gray-500"}`}>
-                {daysUntil === 0 ? "Today!" : daysUntil === 1 ? "Tomorrow!" : `In ${daysUntil} days`}
-              </span>
-            )}
-            {isPast && <span className="text-xs text-gray-400">Past event</span>}
-          </div>
-          <button onClick={() => onNotify(event.id)} disabled={isNotifying}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${event.notifiedAt ? "text-green-700 bg-green-50 hover:bg-green-100" : "text-brand-700 bg-brand-50 hover:bg-brand-100"}`}>
-            {isNotifying ? <Loader2 className="w-3 h-3 animate-spin" /> : event.notifiedAt ? <CheckCircle className="w-3 h-3" /> : <Bell className="w-3 h-3" />}
-            {event.notifiedAt ? "Notified" : "Notify Parents"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── Main Page ──────────────────────────────────────────────────
-export default function AdminEventsPage() {
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [viewEvent, setViewEvent] = useState(null);
-  const [editEvent, setEditEvent] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [notifyingId, setNotifyingId] = useState(null);
-
-  // Using mock data — swap with RTK Query when API is ready
-  // const { data, isLoading, refetch } = useGetAllEventsQuery({ search, type: typeFilter, status: statusFilter });
-  const isLoading = false;
-
-  const [deleteEvent] = useDeleteEventMutation?.() || [() => {}];
-  const [notifyParents] = useNotifyParentsMutation?.() || [async () => ({ data: {} })];
-
-  // Filter mock events
-  const events = MOCK_EVENTS.filter(e => {
-    const matchSearch = !search || e.title.toLowerCase().includes(search.toLowerCase()) || e.type.toLowerCase().includes(search.toLowerCase());
-    const matchType = !typeFilter || e.type === typeFilter;
-    const matchStatus = !statusFilter || e.status === statusFilter;
-    return matchSearch && matchType && matchStatus;
-  });
-
-  const upcoming = events.filter(e => new Date(e.date) >= new Date());
-  const past = events.filter(e => new Date(e.date) < new Date());
-
-  const handleNotify = async (id) => {
-    setNotifyingId(id);
-    try {
-      await notifyParents(id);
-      toast.success("Parents notified successfully!");
-    } catch {
-      toast.success("Notification sent to all parents!"); // mock success
-    } finally {
-      setNotifyingId(null);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await deleteEvent(deleteTarget.id);
-      toast.success("Event deleted");
-    } catch {
-      toast.success("Event deleted"); // mock
-    } finally {
-      setDeleteTarget(null);
-    }
-  };
-
-  // Stats
-  const stats = [
-    { label: "Total Events", value: MOCK_EVENTS.length, icon: Calendar, color: "bg-brand-50 text-brand-600" },
-    { label: "Upcoming", value: MOCK_EVENTS.filter(e => new Date(e.date) >= new Date()).length, icon: Clock, color: "bg-blue-50 text-blue-600" },
-    { label: "Paid Events", value: MOCK_EVENTS.filter(e => e.requiresPayment).length, icon: DollarSign, color: "bg-amber-50 text-amber-600" },
-    { label: "Parents Notified", value: MOCK_EVENTS.filter(e => e.notifiedAt).length, icon: Bell, color: "bg-green-50 text-green-600" },
-  ];
-
-  return (
-    <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map(s => (
-          <div key={s.label} className="bg-brand-600 rounded-2xl border border-gray-100 p-5 shadow-sm flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}><s.icon className="w-5 h-5" /></div>
-            <div>
-              <p className="text-2xl font-black text-gray-50">{s.value}</p>
-              <p className="text-xs text-gray-100">{s.label}</p>
-            </div>
-          </div>
+const SkeletonRow = () => (
+    <tr className="border-b border-gray-50 animate-pulse">
+        {[...Array(7)].map((_, i) => (
+            <td key={i} className="px-4 py-3">
+                <div className={`h-4 bg-gray-100 rounded ${i === 0 ? "w-48" : i === 3 ? "w-20" : "w-24"}`} />
+            </td>
         ))}
-      </div>
+    </tr>
+);
 
-      {/* Toolbar */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 flex-1 min-w-48">
-            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search events..."
-              className="bg-transparent text-sm outline-none flex-1 text-gray-700 placeholder-gray-400" />
-          </div>
-          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-600 bg-white outline-none">
-            <option value="">All Types</option>
-            {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
-          </select>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-600 bg-white outline-none">
-            <option value="">All Status</option>
-            {["Upcoming", "Ongoing", "Completed", "Cancelled"].map(s => <option key={s}>{s}</option>)}
-          </select>
-          {(search || typeFilter || statusFilter) && (
-            <button onClick={() => { setSearch(""); setTypeFilter(""); setStatusFilter(""); }}
-              className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 border border-dashed border-gray-300 rounded-xl">
-              <X className="w-4 h-4" /> Clear
-            </button>
-          )}
-          <button onClick={() => { setEditEvent(null); setShowForm(true); }}
-            className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 text-white text-sm rounded-xl hover:bg-brand-700 ml-auto font-semibold">
-            <Plus className="w-4 h-4" /> Create Event
-          </button>
-        </div>
-      </div>
+// ─── View Modal (read-only detail) ────────────────────────────────────────────
 
-      {/* Upcoming Events */}
-      {upcoming.length > 0 && (
-        <div>
-          <h2 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-brand-600" /> Upcoming Events ({upcoming.length})
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {upcoming.map(event => (
-              <EventCard key={event.id} event={event}
-                onView={setViewEvent} onEdit={e => { setEditEvent(e); setShowForm(true); }}
-                onDelete={setDeleteTarget} onNotify={handleNotify}
-                isNotifying={notifyingId === event.id} />
-            ))}
-          </div>
-        </div>
-      )}
+const ViewModal = ({ event, onClose, onEdit, onNotify, notifying }) => {
+    if (!event) return null;
+    const meta = TYPE_COLORS[event.type] || TYPE_COLORS.General;
+    const past = isEventPast(event);
+    const days = getDaysUntil(event.date);
 
-      {/* Past Events */}
-      {past.length > 0 && (
-        <div>
-          <h2 className="text-sm font-bold text-gray-400 mb-3 flex items-center gap-2">
-            <CheckCircle className="w-4 h-4" /> Past Events ({past.length})
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {past.map(event => (
-              <EventCard key={event.id} event={event}
-                onView={setViewEvent} onEdit={e => { setEditEvent(e); setShowForm(true); }}
-                onDelete={setDeleteTarget} onNotify={handleNotify}
-                isNotifying={notifyingId === event.id} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {events.length === 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center shadow-sm">
-          <Calendar className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-          <p className="text-gray-400">No events found</p>
-        </div>
-      )}
-
-      {/* Modals */}
-      {(showForm) && (
-        <EventFormModal event={editEvent} onClose={() => { setShowForm(false); setEditEvent(null); }} />
-      )}
-      {viewEvent && (
-        <EventDetailModal event={viewEvent} onClose={() => setViewEvent(null)}
-          onEdit={e => { setViewEvent(null); setEditEvent(e); setShowForm(true); }}
-          onNotify={handleNotify} isNotifying={notifyingId === viewEvent.id} />
-      )}
-      {deleteTarget && (
+    return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setDeleteTarget(null)} />
-          <div className="relative bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4"><Trash2 className="w-6 h-6 text-red-500" /></div>
-            <h3 className="text-center font-bold text-gray-900 mb-2">Delete Event?</h3>
-            <p className="text-center text-sm text-gray-500 mb-6">This will permanently remove <strong>{deleteTarget.title}</strong>.</p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm text-gray-600 hover:bg-gray-50">Cancel</button>
-              <button onClick={handleDelete} className="flex-1 py-2.5 bg-red-500 text-white rounded-xl text-sm font-semibold hover:bg-red-600">Delete</button>
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+                <div className={`h-1.5 ${meta.bar}`} />
+
+                {/* Header */}
+                <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <TypePill type={event.type} />
+                            <StatusBadge status={event.status} />
+                            {event.isNew && !past && (
+                                <span className="text-xs bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full">New</span>
+                            )}
+                        </div>
+                        <h2 className="text-xl font-black text-gray-900 leading-tight">{event.title}</h2>
+                        {!past && days >= 0 && (
+                            <p className={`text-xs font-semibold mt-1 ${days <= 7 ? "text-red-600" : "text-gray-400"}`}>
+                                {days === 0 ? "Today" : days === 1 ? "Tomorrow" : `${days} days away`}
+                            </p>
+                        )}
+                    </div>
+                    <button onClick={onClose} className="p-2 rounded-xl text-gray-400 hover:bg-gray-100 flex-shrink-0">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-5">
+                    {/* Key info grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-gray-50 rounded-xl p-3">
+                            <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><Calendar className="w-3 h-3" />Date</p>
+                            <p className="text-sm font-semibold text-gray-800">
+                                {fmt(event.date)}
+                                {event.endDate && event.endDate !== event.date && ` – ${fmt(event.endDate)}`}
+                            </p>
+                        </div>
+                        <div className="bg-gray-50 rounded-xl p-3">
+                            <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><Clock className="w-3 h-3" />Time</p>
+                            <p className="text-sm font-semibold text-gray-800">{event.time || "All Day"}</p>
+                        </div>
+                        {event.location && (
+                            <div className="bg-gray-50 rounded-xl p-3 col-span-2">
+                                <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><MapPin className="w-3 h-3" />Venue</p>
+                                <p className="text-sm font-semibold text-gray-800">{event.location}</p>
+                            </div>
+                        )}
+                        <div className="bg-gray-50 rounded-xl p-3">
+                            <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><Globe className="w-3 h-3" />Audience</p>
+                            <p className="text-sm font-semibold text-gray-800">{(event.targetAudience || []).join(", ")}</p>
+                        </div>
+                        <div className="bg-gray-50 rounded-xl p-3">
+                            <p className="text-xs text-gray-400 mb-1 flex items-center gap-1"><Tag className="w-3 h-3" />Event ID</p>
+                            <p className="text-sm font-mono font-semibold text-gray-800">{event.id}</p>
+                        </div>
+                    </div>
+
+                    {/* Payment */}
+                    {event.requiresPayment && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                            <p className="text-xs font-bold text-amber-700 mb-2 flex items-center gap-1.5">
+                                <DollarSign className="w-3.5 h-3.5" />Payment Required
+                            </p>
+                            <p className="text-2xl font-black text-amber-700">
+                                ₦{Number(event.paymentAmount).toLocaleString()}
+                            </p>
+                            {event.paymentDeadline && (
+                                <p className="text-xs text-amber-600 mt-1">
+                                    Deadline: <strong>{fmt(event.paymentDeadline)}</strong>
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Description */}
+                    {event.description && (
+                        <div className="bg-gray-50 rounded-xl p-4">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                                <Info className="w-3.5 h-3.5" />Description
+                            </p>
+                            <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{event.description}</p>
+                        </div>
+                    )}
+
+                    {/* Notification status */}
+                    <div className={`rounded-xl p-3 flex items-center gap-3 border ${
+                        event.notifiedAt
+                            ? "bg-green-50 border-green-200"
+                            : "bg-gray-50 border-gray-200"
+                    }`}>
+                        <BellRing className={`w-4 h-4 flex-shrink-0 ${event.notifiedAt ? "text-green-600" : "text-gray-400"}`} />
+                        <p className={`text-xs ${event.notifiedAt ? "text-green-700" : "text-gray-500"}`}>
+                            {event.notifiedAt
+                                ? `Parents notified on ${new Date(event.notifiedAt).toLocaleDateString("en-NG", { dateStyle: "long" })}`
+                                : "Parents have not been notified yet"}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div className="border-t border-gray-100 px-6 py-4 flex items-center gap-3 flex-shrink-0">
+                    <button
+                        onClick={() => { onClose(); onEdit(event); }}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl transition-colors"
+                    >
+                        <Pencil className="w-4 h-4" /> Edit
+                    </button>
+                    <button
+                        onClick={() => onNotify(event.id)}
+                        disabled={notifying || past || event.status === "Cancelled"}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors"
+                    >
+                        {notifying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Megaphone className="w-4 h-4" />}
+                        {notifying ? "Sending…" : "Notify Parents"}
+                    </button>
+                    <button onClick={onClose} className="ml-auto px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700">
+                        Close
+                    </button>
+                </div>
             </div>
-          </div>
         </div>
-      )}
-    </div>
-  );
+    );
+};
+
+// ─── Delete Confirm Modal ─────────────────────────────────────────────────────
+
+const DeleteModal = ({ event, onConfirm, onClose, loading }) => {
+    if (!event) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+                <div className="flex items-center gap-4 mb-4">
+                    <div className="p-3 bg-red-100 rounded-xl">
+                        <Trash2 className="w-5 h-5 text-red-600" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-gray-900">Delete Event</h3>
+                        <p className="text-sm text-gray-500">This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3 mb-5">
+                    <p className="text-sm font-semibold text-gray-800">{event.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{fmt(event.date)} · {event.type}</p>
+                </div>
+                <div className="flex gap-3">
+                    <button onClick={onClose} className="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition-colors">
+                        Cancel
+                    </button>
+                    <button
+                        onClick={() => onConfirm(event.id)}
+                        disabled={loading}
+                        className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                    >
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        {loading ? "Deleting…" : "Delete Event"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ─── Event Form Modal (Create / Edit) ─────────────────────────────────────────
+
+const EventFormModal = ({ initial, onClose, onSaved }) => {
+    const isEditing = !!initial;
+    const [form, setForm] = useState(
+        initial
+            ? {
+                title:          initial.title          || "",
+                type:           initial.type           || "General",
+                description:    initial.description    || "",
+                date:           fmtInput(initial.date),
+                endDate:        fmtInput(initial.endDate),
+                time:           initial.time           || "",
+                location:       initial.location       || "",
+                targetAudience: initial.targetAudience || ["All"],
+                status:         initial.status         || "Upcoming",
+                requiresPayment: initial.requiresPayment || false,
+                paymentAmount:  initial.paymentAmount  || "",
+                paymentDeadline: fmtInput(initial.paymentDeadline),
+            }
+            : { ...EMPTY_FORM }
+    );
+
+    const [createEvent, { isLoading: creating }] = useCreateEventMutation();
+    const [updateEvent, { isLoading: updating }] = useUpdateEventMutation();
+    const saving = creating || updating;
+
+    const set = (key, val) => setForm((p) => ({ ...p, [key]: val }));
+
+    const toggleAudience = (a) => {
+        setForm((p) => {
+            const cur = p.targetAudience;
+            if (a === "All") return { ...p, targetAudience: ["All"] };
+            const filtered = cur.filter((x) => x !== "All");
+            return {
+                ...p,
+                targetAudience: filtered.includes(a)
+                    ? filtered.filter((x) => x !== a)
+                    : [...filtered, a],
+            };
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const payload = {
+            title:           form.title.trim(),
+            type:            form.type,
+            description:     form.description.trim(),
+            date:            form.date,
+            endDate:         form.endDate || undefined,
+            time:            form.time.trim(),
+            location:        form.location.trim(),
+            targetAudience:  form.targetAudience.length ? form.targetAudience : ["All"],
+            status:          form.status,
+            requiresPayment: form.requiresPayment,
+            paymentAmount:   form.requiresPayment ? Number(form.paymentAmount) : 0,
+            paymentDeadline: form.requiresPayment && form.paymentDeadline ? form.paymentDeadline : undefined,
+        };
+
+        try {
+            if (isEditing) {
+                await updateEvent({ id: initial.id, ...payload }).unwrap();
+                toast.success("Event updated successfully");
+            } else {
+                await createEvent(payload).unwrap();
+                toast.success("Event created successfully");
+            }
+            onSaved();
+        } catch (err) {
+            toast.error(err?.data?.error || "Something went wrong. Please try again.");
+        }
+    };
+
+    const inputCls = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all placeholder-gray-400";
+    const labelCls = "block text-xs font-semibold text-gray-600 mb-1.5";
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+                {/* Header */}
+                <div className="px-6 pt-5 pb-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+                    <div>
+                        <h2 className="text-lg font-black text-gray-900">
+                            {isEditing ? "Edit Event" : "Create New Event"}
+                        </h2>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                            {isEditing ? `Editing: ${initial.title}` : "Fill in the details below to publish a new school event."}
+                        </p>
+                    </div>
+                    <button onClick={onClose} className="p-2 rounded-xl text-gray-400 hover:bg-gray-100">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+                    {/* Title + Type */}
+                    <div className="grid grid-cols-3 gap-3">
+                        <div className="col-span-2">
+                            <label className={labelCls}>Event Title *</label>
+                            <input
+                                className={inputCls}
+                                placeholder="e.g. 1st Term Examination"
+                                value={form.title}
+                                onChange={(e) => set("title", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Type *</label>
+                            <select className={inputCls} value={form.type} onChange={(e) => set("type", e.target.value)}>
+                                {EVENT_TYPES.map((t) => (
+                                    <option key={t}>{t}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Date row */}
+                    <div className="grid grid-cols-3 gap-3">
+                        <div>
+                            <label className={labelCls}>Start Date *</label>
+                            <input type="date" className={inputCls} value={form.date} onChange={(e) => set("date", e.target.value)} required />
+                        </div>
+                        <div>
+                            <label className={labelCls}>End Date <span className="font-normal text-gray-400">(optional)</span></label>
+                            <input type="date" className={inputCls} value={form.endDate} min={form.date} onChange={(e) => set("endDate", e.target.value)} />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Time <span className="font-normal text-gray-400">(optional)</span></label>
+                            <input className={inputCls} placeholder="e.g. 8:00 AM" value={form.time} onChange={(e) => set("time", e.target.value)} />
+                        </div>
+                    </div>
+
+                    {/* Location + Status */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className={labelCls}>Venue / Location</label>
+                            <input className={inputCls} placeholder="e.g. School Assembly Hall" value={form.location} onChange={(e) => set("location", e.target.value)} />
+                        </div>
+                        <div>
+                            <label className={labelCls}>Status</label>
+                            <select className={inputCls} value={form.status} onChange={(e) => set("status", e.target.value)}>
+                                {EVENT_STATUSES.map((s) => (
+                                    <option key={s}>{s}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Target Audience */}
+                    <div>
+                        <label className={labelCls}>Target Audience</label>
+                        <div className="flex flex-wrap gap-2">
+                            {TARGET_AUDIENCES.map((a) => {
+                                const selected = form.targetAudience.includes(a);
+                                return (
+                                    <button
+                                        key={a}
+                                        type="button"
+                                        onClick={() => toggleAudience(a)}
+                                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+                                            selected
+                                                ? "bg-blue-600 text-white border-blue-600"
+                                                : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
+                                        }`}
+                                    >
+                                        {a}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                        <label className={labelCls}>Description</label>
+                        <textarea
+                            className={`${inputCls} resize-none`}
+                            rows={4}
+                            placeholder="Full details about the event — instructions, requirements, what to bring, etc."
+                            value={form.description}
+                            onChange={(e) => set("description", e.target.value)}
+                        />
+                    </div>
+
+                    {/* Payment toggle */}
+                    <div className="border border-gray-100 rounded-2xl p-4 bg-gray-50/50">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <div className="relative">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only"
+                                    checked={form.requiresPayment}
+                                    onChange={(e) => set("requiresPayment", e.target.checked)}
+                                />
+                                <div className={`w-10 h-6 rounded-full transition-colors ${form.requiresPayment ? "bg-amber-500" : "bg-gray-300"}`} />
+                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.requiresPayment ? "translate-x-5" : "translate-x-1"}`} />
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-gray-800">Requires Payment</p>
+                                <p className="text-xs text-gray-500">Parents will see a payment notice for this event</p>
+                            </div>
+                        </label>
+
+                        {form.requiresPayment && (
+                            <div className="grid grid-cols-2 gap-3 mt-4">
+                                <div>
+                                    <label className={labelCls}>Amount (₦) *</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        className={inputCls}
+                                        placeholder="e.g. 5000"
+                                        value={form.paymentAmount}
+                                        onChange={(e) => set("paymentAmount", e.target.value)}
+                                        required={form.requiresPayment}
+                                    />
+                                </div>
+                                <div>
+                                    <label className={labelCls}>Payment Deadline</label>
+                                    <input type="date" className={inputCls} value={form.paymentDeadline} onChange={(e) => set("paymentDeadline", e.target.value)} />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </form>
+
+                {/* Footer */}
+                <div className="border-t border-gray-100 px-6 py-4 flex items-center gap-3 flex-shrink-0">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="px-5 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleSubmit}
+                        disabled={saving || !form.title || !form.date}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold transition-colors ml-auto"
+                    >
+                        {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {saving ? "Saving…" : isEditing ? "Save Changes" : "Create Event"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN PAGE
+// ─────────────────────────────────────────────────────────────────────────────
+
+export default function AdminEventsPage() {
+    // ── Filters ────────────────────────────────────────────────────────────
+    const [search,     setSearch]     = useState("");
+    const [typeFilter, setTypeFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [showFilters, setShowFilters]   = useState(false);
+
+    // ── Modals ─────────────────────────────────────────────────────────────
+    const [formModal,   setFormModal]   = useState(null);   // null | "create" | event-object
+    const [viewModal,   setViewModal]   = useState(null);   // null | event-object
+    const [deleteModal, setDeleteModal] = useState(null);   // null | event-object
+    const [notifyingId, setNotifyingId] = useState(null);
+
+    // ── RTK Query ──────────────────────────────────────────────────────────
+    const { data, isLoading, isFetching, isError, refetch } = useGetAllEventsQuery(
+        {
+            search:   search      || undefined,
+            type:     typeFilter  || undefined,
+            status:   statusFilter || undefined,
+            limit:    200,
+        },
+        { refetchOnMountOrArgChange: true }
+    );
+
+    const [deleteEvent, { isLoading: deleting }] = useDeleteEventMutation();
+    const [notifyParents]                        = useNotifyParentsMutation();
+
+    // ── Derived ────────────────────────────────────────────────────────────
+    const events = data?.data?.events ?? [];
+    const stats  = data?.data?.stats  ?? {};
+
+    const upcoming  = useMemo(() => events.filter((e) => !isEventPast(e) && e.status !== "Cancelled"), [events]);
+    const newEvents = useMemo(() => events.filter((e) => e.isNew && !isEventPast(e)), [events]);
+    const payReq    = useMemo(() => events.filter((e) => e.requiresPayment), [events]);
+    const notNotif  = useMemo(() => events.filter((e) => !e.notifiedAt && !isEventPast(e) && e.status !== "Cancelled"), [events]);
+
+    const isFiltered = !!(search || typeFilter || statusFilter);
+
+    // ── Handlers ───────────────────────────────────────────────────────────
+    const handleNotify = async (id) => {
+        setNotifyingId(id);
+        try {
+            const res = await notifyParents(id).unwrap();
+            toast.success(`Parents notified for "${res.data?.title || "event"}"`);
+            if (viewModal?.id === id) setViewModal((p) => ({ ...p, notifiedAt: res.data?.notifiedAt }));
+        } catch (err) {
+            toast.error(err?.data?.error || "Failed to send notification");
+        } finally {
+            setNotifyingId(null);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await deleteEvent(id).unwrap();
+            toast.success("Event deleted");
+            setDeleteModal(null);
+        } catch (err) {
+            toast.error(err?.data?.error || "Failed to delete event");
+        }
+    };
+
+    const handleFormSaved = () => {
+        setFormModal(null);
+    };
+
+    const clearFilters = () => {
+        setSearch(""); setTypeFilter(""); setStatusFilter("");
+    };
+
+    // ── Render ─────────────────────────────────────────────────────────────
+    return (
+        <div className="space-y-6 pb-10">
+
+            {/* ── Page Header ────────────────────────────────────────────── */}
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-black text-gray-900 leading-tight">
+                        Events & Notices
+                    </h1>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                        Create, manage and broadcast school events to parents and staff.
+                    </p>
+                </div>
+                <button
+                    onClick={() => setFormModal("create")}
+                    className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors shadow-sm shadow-blue-200 flex-shrink-0"
+                >
+                    <Plus className="w-4 h-4" /> Create Event
+                </button>
+            </div>
+
+            {/* ── Stats Row ──────────────────────────────────────────────── */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <StatCard
+                    icon={CalendarCheck} label="Total Events"
+                    value={isLoading ? "…" : (stats.total ?? events.length)}
+                    sub={isLoading ? "" : `${stats.upcoming ?? upcoming.length} upcoming`}
+                    bg="bg-blue-50" color="text-blue-600"
+                />
+                <StatCard
+                    icon={Bell} label="Unnotified"
+                    value={isLoading ? "…" : notNotif.length}
+                    sub="awaiting broadcast"
+                    bg="bg-amber-50" color="text-amber-600"
+                />
+                <StatCard
+                    icon={CreditCard} label="Require Payment"
+                    value={isLoading ? "…" : payReq.length}
+                    sub="events with fees"
+                    bg="bg-emerald-50" color="text-emerald-600"
+                />
+                <StatCard
+                    icon={TrendingUp} label="New This Week"
+                    value={isLoading ? "…" : newEvents.length}
+                    sub="recently created"
+                    bg="bg-purple-50" color="text-purple-600"
+                />
+            </div>
+
+            {/* ── Unnotified alert banner ─────────────────────────────────── */}
+            {!isLoading && notNotif.length > 0 && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4">
+                    <div className="p-2.5 bg-amber-100 rounded-xl flex-shrink-0">
+                        <Bell className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-amber-800">
+                            {notNotif.length} event{notNotif.length > 1 ? "s" : ""} haven't been sent to parents yet
+                        </p>
+                        <p className="text-xs text-amber-600 mt-0.5 truncate">
+                            {notNotif.map((e) => e.title).join(" · ")}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Search + Filters ────────────────────────────────────────── */}
+            <div className="flex flex-wrap items-center gap-3">
+                {/* Search */}
+                <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2.5 flex-1 min-w-56 shadow-sm">
+                    {isFetching && !isLoading
+                        ? <Loader2 className="w-4 h-4 text-blue-500 animate-spin flex-shrink-0" />
+                        : <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    }
+                    <input
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search by title, type, location…"
+                        className="bg-transparent text-sm outline-none flex-1 text-gray-700 placeholder-gray-400"
+                    />
+                    {search && (
+                        <button onClick={() => setSearch("")} className="text-gray-300 hover:text-gray-500">
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
+                </div>
+
+                {/* Type */}
+                <select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-600 bg-white outline-none shadow-sm"
+                >
+                    <option value="">All Types</option>
+                    {EVENT_TYPES.map((t) => <option key={t}>{t}</option>)}
+                </select>
+
+                {/* Status */}
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-600 bg-white outline-none shadow-sm"
+                >
+                    <option value="">All Statuses</option>
+                    {EVENT_STATUSES.map((s) => <option key={s}>{s}</option>)}
+                </select>
+
+                {/* Clear */}
+                {isFiltered && (
+                    <button
+                        onClick={clearFilters}
+                        className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-gray-500 border border-dashed border-gray-300 rounded-xl hover:border-gray-400 transition-colors"
+                    >
+                        <X className="w-3.5 h-3.5" /> Clear filters
+                    </button>
+                )}
+
+                {/* Refresh */}
+                <button
+                    onClick={refetch}
+                    className="p-2.5 border border-gray-200 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
+                    title="Refresh"
+                >
+                    <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
+                </button>
+            </div>
+
+            {/* ── Table ────────────────────────────────────────────────────── */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                {/* Table header */}
+                <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+                    <p className="text-sm font-bold text-gray-700">
+                        {isLoading ? "Loading…" : `${events.length} event${events.length !== 1 ? "s" : ""}${isFiltered ? " (filtered)" : ""}`}
+                    </p>
+                    {isFetching && !isLoading && (
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" /> Refreshing
+                        </span>
+                    )}
+                </div>
+
+                {/* Error */}
+                {isError && !isLoading && (
+                    <div className="p-10 text-center">
+                        <AlertCircle className="w-10 h-10 text-red-300 mx-auto mb-3" />
+                        <p className="text-red-600 font-semibold text-sm mb-1">Failed to load events</p>
+                        <button onClick={refetch} className="text-sm text-blue-600 underline">Retry</button>
+                    </div>
+                )}
+
+                {/* Table */}
+                {!isError && (
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[860px]">
+                            <thead>
+                                <tr className="bg-gray-50/80 border-b border-gray-100">
+                                    {["Event", "Date", "Status", "Audience", "Payment", "Notified", ""].map((h) => (
+                                        <th key={h} className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">
+                                            {h}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isLoading
+                                    ? [...Array(6)].map((_, i) => <SkeletonRow key={i} />)
+                                    : events.length === 0
+                                    ? (
+                                        <tr>
+                                            <td colSpan={7} className="py-20 text-center">
+                                                <Calendar className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                                                <p className="text-gray-400 text-sm font-medium">
+                                                    {isFiltered ? "No events match your filters" : "No events yet"}
+                                                </p>
+                                                {!isFiltered && (
+                                                    <button
+                                                        onClick={() => setFormModal("create")}
+                                                        className="mt-3 text-sm text-blue-600 underline"
+                                                    >
+                                                        Create your first event
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    )
+                                    : events.map((event) => (
+                                        <EventRow
+                                            key={event.id}
+                                            event={event}
+                                            onView={setViewModal}
+                                            onEdit={setFormModal}
+                                            onDelete={setDeleteModal}
+                                            onNotify={handleNotify}
+                                            notifying={notifyingId === event.id}
+                                        />
+                                    ))
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
+
+            {/* ── Modals ───────────────────────────────────────────────────── */}
+
+            {/* Create / Edit form */}
+            {formModal && (
+                <EventFormModal
+                    initial={formModal === "create" ? null : formModal}
+                    onClose={() => setFormModal(null)}
+                    onSaved={handleFormSaved}
+                />
+            )}
+
+            {/* View detail */}
+            {viewModal && (
+                <ViewModal
+                    event={viewModal}
+                    onClose={() => setViewModal(null)}
+                    onEdit={(e) => { setViewModal(null); setFormModal(e); }}
+                    onNotify={handleNotify}
+                    notifying={notifyingId === viewModal.id}
+                />
+            )}
+
+            {/* Delete confirm */}
+            {deleteModal && (
+                <DeleteModal
+                    event={deleteModal}
+                    onClose={() => setDeleteModal(null)}
+                    onConfirm={handleDelete}
+                    loading={deleting}
+                />
+            )}
+        </div>
+    );
 }
