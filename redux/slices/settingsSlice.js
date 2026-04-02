@@ -4,62 +4,38 @@ import { axiosBaseQuery } from '../api/axiosBaseQuery';
 export const settingsApi = createApi({
     reducerPath: 'settingsApi',
     baseQuery: axiosBaseQuery(),
-    tagTypes: ['SchoolInfo', 'AcademicSettings', 'Notifications', 'Security'],
+    tagTypes: ['SchoolInfo', 'AcademicSettings', 'Notifications', 'Security', 'FeeStructure'],
     endpoints: (builder) => ({
 
         // ─── SCHOOL INFO ───────────────────────────────────────────────────────
 
-        // GET /settings/school
         getSchoolInfo: builder.query({
-            query: () => ({
-                url: '/settings/school',
-                method: 'GET',
-            }),
+            query: () => ({ url: '/settings/school', method: 'GET' }),
             providesTags: ['SchoolInfo'],
         }),
 
-        // PUT /settings/school
         updateSchoolInfo: builder.mutation({
-            query: (data) => ({
-                url: '/settings/school',
-                method: 'PUT',
-                data,
-            }),
+            query: (data) => ({ url: '/settings/school', method: 'PUT', data }),
             invalidatesTags: ['SchoolInfo'],
         }),
 
         // ─── ACADEMIC SETTINGS ─────────────────────────────────────────────────
 
-        // GET /settings/academic
         getAcademicSettings: builder.query({
-            query: () => ({
-                url: '/settings/academic',
-                method: 'GET',
-            }),
+            query: () => ({ url: '/settings/academic', method: 'GET' }),
             providesTags: ['AcademicSettings'],
         }),
 
-        // PATCH /settings/academic/session
         updateAcademicSession: builder.mutation({
-            query: (data) => ({
-                url: '/settings/academic/session',
-                method: 'PATCH',
-                data,
-            }),
+            query: (data) => ({ url: '/settings/academic/session', method: 'PATCH', data }),
             invalidatesTags: ['AcademicSettings'],
         }),
 
-        // POST /settings/academic/terms
         createTerm: builder.mutation({
-            query: (data) => ({
-                url: '/settings/academic/terms',
-                method: 'POST',
-                data,
-            }),
+            query: (data) => ({ url: '/settings/academic/terms', method: 'POST', data }),
             invalidatesTags: ['AcademicSettings'],
         }),
 
-        // PUT /settings/academic/terms/:id
         updateTerm: builder.mutation({
             query: ({ id, ...data }) => ({
                 url: `/settings/academic/terms/${id}`,
@@ -69,16 +45,11 @@ export const settingsApi = createApi({
             invalidatesTags: ['AcademicSettings'],
         }),
 
-        // DELETE /settings/academic/terms/:id
         deleteTerm: builder.mutation({
-            query: (id) => ({
-                url: `/settings/academic/terms/${id}`,
-                method: 'DELETE',
-            }),
+            query: (id) => ({ url: `/settings/academic/terms/${id}`, method: 'DELETE' }),
             invalidatesTags: ['AcademicSettings'],
         }),
 
-        // PATCH /settings/academic/terms/:id/set-current
         setCurrentTerm: builder.mutation({
             query: (id) => ({
                 url: `/settings/academic/terms/${id}/set-current`,
@@ -89,47 +60,28 @@ export const settingsApi = createApi({
 
         // ─── NOTIFICATIONS ─────────────────────────────────────────────────────
 
-        // GET /settings/notifications
         getNotificationSettings: builder.query({
-            query: () => ({
-                url: '/settings/notifications',
-                method: 'GET',
-            }),
+            query: () => ({ url: '/settings/notifications', method: 'GET' }),
             providesTags: ['Notifications'],
         }),
 
-        // PUT /settings/notifications
         updateNotificationSettings: builder.mutation({
-            query: (data) => ({
-                url: '/settings/notifications',
-                method: 'PUT',
-                data,
-            }),
+            query: (data) => ({ url: '/settings/notifications', method: 'PUT', data }),
             invalidatesTags: ['Notifications'],
         }),
 
         // ─── SECURITY ──────────────────────────────────────────────────────────
 
-        // GET /settings/security
         getSecuritySettings: builder.query({
-            query: () => ({
-                url: '/settings/security',
-                method: 'GET',
-            }),
+            query: () => ({ url: '/settings/security', method: 'GET' }),
             providesTags: ['Security'],
         }),
 
-        // PUT /settings/security
         updateSecuritySettings: builder.mutation({
-            query: (data) => ({
-                url: '/settings/security',
-                method: 'PUT',
-                data,
-            }),
+            query: (data) => ({ url: '/settings/security', method: 'PUT', data }),
             invalidatesTags: ['Security'],
         }),
 
-        // POST /settings/security/force-password-reset
         forcePasswordReset: builder.mutation({
             query: () => ({
                 url: '/settings/security/force-password-reset',
@@ -138,13 +90,35 @@ export const settingsApi = createApi({
             invalidatesTags: ['Security'],
         }),
 
-        // POST /settings/security/clear-sessions
         clearAllSessions: builder.mutation({
             query: () => ({
                 url: '/settings/security/clear-sessions',
                 method: 'POST',
             }),
             invalidatesTags: ['Security'],
+        }),
+
+        // ─── FEE STRUCTURE ─────────────────────────────────────────────────────
+
+        /**
+         * GET /settings/fees
+         * Returns the full fee structure for all 6 student categories.
+         * Each category has firstTerm / secondTerm / thirdTerm with an items array.
+         */
+        getFeeStructure: builder.query({
+            query: () => ({ url: '/settings/fees', method: 'GET' }),
+            providesTags: ['FeeStructure'],
+        }),
+
+        /**
+         * PUT /settings/fees
+         * Updates a single fee category.
+         * Body: { category, label?, firstTerm?, secondTerm?, thirdTerm? }
+         * OR full replacement: { feeStructure: { ... } }
+         */
+        updateFeeStructure: builder.mutation({
+            query: (data) => ({ url: '/settings/fees', method: 'PUT', data }),
+            invalidatesTags: ['FeeStructure'],
         }),
     }),
 });
@@ -164,4 +138,6 @@ export const {
     useUpdateSecuritySettingsMutation,
     useForcePasswordResetMutation,
     useClearAllSessionsMutation,
+    useGetFeeStructureQuery,
+    useUpdateFeeStructureMutation,
 } = settingsApi;

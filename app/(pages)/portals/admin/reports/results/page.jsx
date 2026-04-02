@@ -173,7 +173,7 @@ export default function AdminResultsPage() {
       await bulkSave({ class: cls, subject: selectedSubject, term, session, scores: payload }).unwrap();
       setLocalEdits({});
       setDirty(false);
-      toast.success(`Scores saved for ${cls} — ${selectedSubject}`);
+      toast.success(`Scores saved for ${cls}, ${selectedSubject}`);
     } catch (err) {
       toast.error(err?.data?.error || "Failed to save scores");
     }

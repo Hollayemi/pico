@@ -51,7 +51,7 @@ export default function AdminLayout({ children, menu, userRole, user }) {
         {/* Footer */}
         <footer className="px-6 py-4 border-t border-gray-100 bg-white">
           <p className="text-xs text-gray-400 text-center">
-            © {new Date().getFullYear()} Progress Intellectual School — Admin Portal
+            © {new Date().getFullYear()} PISO Admin Portal • Version 1.0.0 • Progress Intellectual School
           </p>
         </footer>
       </div>
