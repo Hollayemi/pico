@@ -2,9 +2,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  GraduationCap, BookOpen, Calendar, TrendingUp,
-  AlertCircle, CheckCircle, Clock, ChevronRight,
-  Users, Search, Activity, RefreshCw
+  GraduationCap, BookOpen, Activity,
+  AlertCircle, CheckCircle, ChevronRight,
+  Users, Search, RefreshCw, Loader2,
 } from "lucide-react";
 import { useGetMyChildrenQuery } from "@/redux/slices/parent/parentSlice";
 
@@ -13,7 +13,7 @@ const fmt = (n) => `₦${Number(n || 0).toLocaleString()}`;
 
 const age = (dob) => {
   if (!dob) return "—";
-  const d = new Date(dob);
+  const d   = new Date(dob);
   const now = new Date();
   return (
     now.getFullYear() -
@@ -22,8 +22,7 @@ const age = (dob) => {
   );
 };
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
+// ─── Fee status pill ──────────────────────────────────────────────────────────
 const FeeStatusPill = ({ status }) => {
   const map = {
     Paid:    "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -32,17 +31,22 @@ const FeeStatusPill = ({ status }) => {
     Unpaid:  "bg-red-100 text-red-600 border-red-200",
   };
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${map[status] || map.Unpaid}`}>
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+        map[status] || map.Unpaid
+      }`}
+    >
       {status || "Unpaid"}
     </span>
   );
 };
 
+// ─── Attendance ring ──────────────────────────────────────────────────────────
 const AttendanceRing = ({ pct, size = 56 }) => {
   const safePct = pct ?? 0;
-  const r = (size - 6) / 2;
-  const circ = 2 * Math.PI * r;
-  const color =
+  const r       = (size - 6) / 2;
+  const circ    = 2 * Math.PI * r;
+  const color   =
     safePct >= 85 ? "#0d9488" : safePct >= 70 ? "#d97706" : "#ef4444";
   return (
     <div className="relative flex-shrink-0" style={{ width: size, height: size }}>
@@ -66,19 +70,19 @@ const AttendanceRing = ({ pct, size = 56 }) => {
 
 // ─── Child Card ───────────────────────────────────────────────────────────────
 const ChildCard = ({ child }) => {
-  const initials = `${(child.firstName || "?")[0]}${(child.surname || "?")[0]}`;
-  const isJunior = child.level === "Junior";
+  const initials  = `${(child.firstName || "?")[0]}${(child.surname || "?")[0]}`;
+  const isJunior  = child.level === "Junior";
 
-  const feePaid  = child.fees?.paid  ?? 0;
-  const feeTotal = child.fees?.total ?? 0;
-  const feePct   = feeTotal > 0 ? Math.round((feePaid / feeTotal) * 100) : 0;
+  const feePaid   = child.fees?.paid    ?? 0;
+  const feeTotal  = child.fees?.total   ?? 0;
+  const feePct    = feeTotal > 0 ? Math.round((feePaid / feeTotal) * 100) : 0;
 
-  const attPct   = child.attendance?.pct ?? 0;
-  const lastAvg  = child.lastResult?.avg ?? null;
-  const position = child.lastResult?.position ?? null;
-  const classSize= child.lastResult?.classSize ?? null;
+  const attPct    = child.attendance?.pct ?? 0;
+  const lastAvg   = child.lastResult?.avg ?? null;
+  const position  = child.lastResult?.position ?? null;
+  const classSize = child.lastResult?.classSize ?? null;
 
-  const alerts   = child.alerts ?? [];
+  const alerts    = child.alerts ?? [];
 
   return (
     <Link
@@ -126,11 +130,13 @@ const ChildCard = ({ child }) => {
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3 mb-4">
+          {/* Attendance ring */}
           <div className="flex flex-col items-center gap-1.5">
             <AttendanceRing pct={attPct} size={52} />
             <p className="text-xs text-gray-400 font-medium text-center">Attendance</p>
           </div>
 
+          {/* Last average */}
           <div className="flex flex-col items-center justify-center bg-gray-50 rounded-xl p-2.5 text-center">
             {lastAvg !== null ? (
               <>
@@ -150,6 +156,7 @@ const ChildCard = ({ child }) => {
             )}
           </div>
 
+          {/* Age */}
           <div className="flex flex-col items-center justify-center bg-gray-50 rounded-xl p-2.5 text-center">
             <p className="text-xl font-black text-gray-900">{age(child.dateOfBirth)}</p>
             <p className="text-[10px] text-gray-400 leading-tight">Age</p>
@@ -184,7 +191,10 @@ const ChildCard = ({ child }) => {
 
         {/* Alerts */}
         {alerts.map((a, i) => (
-          <div key={i} className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-3">
+          <div
+            key={i}
+            className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-3"
+          >
             <AlertCircle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700">{a.text}</p>
           </div>
@@ -192,9 +202,7 @@ const ChildCard = ({ child }) => {
 
         {/* CTA */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-400 capitalize">
-            {child.status || "Active"}
-          </span>
+          <span className="text-xs text-gray-400 capitalize">{child.status || "Active"}</span>
           <span
             className={`flex items-center gap-1 text-xs font-bold transition-colors
               ${isJunior
@@ -218,15 +226,26 @@ const SummaryBar = ({ children }) => {
   const avgAttendance  = children.length
     ? Math.round(children.reduce((s, c) => s + (c.attendance?.pct ?? 0), 0) / children.length)
     : 0;
-  const alertCount     = children.reduce((s, c) => s + (c.alerts?.length ?? 0), 0);
+  const alertCount = children.reduce((s, c) => s + (c.alerts?.length ?? 0), 0);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       {[
-        { label: "Children Enrolled", value: children.length,        icon: Users,        color: "bg-teal-50 text-teal-600" },
-        { label: "Avg Attendance",    value: `${avgAttendance}%`,    icon: Activity,     color: "bg-indigo-50 text-indigo-600" },
-        { label: "Fees Paid",         value: fmt(totalFeesPaid),      icon: CheckCircle,  color: "bg-emerald-50 text-emerald-600", sub: `of ${fmt(totalFeesTotal)}` },
-        { label: "Active Alerts",     value: alertCount,              icon: AlertCircle,  color: alertCount > 0 ? "bg-amber-50 text-amber-600" : "bg-gray-50 text-gray-400" },
+        { label: "Children Enrolled", value: children.length, icon: Users, color: "bg-teal-50 text-teal-600" },
+        { label: "Avg Attendance",    value: `${avgAttendance}%`, icon: Activity, color: "bg-indigo-50 text-indigo-600" },
+        {
+          label: "Fees Paid",
+          value: fmt(totalFeesPaid),
+          icon: CheckCircle,
+          color: "bg-emerald-50 text-emerald-600",
+          sub: `of ${fmt(totalFeesTotal)}`,
+        },
+        {
+          label: "Active Alerts",
+          value: alertCount,
+          icon: AlertCircle,
+          color: alertCount > 0 ? "bg-amber-50 text-amber-600" : "bg-gray-50 text-gray-400",
+        },
       ].map((s) => (
         <div key={s.label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
@@ -243,7 +262,7 @@ const SummaryBar = ({ children }) => {
   );
 };
 
-// ─── Loading skeleton ─────────────────────────────────────────────────────────
+// ─── Skeleton ──────────────────────────────────────────────────────────────────
 const CardSkeleton = () => (
   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
     <div className="h-1.5 bg-gray-200" />
@@ -270,17 +289,17 @@ const CardSkeleton = () => (
 export default function AllChildrenPage() {
   const [search, setSearch] = useState("");
 
-  const { data, isLoading, isError, error, refetch, isFetching } =
-    useGetMyChildrenQuery();
+  const { data, isLoading, isError, error, refetch, isFetching } = useGetMyChildrenQuery();
 
-  // The service returns { children: [...] } wrapped in data by sendSuccess
+  // API wraps in { data: { children: [...] } }
   const children = data?.data?.children ?? [];
 
-  const filtered = children.filter((c) =>
-    !search ||
-    `${c.firstName} ${c.surname} ${c.id} ${c.class}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
+  const filtered = children.filter(
+    (c) =>
+      !search ||
+      `${c.firstName} ${c.surname} ${c.id} ${c.class}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
   );
 
   return (
@@ -310,7 +329,7 @@ export default function AllChildrenPage() {
         </div>
       </div>
 
-      {/* Error state */}
+      {/* Error */}
       {isError && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -319,22 +338,19 @@ export default function AllChildrenPage() {
             <p className="text-xs text-red-500 mt-0.5">
               {error?.message || "Please check your connection and try again."}
             </p>
-            <button
-              onClick={refetch}
-              className="mt-2 text-xs font-bold text-red-600 underline"
-            >
+            <button onClick={refetch} className="mt-2 text-xs font-bold text-red-600 underline">
               Retry
             </button>
           </div>
         </div>
       )}
 
-      {/* Summary stats — only if we have data */}
+      {/* Summary stats */}
       {!isLoading && !isError && children.length > 0 && (
         <SummaryBar children={children} />
       )}
 
-      {/* Search + count */}
+      {/* Search */}
       {!isLoading && children.length > 0 && (
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-2.5 flex-1 shadow-sm">
@@ -352,21 +368,25 @@ export default function AllChildrenPage() {
         </div>
       )}
 
-      {/* Loading skeleton */}
+      {/* Loading */}
       {isLoading && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {[0, 1, 2].map((i) => <CardSkeleton key={i} />)}
+          {[0, 1, 2].map((i) => (
+            <CardSkeleton key={i} />
+          ))}
         </div>
       )}
 
       {/* Cards */}
       {!isLoading && filtered.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {filtered.map((c) => <ChildCard key={c.id} child={c} />)}
+          {filtered.map((c) => (
+            <ChildCard key={c.id} child={c} />
+          ))}
         </div>
       )}
 
-      {/* Empty: no children linked */}
+      {/* Empty: no children */}
       {!isLoading && !isError && children.length === 0 && (
         <div className="bg-white rounded-2xl border border-gray-100 p-16 text-center shadow-sm">
           <GraduationCap className="w-10 h-10 text-gray-200 mx-auto mb-3" />

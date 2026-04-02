@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FileText, Download, Printer, Search, X, Eye, Send,
   CheckCircle, Clock, AlertCircle, ChevronLeft, ChevronRight,
@@ -12,13 +12,15 @@ import {
   useSendInvoiceToParentMutation,
 } from "@/redux/slices/financeSlice";
 import toast from "react-hot-toast";
+import { useGetAcademicSettingsQuery } from "@/redux/slices/settingsSlice";
+import AcademicSelectors from "./AcademySession";
 
 const fmt = (n) => `₦${Number(n || 0).toLocaleString()}`;
 
 const STATUS_STYLES = {
-  Paid:    "bg-green-100 text-green-700 border-green-200",
+  Paid: "bg-green-100 text-green-700 border-green-200",
   Partial: "bg-orange-100 text-orange-700 border-orange-200",
-  Unpaid:  "bg-red-100 text-red-700 border-red-200",
+  Unpaid: "bg-red-100 text-red-700 border-red-200",
 };
 
 // ─── Invoice Detail Modal ──────────────────────────────────────
@@ -151,8 +153,11 @@ const InvoiceModal = ({ invoiceId, onClose }) => {
 // ─── Main Invoices Page ─────────────────────────────────────────
 export default function InvoicesPage() {
   const [search, setSearch] = useState("");
+  const [sessions, setSessions] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
   const [viewInvoiceId, setViewInvoiceId] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState(null);
+  const [selectedSession, setSelectedSession] = useState(null);
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError, refetch, isFetching } = useGetAllInvoicesQuery({
@@ -162,8 +167,20 @@ export default function InvoicesPage() {
     status: statusFilter || undefined,
   });
 
+  const { data: academicData, isLoading: academicLoading, refetch: refetchAcademy } = useGetAcademicSettingsQuery();
   const [generateInvoices, { isLoading: isGenerating }] = useGenerateInvoicesMutation();
   const [sendInvoice, { isLoading: isSendingAll }] = useSendInvoiceToParentMutation();
+
+  useEffect(() => {
+    if (academicData?.data) {
+      setSessions(academicData.data.sessions || []);
+      if (academicData.data.currentSession && !selectedSession) {
+        setSelectedSession(academicData.data.currentSession);
+      }
+    }
+  }, [academicData]);
+
+  console.log({ sessions })
 
   const invoices = data?.data?.invoices || [];
   const stats = data?.data?.stats || {};
@@ -171,8 +188,12 @@ export default function InvoicesPage() {
   const totalPages = pagination.totalPages;
 
   const handleGenerateInvoices = async () => {
+    console.log({selectedTerm, selectedSession})
     try {
-      const result = await generateInvoices({}).unwrap();
+      const result = await generateInvoices({
+        term:selectedTerm?.name,
+        session: selectedSession?.name,
+      }).unwrap();
       toast.success(result?.message || "Invoices generated successfully");
       refetch();
     } catch (err) {
@@ -203,13 +224,21 @@ export default function InvoicesPage() {
         </button>
       </div>
 
+     <AcademicSelectors
+          sessions={sessions}
+          selectedSession={selectedSession}
+          setSelectedSession={setSelectedSession}
+          selectedTerm={selectedTerm}
+          setSelectedTerm={setSelectedTerm}
+        />
+
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Total Invoices", val: stats.total || 0,   icon: FileText,    color: "bg-gray-50 text-gray-600" },
-          { label: "Fully Paid",     val: stats.paid || 0,    icon: CheckCircle, color: "bg-green-50 text-green-600" },
-          { label: "Partial",        val: stats.partial || 0, icon: Clock,       color: "bg-orange-50 text-orange-600" },
-          { label: "Unpaid",         val: stats.unpaid || 0,  icon: AlertCircle, color: "bg-red-50 text-red-600" },
+          { label: "Total Invoices", val: stats.total || 0, icon: FileText, color: "bg-gray-50 text-gray-600" },
+          { label: "Fully Paid", val: stats.paid || 0, icon: CheckCircle, color: "bg-green-50 text-green-600" },
+          { label: "Partial", val: stats.partial || 0, icon: Clock, color: "bg-orange-50 text-orange-600" },
+          { label: "Unpaid", val: stats.unpaid || 0, icon: AlertCircle, color: "bg-red-50 text-red-600" },
         ].map(s => (
           <div key={s.label} className="bg-brand-600 rounded-xl border border-gray-100 p-4 flex items-center gap-3 shadow-sm">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${s.color}`}>

@@ -31,8 +31,27 @@ export const settingsApi = createApi({
             invalidatesTags: ['AcademicSettings'],
         }),
 
+        createSession: builder.mutation({
+            query: (data) => ({ url: '/settings/academic/session', method: 'POST', data }),
+            invalidatesTags: ['AcademicSettings'],
+        }),
+    
+        
+        deleteSession: builder.mutation({
+            query: (id) => ({ url: `/settings/academic/session/${id}`, method: 'DELETE' }),
+            invalidatesTags: ['AcademicSettings'],
+        }),
+
+        setCurrentSession: builder.mutation({
+            query: (id) => ({
+                url: `/settings/academic/sessions/${id}/set-current`,
+                method: 'PATCH',
+            }),
+            invalidatesTags: ['AcademicSettings'],
+        }),
+
         createTerm: builder.mutation({
-            query: (data) => ({ url: '/settings/academic/terms', method: 'POST', data }),
+            query: (data) => ({ url: `/settings/academic/sessions/${data.sessionId}/terms`, method: 'POST', data }),
             invalidatesTags: ['AcademicSettings'],
         }),
 
@@ -128,6 +147,9 @@ export const {
     useUpdateSchoolInfoMutation,
     useGetAcademicSettingsQuery,
     useUpdateAcademicSessionMutation,
+    useCreateSessionMutation,
+    useDeleteSessionMutation,
+    useSetCurrentSessionMutation,
     useCreateTermMutation,
     useUpdateTermMutation,
     useDeleteTermMutation,

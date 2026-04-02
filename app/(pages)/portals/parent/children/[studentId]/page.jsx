@@ -2,11 +2,11 @@
 import { use, useState } from "react";
 import Link from "next/link";
 import {
-  ChevronLeft, GraduationCap, Calendar, Activity,
-  Heart, FileText, BookOpen, Phone, Mail,
-  CheckCircle, AlertCircle, Clock, TrendingUp,
+  ChevronLeft, GraduationCap, Activity,
+  Heart, FileText, BookOpen,
+  CheckCircle, AlertCircle, TrendingUp,
   TrendingDown, Minus, Users, Bus, Award,
-  ChevronRight, BarChart3, RefreshCw, Loader2
+  ChevronRight, BarChart3, RefreshCw, Loader2,
 } from "lucide-react";
 import { useGetChildProfileQuery } from "@/redux/slices/parent/parentSlice";
 
@@ -15,7 +15,7 @@ const fmt = (n) => `₦${Number(n || 0).toLocaleString()}`;
 
 const age = (dob) => {
   if (!dob) return "—";
-  const d = new Date(dob);
+  const d   = new Date(dob);
   const now = new Date();
   return (
     now.getFullYear() -
@@ -36,7 +36,6 @@ const fmtDate = (d, style = "long") => {
 const GRADE_COLORS = {
   A1: "bg-emerald-100 text-emerald-700",
   A2: "bg-emerald-100 text-emerald-700",
-  A3: "bg-teal-100 text-teal-700",
   B2: "bg-blue-100 text-blue-700",
   B3: "bg-blue-100 text-blue-700",
   C4: "bg-amber-100 text-amber-700",
@@ -48,7 +47,6 @@ const GRADE_COLORS = {
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
 const ScoreTrend = ({ prev, curr }) => {
   if (prev == null || curr == null) return null;
   const diff = curr - prev;
@@ -115,7 +113,7 @@ const TabBtn = ({ active, onClick, children }) => (
   </button>
 );
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
+// ─── Skeleton ──────────────────────────────────────────────────────────────────
 const ProfileSkeleton = () => (
   <div className="space-y-5 pb-10 animate-pulse">
     <div className="h-4 bg-gray-200 rounded w-24" />
@@ -135,13 +133,15 @@ const ProfileSkeleton = () => (
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ChildProfilePage({ params }) {
-  const {studentId} = use(params);
+  const { studentId } = use(params);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const { data, isLoading, isError, error, refetch, isFetching } =
-    useGetChildProfileQuery({ studentId }, { skip: !studentId });
+  const { data, isLoading, isError, error, refetch, isFetching } = useGetChildProfileQuery(
+    { studentId },
+    { skip: !studentId }
+  );
 
-  // The service wraps in { data: { child: {...} } }
+  // API shape: { data: { child: {...} } }
   const child = data?.data?.child;
 
   if (isLoading) return <ProfileSkeleton />;
@@ -164,10 +164,7 @@ export default function ChildProfilePage({ params }) {
               ? "Student not found."
               : "Failed to load child profile. Please try again."}
           </p>
-          <button
-            onClick={refetch}
-            className="mt-4 text-xs font-bold text-red-600 underline"
-          >
+          <button onClick={refetch} className="mt-4 text-xs font-bold text-red-600 underline">
             Retry
           </button>
         </div>
@@ -177,12 +174,12 @@ export default function ChildProfilePage({ params }) {
 
   if (!child) return null;
 
-  // ── Derived values ──────────────────────────────────────────────────────────
-  const results       = child.results ?? [];
-  const latestResult  = results[0] ?? null;
-  const prevResult    = results[1] ?? null;
+  // ── Derived ────────────────────────────────────────────────────────────────
+  const results      = child.results ?? [];
+  const latestResult = results[0]    ?? null;
+  const prevResult   = results[1]    ?? null;
 
-  const feePct  = child.fees?.total > 0
+  const feePct = child.fees?.total > 0
     ? Math.round((child.fees.paid / child.fees.total) * 100)
     : 0;
 
@@ -208,7 +205,7 @@ export default function ChildProfilePage({ params }) {
         </button>
       </div>
 
-      {/* Profile Hero */}
+      {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-br from-teal-700 via-teal-600 to-teal-500 rounded-2xl p-6 shadow-lg">
         <div className="absolute -top-8 -right-8 w-48 h-48 rounded-full bg-white/5" />
         <div className="absolute -bottom-12 -right-4 w-64 h-64 rounded-full bg-white/5" />
@@ -217,6 +214,7 @@ export default function ChildProfilePage({ params }) {
           <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-xl flex-shrink-0 bg-white/20 backdrop-blur-sm border-2 border-white/30">
             {(child.firstName || "?")[0]}{(child.surname || "?")[0]}
           </div>
+
           {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start gap-3 flex-wrap">
@@ -234,23 +232,16 @@ export default function ChildProfilePage({ params }) {
               </span>
             </div>
             <div className="flex flex-wrap gap-3 mt-3">
-              {[
-                child.class,
-                child.schoolingOption,
-                `${age(child.dateOfBirth)} yrs old`,
-                child.gender,
-              ]
+              {[child.class, child.schoolingOption, `${age(child.dateOfBirth)} yrs old`, child.gender]
                 .filter(Boolean)
                 .map((v) => (
-                  <span
-                    key={v}
-                    className="bg-white/15 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-lg capitalize"
-                  >
+                  <span key={v} className="bg-white/15 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-lg capitalize">
                     {v}
                   </span>
                 ))}
             </div>
           </div>
+
           {/* Quick stats */}
           <div className="flex gap-3 flex-shrink-0 flex-wrap">
             {[
@@ -270,10 +261,7 @@ export default function ChildProfilePage({ params }) {
                     : "—",
               },
             ].map((s) => (
-              <div
-                key={s.label}
-                className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5 text-white min-w-[80px] text-center"
-              >
+              <div key={s.label} className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-2.5 text-white min-w-[80px] text-center">
                 <p className="text-xs text-teal-100 mb-0.5">{s.label}</p>
                 <p className="text-lg font-black">{s.value}</p>
               </div>
@@ -285,10 +273,10 @@ export default function ChildProfilePage({ params }) {
       {/* Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {[
-          { id: "overview",   label: "Overview" },
-          { id: "results",    label: "Results" },
-          { id: "attendance", label: "Attendance" },
-          { id: "finance",    label: "Finance" },
+          { id: "overview",   label: "Overview"     },
+          { id: "results",    label: "Results"      },
+          { id: "attendance", label: "Attendance"   },
+          { id: "finance",    label: "Finance"      },
           { id: "profile",    label: "Full Profile" },
         ].map((t) => (
           <TabBtn key={t.id} active={activeTab === t.id} onClick={() => setActiveTab(t.id)}>
@@ -297,9 +285,10 @@ export default function ChildProfilePage({ params }) {
         ))}
       </div>
 
-      {/* ── OVERVIEW TAB ── */}
+      {/* ── OVERVIEW ── */}
       {activeTab === "overview" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
           {/* Academic Snapshot */}
           <SectionCard icon={BarChart3} title="Academic Snapshot" color="text-indigo-600 bg-indigo-50">
             {latestResult ? (
@@ -313,9 +302,7 @@ export default function ChildProfilePage({ params }) {
                     <p className="text-xs text-indigo-600 mt-1">{latestResult.term}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-black text-indigo-700">
-                      #{latestResult.position}
-                    </p>
+                    <p className="text-2xl font-black text-indigo-700">#{latestResult.position}</p>
                     <p className="text-xs text-indigo-400">of {latestResult.classSize} students</p>
                     {prevResult && (
                       <div className="mt-1">
@@ -324,10 +311,11 @@ export default function ChildProfilePage({ params }) {
                     )}
                   </div>
                 </div>
+
                 <div className="space-y-2">
-                  {latestResult.subjects.slice(0, 5).map((sub, i) => {
-                    const prevSub = prevResult?.subjects?.find((s) => s.name === sub.name);
-                    const score = sub.score ?? sub.totalScore ?? sub.cumulativeAvg ?? 0;
+                  {(latestResult.subjects || []).slice(0, 5).map((sub, i) => {
+                    const score     = sub.score ?? sub.totalScore ?? sub.cumulativeAvg ?? 0;
+                    const prevSub   = prevResult?.subjects?.find((s) => s.name === sub.name);
                     const prevScore = prevSub ? (prevSub.score ?? prevSub.totalScore ?? 0) : undefined;
                     return (
                       <div key={i} className="flex items-center gap-3">
@@ -339,11 +327,7 @@ export default function ChildProfilePage({ params }) {
                           />
                         </div>
                         <span className="text-xs font-bold text-gray-700 w-8 text-right">{score}</span>
-                        <span
-                          className={`text-xs font-bold px-1.5 py-0.5 rounded-md w-8 text-center ${
-                            GRADE_COLORS[sub.grade] || "bg-gray-100 text-gray-500"
-                          }`}
-                        >
+                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded-md w-8 text-center ${GRADE_COLORS[sub.grade] || "bg-gray-100 text-gray-500"}`}>
                           {sub.grade}
                         </span>
                         <ScoreTrend prev={prevScore} curr={score} />
@@ -351,6 +335,7 @@ export default function ChildProfilePage({ params }) {
                     );
                   })}
                 </div>
+
                 <button
                   onClick={() => setActiveTab("results")}
                   className="w-full py-2 text-xs text-teal-600 font-semibold hover:bg-teal-50 rounded-lg transition-colors flex items-center justify-center gap-1"
@@ -377,24 +362,18 @@ export default function ChildProfilePage({ params }) {
                       <circle
                         cx={40} cy={40} r={34} fill="none"
                         stroke={
-                          child.attendance.pct >= 85
-                            ? "#0d9488"
-                            : child.attendance.pct >= 70
-                            ? "#d97706"
-                            : "#ef4444"
+                          child.attendance.pct >= 85 ? "#0d9488"
+                          : child.attendance.pct >= 70 ? "#d97706"
+                          : "#ef4444"
                         }
                         strokeWidth={8}
                         strokeDasharray={2 * Math.PI * 34}
-                        strokeDashoffset={
-                          2 * Math.PI * 34 * (1 - child.attendance.pct / 100)
-                        }
+                        strokeDashoffset={2 * Math.PI * 34 * (1 - child.attendance.pct / 100)}
                         strokeLinecap="round"
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-black text-gray-800">
-                        {child.attendance.pct}%
-                      </span>
+                      <span className="text-sm font-black text-gray-800">{child.attendance.pct}%</span>
                     </div>
                   </div>
                   <div className="flex-1 space-y-2">
@@ -435,9 +414,7 @@ export default function ChildProfilePage({ params }) {
                   </div>
                   <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${
-                        feePct >= 100 ? "bg-emerald-500" : feePct >= 60 ? "bg-teal-500" : "bg-amber-400"
-                      }`}
+                      className={`h-full rounded-full ${feePct >= 100 ? "bg-emerald-500" : feePct >= 60 ? "bg-teal-500" : "bg-amber-400"}`}
                       style={{ width: `${Math.min(feePct, 100)}%` }}
                     />
                   </div>
@@ -493,18 +470,12 @@ export default function ChildProfilePage({ params }) {
             </div>
             {child.health?.vaccinations && Object.keys(child.health.vaccinations).length > 0 && (
               <div className="mt-4">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  Vaccinations
-                </p>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Vaccinations</p>
                 <div className="flex flex-wrap gap-1.5">
                   {Object.entries(child.health.vaccinations).map(([vac, done]) => (
                     <span
                       key={vac}
-                      className={`text-xs px-2 py-1 rounded-lg font-medium ${
-                        done
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-gray-100 text-gray-400 line-through"
-                      }`}
+                      className={`text-xs px-2 py-1 rounded-lg font-medium ${done ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-400 line-through"}`}
                     >
                       {vac.charAt(0).toUpperCase() + vac.slice(1)}
                     </span>
@@ -516,7 +487,7 @@ export default function ChildProfilePage({ params }) {
         </div>
       )}
 
-      {/* ── RESULTS TAB ── */}
+      {/* ── RESULTS ── */}
       {activeTab === "results" && (
         <div className="space-y-5">
           {results.length === 0 ? (
@@ -530,9 +501,12 @@ export default function ChildProfilePage({ params }) {
               const prev = results[ri + 1] ?? null;
               return (
                 <div key={ri} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                  {/* Card header */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gray-50/60">
                     <div>
-                      <p className="font-bold text-gray-800 text-sm">{result.term} {result.session}</p>
+                      <p className="font-bold text-gray-800 text-sm">
+                        {result.term} {result.session}
+                      </p>
                       <p className="text-xs text-gray-400">{result.subjects?.length ?? 0} subjects</p>
                     </div>
                     <div className="text-right">
@@ -544,11 +518,13 @@ export default function ChildProfilePage({ params }) {
                       )}
                     </div>
                   </div>
+
+                  {/* Subject bars */}
                   <div className="p-5">
                     <div className="space-y-3">
                       {(result.subjects ?? []).map((sub, si) => {
-                        const prevSub = prev?.subjects?.find((s) => s.name === sub.name);
                         const score     = sub.score ?? sub.totalScore ?? sub.cumulativeAvg ?? 0;
+                        const prevSub   = prev?.subjects?.find((s) => s.name === sub.name);
                         const prevScore = prevSub ? (prevSub.score ?? prevSub.totalScore ?? 0) : undefined;
                         return (
                           <div key={si} className="flex items-center gap-3">
@@ -558,23 +534,16 @@ export default function ChildProfilePage({ params }) {
                             <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
                               <div
                                 className={`h-full rounded-full transition-all duration-700 ${
-                                  score >= 75
-                                    ? "bg-teal-500"
-                                    : score >= 60
-                                    ? "bg-blue-400"
-                                    : score >= 50
-                                    ? "bg-amber-400"
-                                    : "bg-red-400"
+                                  score >= 75 ? "bg-teal-500"
+                                  : score >= 60 ? "bg-blue-400"
+                                  : score >= 50 ? "bg-amber-400"
+                                  : "bg-red-400"
                                 }`}
                                 style={{ width: `${Math.min(score, 100)}%` }}
                               />
                             </div>
                             <span className="text-sm font-bold text-gray-800 w-8 text-right">{score}</span>
-                            <span
-                              className={`text-xs font-bold px-2 py-0.5 rounded-lg w-10 text-center ${
-                                GRADE_COLORS[sub.grade] || "bg-gray-100 text-gray-500"
-                              }`}
-                            >
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-lg w-10 text-center ${GRADE_COLORS[sub.grade] || "bg-gray-100 text-gray-500"}`}>
                               {sub.grade}
                             </span>
                             <div className="w-14 flex justify-end">
@@ -584,12 +553,32 @@ export default function ChildProfilePage({ params }) {
                         );
                       })}
                     </div>
-                    {result.principalRemark && (
-                      <div className="mt-4 p-3 bg-gray-50 rounded-xl">
-                        <p className="text-xs text-gray-400 font-semibold mb-1">Principal's Remark</p>
-                        <p className="text-xs text-gray-600 italic">"{result.principalRemark}"</p>
+
+                    {/* Comments */}
+                    {(result.principalRemark || result.teacherRemark) && (
+                      <div className="mt-4 space-y-2">
+                        {result.teacherRemark && (
+                          <div className="p-3 bg-teal-50 rounded-xl">
+                            <p className="text-xs text-teal-600 font-semibold mb-1">Class Teacher</p>
+                            <p className="text-xs text-teal-800 italic">"{result.teacherRemark}"</p>
+                          </div>
+                        )}
+                        {result.principalRemark && (
+                          <div className="p-3 bg-gray-50 rounded-xl">
+                            <p className="text-xs text-gray-400 font-semibold mb-1">Principal's Remark</p>
+                            <p className="text-xs text-gray-600 italic">"{result.principalRemark}"</p>
+                          </div>
+                        )}
                       </div>
                     )}
+
+                    {/* Link to detailed report card */}
+                    <Link
+                      href={`/portals/parent/academics/results?child=${child.id}`}
+                      className="mt-4 w-full flex items-center justify-center gap-1.5 py-2 bg-teal-50 border border-teal-200 text-teal-700 rounded-xl text-xs font-bold hover:bg-teal-100 transition-colors"
+                    >
+                      View Full Report Card <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
                   </div>
                 </div>
               );
@@ -598,7 +587,7 @@ export default function ChildProfilePage({ params }) {
         </div>
       )}
 
-      {/* ── ATTENDANCE TAB ── */}
+      {/* ── ATTENDANCE ── */}
       {activeTab === "attendance" && (
         <div className="space-y-5">
           <SectionCard icon={Activity} title="This Term's Attendance">
@@ -620,26 +609,20 @@ export default function ChildProfilePage({ params }) {
                 <div className="bg-gray-50 rounded-xl p-5">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-bold text-gray-700">Overall Attendance Rate</p>
-                    <p
-                      className={`text-2xl font-black ${
-                        child.attendance.pct >= 85
-                          ? "text-teal-700"
-                          : child.attendance.pct >= 70
-                          ? "text-amber-600"
-                          : "text-red-600"
-                      }`}
-                    >
+                    <p className={`text-2xl font-black ${
+                      child.attendance.pct >= 85 ? "text-teal-700"
+                      : child.attendance.pct >= 70 ? "text-amber-600"
+                      : "text-red-600"
+                    }`}>
                       {child.attendance.pct}%
                     </p>
                   </div>
                   <div className="h-4 bg-white rounded-full overflow-hidden border border-gray-200">
                     <div
                       className={`h-full rounded-full ${
-                        child.attendance.pct >= 85
-                          ? "bg-teal-500"
-                          : child.attendance.pct >= 70
-                          ? "bg-amber-400"
-                          : "bg-red-400"
+                        child.attendance.pct >= 85 ? "bg-teal-500"
+                        : child.attendance.pct >= 70 ? "bg-amber-400"
+                        : "bg-red-400"
                       }`}
                       style={{ width: `${child.attendance.pct}%` }}
                     />
@@ -663,7 +646,7 @@ export default function ChildProfilePage({ params }) {
         </div>
       )}
 
-      {/* ── FINANCE TAB ── */}
+      {/* ── FINANCE ── */}
       {activeTab === "finance" && (
         <div className="space-y-5">
           <SectionCard icon={FileText} title="Fee Breakdown">
@@ -671,17 +654,9 @@ export default function ChildProfilePage({ params }) {
               <div className="space-y-4">
                 <div className="bg-gray-50 rounded-xl p-4">
                   <div className="flex justify-between mb-3">
-                    <span className="text-sm font-semibold text-gray-600">
-                      Progress ({feePct}%)
-                    </span>
-                    <span
-                      className={`text-sm font-bold ${
-                        child.fees.balance > 0 ? "text-amber-600" : "text-emerald-600"
-                      }`}
-                    >
-                      {child.fees.balance > 0
-                        ? `${fmt(child.fees.balance)} outstanding`
-                        : "Fully paid"}
+                    <span className="text-sm font-semibold text-gray-600">Progress ({feePct}%)</span>
+                    <span className={`text-sm font-bold ${child.fees.balance > 0 ? "text-amber-600" : "text-emerald-600"}`}>
+                      {child.fees.balance > 0 ? `${fmt(child.fees.balance)} outstanding` : "Fully paid"}
                     </span>
                   </div>
                   <div className="h-4 bg-white rounded-full overflow-hidden border border-gray-200">
@@ -736,7 +711,7 @@ export default function ChildProfilePage({ params }) {
               </div>
             ) : (
               <div className="text-center py-8">
-                <Clock className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                <FileText className="w-8 h-8 text-gray-200 mx-auto mb-2" />
                 <p className="text-xs text-gray-400">No payments recorded yet</p>
               </div>
             )}
@@ -744,10 +719,11 @@ export default function ChildProfilePage({ params }) {
         </div>
       )}
 
-      {/* ── FULL PROFILE TAB ── */}
+      {/* ── FULL PROFILE ── */}
       {activeTab === "profile" && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Personal Info */}
+
+          {/* Personal */}
           <SectionCard icon={GraduationCap} title="Personal Information">
             <div>
               <InfoRow label="Full Name"     value={`${child.surname} ${child.firstName} ${child.middleName || ""}`} />
@@ -815,30 +791,24 @@ export default function ChildProfilePage({ params }) {
           <SectionCard icon={FileText} title="Submitted Documents" color="text-teal-600 bg-teal-50">
             <div className="space-y-2">
               {[
-                { key: "birthCertificate",       label: "Birth Certificate",         required: true },
-                { key: "formerSchoolReport",      label: "Former School Report",      required: true },
-                { key: "proofOfPayment",          label: "Proof of Payment",          required: true },
-                { key: "immunizationCertificate", label: "Immunization Certificate",  required: false },
-                { key: "medicalReport",           label: "Medical Report",            required: false },
+                { key: "birthCertificate",       label: "Birth Certificate",        required: true  },
+                { key: "formerSchoolReport",      label: "Former School Report",     required: true  },
+                { key: "proofOfPayment",          label: "Proof of Payment",         required: true  },
+                { key: "immunizationCertificate", label: "Immunization Certificate", required: false },
+                { key: "medicalReport",           label: "Medical Report",           required: false },
               ].map((doc) => {
                 const submitted = child.documents?.[doc.key];
                 return (
                   <div
                     key={doc.key}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${
-                      submitted ? "bg-emerald-50" : "bg-gray-50"
-                    }`}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${submitted ? "bg-emerald-50" : "bg-gray-50"}`}
                   >
                     {submitted ? (
                       <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                     ) : (
                       <AlertCircle className="w-4 h-4 text-gray-300 flex-shrink-0" />
                     )}
-                    <span
-                      className={`text-sm font-medium ${
-                        submitted ? "text-emerald-800" : "text-gray-400"
-                      }`}
-                    >
+                    <span className={`text-sm font-medium ${submitted ? "text-emerald-800" : "text-gray-400"}`}>
                       {doc.label}
                     </span>
                     {doc.required && !submitted && (
