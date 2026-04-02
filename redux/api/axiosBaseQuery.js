@@ -7,12 +7,19 @@ export const server = process.env.NODE_ENV === "production"
 
 
 
-const getAuthHeaders = async (by = "user") => {
+const getAuthHeaders = async (isFormData) => {
     const token = localStorage.getItem("token") || "";
-    return {
-        'Content-Type': 'application/json',
-        ...({ Authorization: `Bearer ${token}` }),
+    const headers = {
+        Authorization: `Bearer ${token}`,
     };
+
+    // Only add Content-Type for non-FormData requests
+    // For FormData, let the browser set it automatically with the boundary
+    if (!isFormData) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    return headers;
 };
 
 const showSuccessToast = (data) => {
@@ -27,6 +34,7 @@ export const axiosBaseQuery = (tokenOwner) => async (requestConfig) => {
     const {
         url,
         method = 'GET',
+        isFormData = false,
         data,
         actor,
         params,
@@ -35,9 +43,11 @@ export const axiosBaseQuery = (tokenOwner) => async (requestConfig) => {
 
     } = requestConfig;
 
+    console.log({ data })
+
     try {
         // Build headers
-        const authHeaders = await getAuthHeaders(tokenOwner || actor || "user");
+        const authHeaders = await getAuthHeaders(isFormData);
         const mergedHeaders = { ...authHeaders, ...headers };
 
         console.log({ data })
@@ -51,11 +61,17 @@ export const axiosBaseQuery = (tokenOwner) => async (requestConfig) => {
             });
         }
 
-        const response = await fetch(fullUrl.toString(), {
-            method,
-            headers: mergedHeaders,
-            body: data ? JSON.stringify(data) : undefined,
-        });
+        let body;
+        if (isFormData) {
+            body = data; // data is already FormData, don't modify it
+        } else if (data) {
+            body = JSON.stringify(data);
+        }
+            const response = await fetch(fullUrl.toString(), {
+                method,
+                headers: mergedHeaders,
+                body
+            });
 
         // Parse response
         let responseData;
