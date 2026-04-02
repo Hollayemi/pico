@@ -14,6 +14,7 @@ import { eventsApi }                     from './slices/eventsSlice';          /
 import { parentAdmissionsApi }           from './slices/parent/parentAdmissionsSlice';
 import { reportCardApi }       from './slices/reportCardSlice';
 import { parentReportCardApi } from './slices/parent/parentReportCardSlice';
+import { parentApi } from './slices/parent/parentSlice';
 
 export const store = configureStore({
     reducer: {
@@ -33,6 +34,7 @@ export const store = configureStore({
         [parentAdmissionsApi.reducerPath]: parentAdmissionsApi.reducer,
         [reportCardApi.reducerPath]:       reportCardApi.reducer,
         [parentReportCardApi.reducerPath]: parentReportCardApi.reducer,
+        [parentApi.reducerPath]: parentApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -55,5 +57,6 @@ export const store = configureStore({
             .concat(eventsApi.middleware)                      
             .concat(reportCardApi.middleware)
             .concat(parentReportCardApi.middleware)         
-            .concat(parentAdmissionsApi.middleware),
+            .concat(parentAdmissionsApi.middleware)
+            .concat(parentApi.middleware),
 });
