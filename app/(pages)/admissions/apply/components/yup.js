@@ -22,7 +22,7 @@ export const stage2Schema = Yup.object().shape({
         homeAddress: Yup.string().required("Father's home address is required"),
         homePhone: Yup.string().required("Father's home phone is required"),
         whatsApp: Yup.string(),
-        email: Yup.string().email('Invalid email').required("Father's email is required")
+        // email: Yup.string().email('Invalid email').required("Father's email is required")
     }),
     mother: Yup.object().shape({
         name: Yup.string().required("Mother's name is required"),
@@ -31,7 +31,7 @@ export const stage2Schema = Yup.object().shape({
         homeAddress: Yup.string().required("Mother's home address is required"),
         homePhone: Yup.string().required("Mother's home phone is required"),
         whatsApp: Yup.string(),
-        email: Yup.string().email('Invalid email').required("Mother's email is required")
+        // email: Yup.string().email('Invalid email').required("Mother's email is required")
     })
 });
 

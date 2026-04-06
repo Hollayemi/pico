@@ -6,9 +6,6 @@ export const academicsApi = createApi({
     baseQuery: axiosBaseQuery(),
     tagTypes: ['Class', 'Subject', 'Timetable'],
     endpoints: (builder) => ({
-
-        // ─── CLASSES ───────────────────────────────────────────────────────────
-
         // GET /academics/classes
         getAllClasses: builder.query({
             query: ({ search, level, group } = {}) => ({

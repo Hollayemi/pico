@@ -6,12 +6,12 @@ import { Section, SaveBtn } from "./SharedComponents";
 import toast from "react-hot-toast";
 
 const CATEGORY_META = {
-  primaryDay:      { label: 'Primary (Day)',                   color: 'bg-blue-50 text-blue-700 border-blue-200',   icon: '📚', desc: 'KG / Nursery / Primary day students' },
-  primaryBoarders: { label: 'Primary (Boarders)',              color: 'bg-indigo-50 text-indigo-700 border-indigo-200', icon: '🏠', desc: 'KG / Nursery / Primary boarding students' },
-  juniorDay:       { label: 'Junior Secondary (Day)',          color: 'bg-green-50 text-green-700 border-green-200',  icon: '📖', desc: 'JSS 1–3 day students' },
-  juniorBoarders:  { label: 'Junior Secondary (Boarders)',     color: 'bg-teal-50 text-teal-700 border-teal-200',   icon: '🏘️', desc: 'JSS 1–3 boarding students' },
-  seniorDay:       { label: 'Senior Secondary (Day)',          color: 'bg-orange-50 text-orange-700 border-orange-200', icon: '🎓', desc: 'SS 1–3 day students' },
-  seniorBoarders:  { label: 'Senior Secondary (Boarders)',     color: 'bg-rose-50 text-rose-700 border-rose-200',   icon: '🏫', desc: 'SS 1–3 boarding students' },
+  primaryDay:      { label: 'Primary (Day)',                   color: 'bg-blue-50 text-blue-700 border-blue-200',   icon: '', desc: 'KG / Nursery / Primary day students' },
+  primaryBoarders: { label: 'Primary (Boarders)',              color: 'bg-indigo-50 text-indigo-700 border-indigo-200', icon: '', desc: 'KG / Nursery / Primary boarding students' },
+  juniorDay:       { label: 'Junior Secondary (Day)',          color: 'bg-green-50 text-green-700 border-green-200',  icon: '', desc: 'JSS 1–3 day students' },
+  juniorBoarders:  { label: 'Junior Secondary (Boarders)',     color: 'bg-teal-50 text-teal-700 border-teal-200',   icon: '', desc: 'JSS 1–3 boarding students' },
+  seniorDay:       { label: 'Senior Secondary (Day)',          color: 'bg-orange-50 text-orange-700 border-orange-200', icon: '', desc: 'SS 1–3 day students' },
+  seniorBoarders:  { label: 'Senior Secondary (Boarders)',     color: 'bg-rose-50 text-rose-700 border-rose-200',   icon: '', desc: 'SS 1–3 boarding students' },
 };
 
 const TERM_KEYS = ['firstTerm', 'secondTerm', 'thirdTerm'];

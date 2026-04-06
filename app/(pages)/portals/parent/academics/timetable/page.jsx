@@ -6,12 +6,10 @@ import {
 } from "lucide-react";
 import { useGetTimetableQuery } from "@/redux/slices/academicsSlice";
 import { useGetAllSubjectsQuery } from "@/redux/slices/academicsSlice";
+import { useGetMyChildrenQuery } from "@/redux/slices/parent/parentSlice";
 
-// ─── Mock children (same as all-children page) ────────────────────
-const MY_CHILDREN = [
-  { id: "STU-2024-0081", name: "Chisom Adeyemi",    class: "SS 2 Science", level: "Senior" },
-  { id: "STU-2024-0112", name: "Toluwalase Adeyemi", class: "JSS 1A",       level: "Junior" },
-];
+
+
 
 // ─── Mirror exact constants from admin timetable ──────────────────
 const DAYS      = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -63,7 +61,7 @@ const todayDayName = () => {
 const ChildSelector = ({ children, selected, onSelect }) => (
   <div className="flex items-center gap-2 flex-wrap">
     <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide mr-1">Child:</span>
-    {children.map(c => (
+    {children?.map(c => (
       <button
         key={c.id}
         onClick={() => onSelect(c)}
@@ -189,9 +187,20 @@ const SubjectLegend = ({ timetable, subjectList }) => {
 
 // ─── Main Page ────────────────────────────────────────────────────
 export default function ParentTimetablePage() {
-  const [selectedChild, setSelectedChild] = useState(MY_CHILDREN[0]);
   const [view, setView]                   = useState("grid"); // "grid" | "mobile"
 
+   const {
+    data: childrenData,
+    isLoading: childrenLoading,
+    error: childrenError,
+    refetch: refetchChildren,
+  } = useGetMyChildrenQuery();
+
+const MY_CHILDREN = childrenData?.data?.children?.map((e) => (
+  { id: e.studentId, name: `${e.firstName} ${e.middleName}`,    class: e.class}),
+);
+  
+  const [selectedChild, setSelectedChild] = useState(MY_CHILDREN?.[0] || []);
   const { data, isLoading, error, refetch } = useGetTimetableQuery(
     { className: selectedChild.class },
     { skip: !selectedChild.class }

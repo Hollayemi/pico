@@ -61,7 +61,7 @@ const RenderStage2 = ({ formData, renderErrorMessage, handleInputChange, errors 
                 </div>
 
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Home Phone <span className="text-red-500">*</span>
@@ -88,7 +88,7 @@ const RenderStage2 = ({ formData, renderErrorMessage, handleInputChange, errors 
                         />
                     </div>
 
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             E-mail Address <span className="text-red-500">*</span>
                         </label>
@@ -101,7 +101,7 @@ const RenderStage2 = ({ formData, renderErrorMessage, handleInputChange, errors 
                                 }`}
                         />
                         {renderErrorMessage('father.email')}
-                    </div>
+                    </div> */}
 
                 </div>
             </div>
@@ -176,7 +176,7 @@ const RenderStage2 = ({ formData, renderErrorMessage, handleInputChange, errors 
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Home Phone <span className="text-red-500">*</span>
@@ -205,7 +205,7 @@ const RenderStage2 = ({ formData, renderErrorMessage, handleInputChange, errors 
                             className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder-gray-400"
                         />
                     </div>
-                    <div>
+                    {/* <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             E-mail Address <span className="text-red-500">*</span>
                         </label>
@@ -222,7 +222,7 @@ const RenderStage2 = ({ formData, renderErrorMessage, handleInputChange, errors 
                         {renderErrorMessage('email') && (
                             <p className="text-red-500 text-xs mt-1">{renderErrorMessage('email')}</p>
                         )}
-                    </div>
+                    </div> */}
                 </div>
             </div>
 

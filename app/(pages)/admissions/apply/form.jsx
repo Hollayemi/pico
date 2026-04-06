@@ -12,7 +12,6 @@ import { AlertCircle, X, ChevronDown, ChevronRight } from 'lucide-react';
 // ─── Error Modal ──────────────────────────────────────────────────────────────
 const ErrorModal = ({ errors, onClose }) => {
     const [expanded, setExpanded] = useState(true);
-
     // Flatten nested errors to a readable list
     const flattenErrors = (obj, prefix = '') => {
         const messages = [];

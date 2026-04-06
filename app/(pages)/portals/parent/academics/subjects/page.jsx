@@ -8,11 +8,9 @@ import {
   useGetAllSubjectsQuery,
 } from "@/redux/slices/academicsSlice";
 
-// ─── Mock children for the selector ──────────────────────────────
-const MY_CHILDREN = [
-  { id: "STU-2024-0081", name: "Chisom Adeyemi",    class: "SS 2 Science", level: "Senior" },
-  { id: "STU-2024-0112", name: "Toluwalase Adeyemi", class: "JSS 1A",       level: "Junior" },
-];
+import { useGetMyChildrenQuery } from "@/redux/slices/parent/parentSlice";
+
+
 
 // ─── Category & colour config ─────────────────────────────────────
 const CATEGORY_STYLES = {
@@ -34,7 +32,7 @@ const DEPT_COLORS = {
 const ChildSelector = ({ children, selected, onSelect }) => (
   <div className="flex items-center gap-2 flex-wrap">
     <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide mr-1">Viewing for:</span>
-    {children.map(c => (
+    {children?.map(c => (
       <button
         key={c.id}
         onClick={() => onSelect(c)}
@@ -160,10 +158,21 @@ const EmptyState = ({ filtered }) => (
 
 // ─── Page ─────────────────────────────────────────────────────────
 export default function ParentSubjectsPage() {
-  const [selectedChild, setSelectedChild] = useState(MY_CHILDREN[0]);
   const [search, setSearch]               = useState("");
   const [catFilter, setCatFilter]         = useState("");
+  
+   const {
+    data: childrenData,
+    isLoading: childrenLoading,
+    error: childrenError,
+    refetch: refetchChildren,
+  } = useGetMyChildrenQuery();
 
+const MY_CHILDREN = childrenData?.data?.children?.map((e) => (
+  { id: e.studentId, name: `${e.firstName} ${e.middleName}`,    class: e.class}),
+);
+
+  const [selectedChild, setSelectedChild] = useState(MY_CHILDREN?.[0] || []);
   // Pull subjects filtered by the selected child's class
   const { data, isLoading, error, refetch } = useGetAllSubjectsQuery({
     search:   search   || undefined,

@@ -8,11 +8,9 @@ import { useRouter } from "next/navigation";
 const useApplicationForm = () => {
     const router = useRouter();
     const [submitApplication, { isLoading: isSubmitting }] = useSubmitApplicationMutation();
-
     const [currentStage, setCurrentStage] = useState(1);
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
-        // Personal info
         surname: '',
         firstName: '',
         middleName: '',
@@ -33,7 +31,7 @@ const useApplicationForm = () => {
             homeAddress: '',
             homePhone: '',
             whatsApp: '',
-            email: ''
+            // email: ''
         },
 
         // Mother's Details
@@ -44,7 +42,7 @@ const useApplicationForm = () => {
             homeAddress: '',
             homePhone: '',
             whatsApp: '',
-            email: ''
+            // email: ''
         },
 
         // Schools Attended
@@ -259,7 +257,7 @@ const useApplicationForm = () => {
             toast.success("Application submitted successfully!");
 
             // Redirect to success page with application reference
-            // router.push(`/admissions/success?ref=${result.data.applicationRef}`);
+            router.push(`/portals/parent/admissions?ref=${result.data.applicationRef}`);
 
         } catch (error) {
             console.error('Submission error:', error);

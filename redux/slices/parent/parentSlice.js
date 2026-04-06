@@ -4,25 +4,33 @@ import { axiosBaseQuery } from '../../api/axiosBaseQuery';
 export const parentApi = createApi({
     reducerPath: 'parentApi',
     baseQuery: axiosBaseQuery(),
-    tagTypes: ['ParentChildren', 'ChildProfile', 'ChildFees', 'ParentFees', 'ParentInvoices'],
+    tagTypes: ['ParentChildren', 'ChildProfile', 'ChildFees', 'ParentFees', 'ParentInvoices', 'ParentProfile'],
     endpoints: (builder) => ({
 
-        // ─── Children ──────────────────────────────────────────────────────
+        // ── Profile update ─────────────────────────────────────────────────────
+        // PATCH /parent/profile  — update father/mother contact details
+        updateParentProfile: builder.mutation({
+            query: (data) => ({
+                url: '/parent/profile',
+                method: 'PATCH',
+                data,
+            }),
+            invalidatesTags: ['ParentProfile'],
+        }),
+
+        // ── Children ──────────────────────────────────────────────────────────
 
         // GET /parent/children
-        // Returns summary list of all linked children
         getMyChildren: builder.query({
             query: () => ({
                 url: '/parent/children',
                 method: 'GET',
             }),
             providesTags: ['ParentChildren'],
-            // Transform: normalize the { children } wrapper
             transformResponse: (response) => response,
         }),
 
         // GET /parent/children/:id
-        // Full profile for one child
         getChildProfile: builder.query({
             query: ({ studentId, term, session, detailed }) => ({
                 url: `/parent/children/${studentId}`,
@@ -39,10 +47,9 @@ export const parentApi = createApi({
             transformResponse: (response) => response,
         }),
 
-        // ─── Finance ───────────────────────────────────────────────────────
+        // ── Finance ───────────────────────────────────────────────────────────
 
         // GET /parent/children/:id/fees
-        // Fee record + payment history for a single child
         getChildFeeRecord: builder.query({
             query: ({ studentId, term, session }) => ({
                 url: `/parent/children/${studentId}/fees`,
@@ -58,7 +65,6 @@ export const parentApi = createApi({
         }),
 
         // GET /parent/fees
-        // Aggregated fee summary across all children
         getAllChildrenFees: builder.query({
             query: ({ term } = {}) => ({
                 url: '/parent/fees',
@@ -69,7 +75,6 @@ export const parentApi = createApi({
         }),
 
         // GET /parent/invoices
-        // Paginated invoice list across all children
         listInvoices: builder.query({
             query: ({ status, term, page, limit } = {}) => ({
                 url: '/parent/invoices',
@@ -80,7 +85,6 @@ export const parentApi = createApi({
         }),
 
         // GET /parent/invoices/:invoiceId
-        // Full detail for a single invoice
         getInvoice: builder.query({
             query: (invoiceId) => ({
                 url: `/parent/invoices/${invoiceId}`,
@@ -91,7 +95,7 @@ export const parentApi = createApi({
             ],
         }),
 
-        // ─── Payments ──────────────────────────────────────────────────────
+        // ── Payments ──────────────────────────────────────────────────────────
 
         // POST /parent/payments/initiate
         initiatePayment: builder.mutation({
@@ -111,7 +115,7 @@ export const parentApi = createApi({
             }),
         }),
 
-        // ─── Report Cards ──────────────────────────────────────────────────
+        // ── Report Cards ──────────────────────────────────────────────────────
 
         // GET /parent/report-cards/:studentId
         getMyReportCard: builder.query({
@@ -139,9 +143,8 @@ export const parentApi = createApi({
             ],
         }),
 
-        // ─── Admissions ────────────────────────────────────────────────────
+        // ── Admissions ────────────────────────────────────────────────────────
 
-        // GET /parent/admissions
         getMyApplications: builder.query({
             query: () => ({
                 url: '/parent/admissions',
@@ -149,7 +152,6 @@ export const parentApi = createApi({
             }),
         }),
 
-        // GET /parent/admissions/:id
         getMyApplication: builder.query({
             query: (id) => ({
                 url: `/parent/admissions/${id}`,
@@ -157,7 +159,6 @@ export const parentApi = createApi({
             }),
         }),
 
-        // POST /parent/admissions
         submitApplication: builder.mutation({
             query: (data) => ({
                 url: '/parent/admissions',
@@ -166,7 +167,6 @@ export const parentApi = createApi({
             }),
         }),
 
-        // PATCH /parent/admissions/:id/offer
         respondToOffer: builder.mutation({
             query: ({ id, acceptanceStatus }) => ({
                 url: `/parent/admissions/${id}/offer`,
@@ -178,6 +178,8 @@ export const parentApi = createApi({
 });
 
 export const {
+    // Profile
+    useUpdateParentProfileMutation,
     // Children
     useGetMyChildrenQuery,
     useGetChildProfileQuery,

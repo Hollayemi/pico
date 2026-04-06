@@ -46,7 +46,7 @@ const RenderStage4 = ({ formData, renderErrorMessage, handleInputChange, handleF
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
             <div className="p-6">
                 <p className="text-sm text-gray-600 mb-4">
-                    *Please provide a correspondence email address below. This may or may not be any of the email addresses you provided earlier.
+                    *Please provide a correspondence email address below. This email will be used to log in to your dashboard and for any official communication from the school.
                 </p>
 
                 {/* BUG FIX: Was value={formData.correspondenceEmail} — wrong, reads from root.
